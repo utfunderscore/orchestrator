@@ -11,7 +11,13 @@ import org.readutf.orchestrator.shared.packet.serializer.impl.FastJsonPacketSeri
 
 class NetworkManager {
     init {
-        createBootstrap()
+        val bootstrap = createBootstrap()
+
+        val future = bootstrap.bind(8080).sync()
+
+        println("Orchestrator started")
+
+        future.channel().closeFuture().sync()
     }
 
     private lateinit var packetManager: PacketManager

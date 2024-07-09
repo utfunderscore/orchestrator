@@ -15,11 +15,10 @@ dependencies {
 
     implementation("io.netty:netty-all:4.1.111.Final")
 
-    //Add fastjson2
+    // Add fastjson2
     compileOnly("com.alibaba:fastjson:2.0.51")
 
-    implementation("io.github.oshai:kotlin-logging-jvm:5.1.0")
-
+    api("io.github.oshai:kotlin-logging-jvm:5.1.0")
 }
 
 tasks.test {
