@@ -47,6 +47,5 @@ class NettyPacketHandler(
         ctx: ChannelHandlerContext?,
         cause: Throwable?,
     ) {
-        super.exceptionCaught(ctx, cause)
     }
 }
