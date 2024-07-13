@@ -6,11 +6,22 @@ group = "org.readutf.orchestrator"
 version = "1.0-SNAPSHOT"
 
 repositories {
-    mavenCentral()
 }
 
 dependencies {
     testImplementation(kotlin("test"))
+
+    implementation("org.readutf.hermes:core:1.2.1")
+    implementation("org.readutf.hermes:netty:1.2.1")
+    implementation("org.readutf.hermes:kryo:1.2.1")
+
+    implementation("io.netty:netty-all:4.1.111.Final")
+
+    // Logging
+    implementation("org.apache.logging.log4j:log4j-api:2.14.1")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
+
+    implementation(project(":Shared"))
 }
 
 tasks.test {
