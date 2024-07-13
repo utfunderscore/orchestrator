@@ -17,6 +17,10 @@ dependencies {
 
     implementation("io.netty:netty-all:4.1.111.Final")
 
+    implementation("org.readutf.hermes:core:1.2.1")
+    implementation("org.readutf.hermes:netty:1.2.1")
+    implementation("org.readutf.hermes:kryo:1.2.1")
+
     // Hoplite
     implementation("com.sksamuel.hoplite:hoplite-core:2.7.5")
     implementation("com.sksamuel.hoplite:hoplite-yaml:2.8.0.RC3")
@@ -24,19 +28,9 @@ dependencies {
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
 
-
     // Logging
     implementation("org.apache.logging.log4j:log4j-api:2.14.1")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
-
-    // Json
-    implementation("com.alibaba:fastjson:2.0.51")
-
-    // Commands
-    implementation("com.github.Revxrsal.Lamp:common:3.2.1")
-
-    // Add your specific platform module here
-    implementation("com.github.Revxrsal.Lamp:cli:3.2.1")
 }
 
 tasks.test {

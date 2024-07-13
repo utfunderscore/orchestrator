@@ -9,6 +9,12 @@ dependencies {
     testImplementation(kotlin("test"))
 }
 
+repositories {
+    maven {
+        url = uri("https://reposilite.readutf.org/releases")
+    }
+}
+
 subprojects {
     repositories {
         maven {
