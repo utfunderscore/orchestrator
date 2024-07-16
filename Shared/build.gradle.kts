@@ -18,7 +18,7 @@ dependencies {
     api("io.github.oshai:kotlin-logging-jvm:5.1.0")
     api("com.esotericsoftware:kryo5:5.6.0")
 
-    compileOnly("org.readutf.hermes:core:1.2.1")
+    compileOnly("org.readutf.hermes:core:1.3.3-SNAPSHOT-2024-07-15-22-14-28")
 
     implementation("io.github.classgraph:classgraph:4.8.174")
 

@@ -18,3 +18,7 @@ gradle-app.setting
 Shared/build/
 
 orchestrator.iml
+
+Client/build/
+
+Server/build/

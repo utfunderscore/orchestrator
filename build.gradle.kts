@@ -11,14 +11,32 @@ dependencies {
 
 repositories {
     maven {
+        name = "utfunderscoreReleases"
         url = uri("https://reposilite.readutf.org/releases")
+    }
+    maven {
+        name = "utfunderscore"
+        url = uri("https://reposilite.readutf.org/snapshots")
+        credentials(PasswordCredentials::class)
+        authentication {
+            create<BasicAuthentication>("basic")
+        }
     }
 }
 
 subprojects {
     repositories {
         maven {
+            name = "utfunderscoreReleases"
             url = uri("https://reposilite.readutf.org/releases")
+        }
+        maven {
+            name = "utfunderscore"
+            url = uri("https://reposilite.readutf.org/snapshots")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
         }
     }
 }
