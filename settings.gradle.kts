@@ -3,7 +3,5 @@ plugins {
 }
 rootProject.name = "orchestrator"
 include("Shared")
-include("Shared")
-include("Shared")
 include("Server")
 include("Client")
