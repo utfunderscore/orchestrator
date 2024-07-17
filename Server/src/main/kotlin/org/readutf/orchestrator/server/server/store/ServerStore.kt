@@ -18,5 +18,7 @@ interface ServerStore {
         serverHeartbeat: ServerHeartbeat,
     )
 
+    fun getTimedOutServers(): List<RegisteredServer>
+
     fun getServerById(serverId: UUID): RegisteredServer?
 }

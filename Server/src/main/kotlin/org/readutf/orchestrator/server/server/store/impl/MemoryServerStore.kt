@@ -9,6 +9,8 @@ class MemoryServerStore : ServerStore {
     private val servers = mutableMapOf<UUID, RegisteredServer>()
     private val channelServers = mutableMapOf<String, MutableList<UUID>>()
 
+    override fun getServerById(serverId: UUID): RegisteredServer? = servers[serverId]
+
     override fun saveServer(registeredServer: RegisteredServer) {
         servers[registeredServer.serverId] = registeredServer
         channelServers
@@ -33,6 +35,13 @@ class MemoryServerStore : ServerStore {
         serverId: UUID,
         serverHeartbeat: ServerHeartbeat,
     ) {
-        servers[serverId]?.lastHeartbeat = serverHeartbeat.timestamp
+        servers[serverId]?.let {
+            it.heartbeat = serverHeartbeat
+        }
+    }
+
+    override fun getTimedOutServers(): List<RegisteredServer> {
+        val now = System.currentTimeMillis()
+        return servers.values.filter { it.heartbeat.timestamp < now - 15000 }
     }
 }
