@@ -6,11 +6,22 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.server.server.store.ServerStore
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.*
+import java.util.concurrent.Executors
 
 class ServerManager(
     private val serverStore: ServerStore,
 ) {
     private val logger = KotlinLogging.logger { }
+    private val scheduledExecutor = Executors.newSingleThreadScheduledExecutor()
+
+    init {
+        scheduledExecutor.scheduleAtFixedRate(
+            { invalidateExpiredServers() },
+            0,
+            5,
+            java.util.concurrent.TimeUnit.SECONDS
+        )
+    }
 
     fun registerServer(server: RegisteredServer) {
         logger.info { "Registering server ${server.serverId}" }
@@ -28,6 +39,16 @@ class ServerManager(
         logger.info { "Unregistering socket $channelId" }
 
         serverStore.removeServerByChannel(channelId)
+    }
+
+
+    fun invalidateExpiredServers() {
+
+        serverStore.getTimedOutServers().forEach {
+            logger.info { "Server ${it.serverId} has timed out" }
+            unregisterServer(it.serverId)
+        }
+
     }
 
     fun handleHeartbeat(serverHeartbeat: ServerHeartbeat) {
