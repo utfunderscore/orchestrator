@@ -2,7 +2,6 @@
 
 package org.readutf.orchestrator.client
 
-import org.readutf.orchestrator.client.heartbeat.HeartbeatTask
 import org.readutf.orchestrator.client.network.ClientNetworkManager
 import org.readutf.orchestrator.shared.kryo.KryoCreator
 import org.readutf.orchestrator.shared.server.Server
@@ -20,11 +19,6 @@ class ShepardClient(
     private val scheduledExecutorService = Executors.newScheduledThreadPool(1)
 
     init {
-        scheduledExecutorService.schedule(
-            HeartbeatTask(networkManager),
-            10,
-            java.util.concurrent.TimeUnit.SECONDS,
-        )
         networkManager.registerServer(
             Server(
                 serverId = serverId,
@@ -32,6 +26,11 @@ class ShepardClient(
                 supportedModes = supportedGameTypes,
                 heartbeat = ServerHeartbeat(serverId, System.currentTimeMillis()),
             ),
+        )
+        scheduledExecutorService.schedule(
+            { networkManager.sendHeartbeat() },
+            10,
+            java.util.concurrent.TimeUnit.SECONDS,
         )
     }
 
