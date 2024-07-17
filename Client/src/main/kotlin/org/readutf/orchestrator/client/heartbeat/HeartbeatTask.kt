@@ -1,4 +1,4 @@
-package org.readutf.orchestrator.client
+package org.readutf.orchestrator.client.heartbeat
 
 import org.readutf.orchestrator.client.network.ClientNetworkManager
 

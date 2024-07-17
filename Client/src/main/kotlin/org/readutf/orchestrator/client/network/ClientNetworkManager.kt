@@ -29,11 +29,15 @@ class ClientNetworkManager(
     }
 
     fun registerServer(server: Server) {
-        packetManager.sendPacket(ServerRegisterPacket(server))
+        packetManager.sendPacket(
+            ServerRegisterPacket(server),
+        )
     }
 
     fun unregisterServer(serverId: UUID) {
-        packetManager.sendPacket(ServerUnregisterPacket(serverId))
+        packetManager.sendPacket(
+            ServerUnregisterPacket(serverId),
+        )
     }
 
     fun sendHeartbeat() {
