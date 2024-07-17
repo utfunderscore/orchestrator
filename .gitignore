@@ -22,3 +22,5 @@ orchestrator.iml
 Client/build/
 
 Server/build/
+
+gradle.properties
