@@ -6,15 +6,14 @@ import org.readutf.orchestrator.client.network.ClientNetworkManager
 import org.readutf.orchestrator.shared.kryo.KryoCreator
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerAddress
+import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.*
 
 class ShepardClient(
     serverAddress: ServerAddress,
+    supportedGameTypes: List<String>,
 ) {
     private val networkManager = ClientNetworkManager(KryoCreator.build())
-
-    val supportedGameTypes = mutableListOf<String>()
-
     private val serverId: UUID = UUID.randomUUID()
 
     init {
@@ -23,6 +22,7 @@ class ShepardClient(
                 serverId = serverId,
                 address = serverAddress,
                 supportedModes = supportedGameTypes,
+                heartbeat = ServerHeartbeat(serverId, System.currentTimeMillis()),
             ),
         )
     }

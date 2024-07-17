@@ -1,29 +1,24 @@
 package org.readutf.orchestrator.server.server
 
-import org.readutf.hermes.platform.netty.NettyHermesChannel
+import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerAddress
-import java.util.*
+import java.util.UUID
 
 class RegisteredServer(
-    val channel: NettyHermesChannel,
+    val channel: HermesChannel,
     serverId: UUID,
     address: ServerAddress,
     supportedModes: List<String>,
-    var lastHeartbeat: Long = System.currentTimeMillis(),
 ) : Server(
         serverId,
         address,
         supportedModes,
     ) {
-    fun heartbeat() {
-        lastHeartbeat = System.currentTimeMillis()
-    }
-
     companion object {
         fun fromServer(
             server: Server,
-            channel: NettyHermesChannel,
+            channel: HermesChannel,
         ): RegisteredServer =
             RegisteredServer(
                 channel,
