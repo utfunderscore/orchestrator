@@ -1,4 +1,4 @@
-package org.readutf.orchestrator.server.server.store.listeners
+package org.readutf.orchestrator.server.network.listeners
 
 import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.server.server.ServerManager
