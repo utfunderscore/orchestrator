@@ -17,9 +17,9 @@ dependencies {
 
     implementation("io.netty:netty-all:4.1.111.Final")
 
-    implementation("org.readutf.hermes:core:1.3.7")
-    implementation("org.readutf.hermes:netty:1.3.7")
-    implementation("org.readutf.hermes:kryo:1.3.7")
+    implementation("org.readutf.hermes:core:1.3.10-SNAPSHOT")
+    implementation("org.readutf.hermes:netty:1.3.10-SNAPSHOT")
+    implementation("org.readutf.hermes:kryo:1.3.10-SNAPSHOT")
 
     // Hoplite
     implementation("com.sksamuel.hoplite:hoplite-core:2.7.5")
@@ -31,6 +31,9 @@ dependencies {
     // Logging
     implementation("org.apache.logging.log4j:log4j-api:2.14.1")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
+
+    // FastJson2
+    implementation("com.alibaba:fastjson:+")
 }
 
 tasks.test {

@@ -19,7 +19,7 @@ class ServerManager(
             { invalidateExpiredServers() },
             0,
             5,
-            java.util.concurrent.TimeUnit.SECONDS
+            java.util.concurrent.TimeUnit.SECONDS,
         )
     }
 
@@ -38,17 +38,14 @@ class ServerManager(
     fun unregisterChannel(channelId: String) {
         logger.info { "Unregistering socket $channelId" }
 
-        serverStore.removeServerByChannel(channelId)
+        serverStore.getServersByChannel(channelId).forEach { unregisterServer(it.serverId) }
     }
 
-
-    fun invalidateExpiredServers() {
-
+    private fun invalidateExpiredServers() {
         serverStore.getTimedOutServers().forEach {
             logger.info { "Server ${it.serverId} has timed out" }
             unregisterServer(it.serverId)
         }
-
     }
 
     fun handleHeartbeat(serverHeartbeat: ServerHeartbeat) {

@@ -11,8 +11,6 @@ interface ServerStore {
 
     fun getServersByChannel(channelId: String): List<RegisteredServer>
 
-    fun removeServerByChannel(channelId: String)
-
     fun updateHeartbeat(
         serverId: UUID,
         serverHeartbeat: ServerHeartbeat,

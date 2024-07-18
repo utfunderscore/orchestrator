@@ -1,6 +1,7 @@
 package org.readutf.orchestrator.client.network
 
 import com.esotericsoftware.kryo.kryo5.Kryo
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.hermes.Packet
 import org.readutf.hermes.PacketManager
 import org.readutf.hermes.platform.netty.nettyClient
@@ -16,6 +17,8 @@ class ClientNetworkManager(
     kryo: Kryo,
     private val serverId: UUID,
 ) {
+    private var logger = KotlinLogging.logger { }
+
     private var packetManager =
         PacketManager
             .nettyClient(
@@ -41,8 +44,15 @@ class ClientNetworkManager(
     }
 
     fun sendHeartbeat() {
+        logger.info { "Sending heartbeat" }
+
         packetManager.sendPacket(
             ServerHeartbeatPacket(ServerHeartbeat(serverId, System.currentTimeMillis())),
         )
+    }
+
+    fun shutdown() {
+        unregisterServer(serverId)
+        packetManager.stop()
     }
 }
