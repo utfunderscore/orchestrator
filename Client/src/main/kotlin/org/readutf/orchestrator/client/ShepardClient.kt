@@ -27,14 +27,16 @@ class ShepardClient(
                 heartbeat = ServerHeartbeat(serverId, System.currentTimeMillis()),
             ),
         )
-        scheduledExecutorService.schedule(
+        scheduledExecutorService.scheduleAtFixedRate(
             { networkManager.sendHeartbeat() },
-            10,
+            0,
+            1,
             java.util.concurrent.TimeUnit.SECONDS,
         )
     }
 
     fun shutdown() {
-        networkManager.unregisterServer(serverId)
+        networkManager.shutdown()
+        scheduledExecutorService.shutdown()
     }
 }

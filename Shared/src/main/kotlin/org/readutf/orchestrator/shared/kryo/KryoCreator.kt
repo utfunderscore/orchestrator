@@ -16,14 +16,16 @@ object KryoCreator {
 
         kryo.instantiatorStrategy = DefaultInstantiatorStrategy(StdInstantiatorStrategy())
 
-        kryo.register(Collections.singletonList("")::class.java)
-        kryo.register(Server::class.java)
-        kryo.register(ServerAddress::class.java)
-        kryo.register(UUID::class.java, UUIDSerializer())
-        kryo.register(ArrayList::class.java)
+        kryo.isRegistrationRequired = false
 
-        // Packets
-        kryo.register(ServerUnregisterPacket::class.java)
+//        kryo.register(Collections.singletonList("")::class.java)
+//        kryo.register(Server::class.java)
+//        kryo.register(ServerAddress::class.java)
+        kryo.register(UUID::class.java, UUIDSerializer())
+//        kryo.register(ArrayList::class.java)
+//
+//        // Packets
+//        kryo.register(ServerUnregisterPacket::class.java)
         kryo.register(ServerRegisterPacket::class.java)
 
         return kryo

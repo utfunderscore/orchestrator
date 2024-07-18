@@ -1,11 +1,14 @@
 package org.readutf.orchestrator.server.server.store.impl
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.server.server.store.ServerStore
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
-import java.util.UUID
+import java.util.*
 
 class MemoryServerStore : ServerStore {
+    private val logger = KotlinLogging.logger { }
+
     private val servers = mutableMapOf<UUID, RegisteredServer>()
     private val channelServers = mutableMapOf<String, MutableList<UUID>>()
 
@@ -14,8 +17,10 @@ class MemoryServerStore : ServerStore {
     override fun saveServer(registeredServer: RegisteredServer) {
         servers[registeredServer.serverId] = registeredServer
         channelServers
-            .getOrDefault(registeredServer.channel.channelId, mutableListOf())
+            .getOrPut(registeredServer.channel.channelId) { mutableListOf() }
             .add(registeredServer.serverId)
+
+        println(channelServers)
     }
 
     override fun removeServer(serverId: UUID) {
@@ -24,12 +29,6 @@ class MemoryServerStore : ServerStore {
 
     override fun getServersByChannel(channelId: String): List<RegisteredServer> =
         channelServers[channelId]?.mapNotNull { servers[it] } ?: emptyList()
-
-    override fun removeServerByChannel(channelId: String) {
-        channelServers[channelId]?.forEach { serverId ->
-            removeServer(serverId)
-        }
-    }
 
     override fun updateHeartbeat(
         serverId: UUID,
