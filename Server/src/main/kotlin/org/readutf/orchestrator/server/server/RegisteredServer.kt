@@ -13,7 +13,7 @@ class RegisteredServer(
 ) : Server(
         serverId = serverId,
         address = address,
-        supportedModes = supportedModes,
+        gameTypes = supportedModes,
         activeGames = mutableListOf(),
     ) {
     companion object {
@@ -25,7 +25,7 @@ class RegisteredServer(
                 channel,
                 server.serverId,
                 server.address,
-                server.supportedModes,
+                server.gameTypes,
             )
     }
 }

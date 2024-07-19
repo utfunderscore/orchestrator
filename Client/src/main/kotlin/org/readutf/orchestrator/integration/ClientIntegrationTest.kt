@@ -1,5 +1,6 @@
-package org.readutf.orchestrator.client
+package org.readutf.orchestrator.integration
 
+import org.readutf.orchestrator.client.ShepardClient
 import org.readutf.orchestrator.shared.game.Game
 import org.readutf.orchestrator.shared.game.GameState
 import org.readutf.orchestrator.shared.server.ServerAddress

@@ -1,7 +1,10 @@
 package org.readutf.orchestrator.shared.game
 
+import java.util.UUID
+
 data class GameRequest(
-    val queueName: String,
+    val requestId: UUID,
+    val gameType: String,
     val numberOfTeams: Int,
     val teamSize: Int,
 )

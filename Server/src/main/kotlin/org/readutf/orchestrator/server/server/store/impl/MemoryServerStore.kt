@@ -53,6 +53,12 @@ class MemoryServerStore : ServerStore {
         return serverById
     }
 
+    override fun findGamesByType(gameType: String): Map<Server, List<Game>> =
+        servers
+            .map {
+                it.value to it.value.activeGames.filter { game -> game.matchType == gameType }
+            }.toMap()
+
     override fun getTimedOutServers(): List<RegisteredServer> {
         val now = System.currentTimeMillis()
         return servers.values.filter { it.heartbeat.timestamp < now - 15000 }

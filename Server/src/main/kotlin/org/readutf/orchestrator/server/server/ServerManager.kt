@@ -5,6 +5,7 @@ package org.readutf.orchestrator.server.server
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.server.server.store.ServerStore
 import org.readutf.orchestrator.shared.game.Game
+import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.*
 import java.util.concurrent.Executors
@@ -49,6 +50,12 @@ class ServerManager(
         }
     }
 
+    fun findGamesByType(gameType: String): Map<Server, List<Game>> {
+        logger.info { "Finding games by type $gameType" }
+
+        return serverStore.findGamesByType(gameType)
+    }
+
     fun handleHeartbeat(serverHeartbeat: ServerHeartbeat) {
         logger.debug { "Received heartbeat from ${serverHeartbeat.serverId}" }
 
@@ -59,6 +66,8 @@ class ServerManager(
         serverId: UUID,
         games: List<Game>,
     ) {
+        logger.info { "Updating games for server $serverId" }
+
         serverStore.setGames(serverId, games)
     }
 }
