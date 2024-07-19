@@ -1,4 +1,4 @@
-package org.readutf.orchestrator.server.game
+package org.readutf.orchestrator.shared.game
 
 data class GameRequest(
     val queueName: String,

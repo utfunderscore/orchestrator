@@ -3,7 +3,7 @@ package org.readutf.orchestrator.server.game.endpoints
 import com.alibaba.fastjson2.JSON
 import io.javalin.websocket.WsConfig
 import org.readutf.orchestrator.server.game.GameManager
-import org.readutf.orchestrator.server.game.GameRequest
+import org.readutf.orchestrator.shared.game.GameRequest
 import java.util.function.Consumer
 
 class GameRequestSocket(
@@ -20,7 +20,7 @@ class GameRequestSocket(
                 return@onMessage
             }
 
-            gameManager.handleRequest(context, typedJson)
+//            gameManager.handleRequest(context, typedJson)
         }
     }
 }

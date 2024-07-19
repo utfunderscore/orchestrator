@@ -10,10 +10,10 @@ dependencies {
 }
 
 repositories {
-//    maven {
-//        name = "utfunderscoreReleases"
-//        url = uri("https://reposilite.readutf.org/releases")
-//    }
+    maven {
+        name = "utfunderscoreReleases"
+        url = uri("https://reposilite.readutf.org/releases")
+    }
     maven {
         name = "utfunderscore"
         url = uri("https://reposilite.readutf.org/snapshots")
