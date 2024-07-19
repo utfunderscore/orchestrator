@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit.SECONDS
 class ShepardClient(
     serverAddress: ServerAddress,
     supportedGameTypes: List<String>,
-    private val gameSupplier: () -> List<Game>
+    private val gameSupplier: () -> List<Game>,
 ) {
     private val serverId: UUID = UUID.randomUUID()
     private val networkManager = ClientNetworkManager(KryoCreator.build(), serverId)
@@ -41,14 +41,13 @@ class ShepardClient(
         scheduledExecutorService.scheduleAtFixedRate(
             {
                 val activeGames = gameSupplier.invoke()
-                if(activeGames != previousServer) {
+                if (activeGames != previousServer) {
                     networkManager.updateGames(activeGames)
                 }
-
             },
             0,
             5,
-            SECONDS
+            SECONDS,
         )
     }
 

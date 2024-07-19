@@ -3,7 +3,6 @@
 package org.readutf.orchestrator.server.server
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.server.server.store.ServerStore
 import org.readutf.orchestrator.shared.game.Game
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
@@ -56,7 +55,10 @@ class ServerManager(
         serverStore.updateHeartbeat(serverHeartbeat.serverId, serverHeartbeat)
     }
 
-    fun updateGames(serverId: UUID, games: List<Game>) {
+    fun updateGames(
+        serverId: UUID,
+        games: List<Game>,
+    ) {
         serverStore.setGames(serverId, games)
     }
 }

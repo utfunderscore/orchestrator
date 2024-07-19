@@ -57,7 +57,7 @@ class ClientNetworkManager(
         logger.info { "Updating active games for server" }
 
         packetManager.sendPacket(
-            ServerGamesUpdatePacket(serverId = serverId, games = games)
+            ServerGamesUpdatePacket(serverId = serverId, games = games),
         )
     }
 

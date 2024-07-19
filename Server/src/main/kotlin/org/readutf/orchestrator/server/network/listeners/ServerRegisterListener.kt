@@ -1,7 +1,6 @@
 package org.readutf.orchestrator.server.network.listeners
 
 import org.readutf.hermes.channel.HermesChannel
-import org.readutf.hermes.listeners.TypedListener
 import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.shared.packets.ServerRegisterPacket
