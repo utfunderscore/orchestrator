@@ -2,7 +2,6 @@ package org.readutf.orchestrator.server.network.listeners
 
 import org.readutf.hermes.channel.ChannelClosePacket
 import org.readutf.hermes.channel.HermesChannel
-import org.readutf.hermes.listeners.TypedListener
 import org.readutf.orchestrator.server.server.ServerManager
 
 class ChannelCloseListener(

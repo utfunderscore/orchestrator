@@ -18,7 +18,10 @@ interface ServerStore {
         serverHeartbeat: ServerHeartbeat,
     )
 
-    fun setGames(serverId: UUID, games: List<Game>): Server?
+    fun setGames(
+        serverId: UUID,
+        games: List<Game>,
+    ): Server?
 
     fun getTimedOutServers(): List<RegisteredServer>
 

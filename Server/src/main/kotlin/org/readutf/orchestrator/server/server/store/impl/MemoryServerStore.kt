@@ -41,7 +41,10 @@ class MemoryServerStore : ServerStore {
         }
     }
 
-    override fun setGames(serverId: UUID, games: List<Game>): Server? {
+    override fun setGames(
+        serverId: UUID,
+        games: List<Game>,
+    ): Server? {
         val serverById = getServerById(serverId)
         serverById?.let {
             it.activeGames.clear()

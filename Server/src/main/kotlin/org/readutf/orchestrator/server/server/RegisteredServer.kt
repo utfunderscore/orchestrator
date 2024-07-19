@@ -11,11 +11,11 @@ class RegisteredServer(
     address: ServerAddress,
     supportedModes: List<String>,
 ) : Server(
-    serverId = serverId,
-    address = address,
-    supportedModes = supportedModes,
-    activeGames = mutableListOf(),
-) {
+        serverId = serverId,
+        address = address,
+        supportedModes = supportedModes,
+        activeGames = mutableListOf(),
+    ) {
     companion object {
         fun fromServer(
             server: Server,
