@@ -6,6 +6,8 @@ import org.readutf.hermes.Packet
 import org.readutf.hermes.PacketManager
 import org.readutf.hermes.platform.netty.nettyClient
 import org.readutf.hermes.serializer.KryoPacketSerializer
+import org.readutf.orchestrator.shared.game.Game
+import org.readutf.orchestrator.shared.packets.ServerGamesUpdatePacket
 import org.readutf.orchestrator.shared.packets.ServerHeartbeatPacket
 import org.readutf.orchestrator.shared.packets.ServerRegisterPacket
 import org.readutf.orchestrator.shared.packets.ServerUnregisterPacket
@@ -44,10 +46,18 @@ class ClientNetworkManager(
     }
 
     fun sendHeartbeat() {
-        logger.info { "Sending heartbeat" }
+        logger.debug { "Sending heartbeat" }
 
         packetManager.sendPacket(
             ServerHeartbeatPacket(ServerHeartbeat(serverId, System.currentTimeMillis())),
+        )
+    }
+
+    fun updateGames(games: List<Game>) {
+        logger.info { "Updating active games for server" }
+
+        packetManager.sendPacket(
+            ServerGamesUpdatePacket(serverId = serverId, games = games)
         )
     }
 
