@@ -56,6 +56,12 @@ class ServerManager(
         return serverStore.findGamesByType(gameType)
     }
 
+    /**
+     * Used in ExistingGameSearch to find server that are
+     * empty, valid game type, and support that game finder
+     */
+    fun findExistingGamesForSearch(gameType: String): Map<Server, List<Game>> = serverStore.findExistingGamesForSearch(gameType)
+
     fun handleHeartbeat(serverHeartbeat: ServerHeartbeat) {
         logger.debug { "Received heartbeat from ${serverHeartbeat.serverId}" }
 
