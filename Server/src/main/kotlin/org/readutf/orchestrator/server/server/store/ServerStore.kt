@@ -25,6 +25,8 @@ interface ServerStore {
 
     fun findGamesByType(gameType: String): Map<Server, List<Game>>
 
+    fun findExistingGamesForSearch(gameType: String): Map<Server, List<Game>>
+
     fun getTimedOutServers(): List<RegisteredServer>
 
     fun getServerById(serverId: UUID): RegisteredServer?

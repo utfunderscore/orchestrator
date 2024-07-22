@@ -4,6 +4,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.server.server.store.ServerStore
 import org.readutf.orchestrator.shared.game.Game
+import org.readutf.orchestrator.shared.game.GameFinderType
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.*
@@ -58,6 +59,26 @@ class MemoryServerStore : ServerStore {
             .map {
                 it.value to it.value.activeGames.filter { game -> game.matchType == gameType }
             }.toMap()
+
+    override fun findExistingGamesForSearch(gameType: String): Map<Server, List<Game>> {
+        val serverToGames = mutableMapOf<Server, MutableList<Game>>()
+
+        servers.values.forEach { server ->
+            if (!server.gameFinders.contains(GameFinderType.PRE_EXISTING)) return@forEach
+
+            val emptyGames =
+                server.activeGames
+                    .filter { it.matchType == gameType }
+                    .filter { it.teams.flatten().isEmpty() }
+
+            if (emptyGames.isNotEmpty()) {
+                val games = serverToGames.getOrPut(server) { mutableListOf() }
+                games.addAll(emptyGames)
+            }
+        }
+
+        return serverToGames
+    }
 
     override fun getTimedOutServers(): List<RegisteredServer> {
         val now = System.currentTimeMillis()
