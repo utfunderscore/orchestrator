@@ -18,10 +18,10 @@ class MemoryServerStore : ServerStore {
     override fun getServerById(serverId: UUID): RegisteredServer? = servers[serverId]
 
     override fun saveServer(registeredServer: RegisteredServer) {
-        servers[registeredServer.serverId] = registeredServer
+        servers[registeredServer.server.serverId] = registeredServer
         channelServers
             .getOrPut(registeredServer.channel.channelId) { mutableListOf() }
-            .add(registeredServer.serverId)
+            .add(registeredServer.server.serverId)
 
         println(channelServers)
     }
@@ -38,41 +38,42 @@ class MemoryServerStore : ServerStore {
         serverHeartbeat: ServerHeartbeat,
     ) {
         servers[serverId]?.let {
-            it.heartbeat = serverHeartbeat
+            it.server.heartbeat = serverHeartbeat
         }
     }
 
     override fun setGames(
         serverId: UUID,
         games: List<Game>,
-    ): Server? {
+    ) {
         val serverById = getServerById(serverId)
         serverById?.let {
-            it.activeGames.clear()
-            it.activeGames.addAll(games)
+            it.server.activeGames.clear()
+            it.server.activeGames.addAll(games)
         }
-        return serverById
     }
 
     override fun findGamesByType(gameType: String): Map<Server, List<Game>> =
         servers
             .map {
-                it.value to it.value.activeGames.filter { game -> game.matchType == gameType }
+                it.value.server to
+                    it.value.server.activeGames
+                        .filter { game -> game.matchType == gameType }
             }.toMap()
 
     override fun findExistingGamesForSearch(gameType: String): Map<Server, List<Game>> {
         val serverToGames = mutableMapOf<Server, MutableList<Game>>()
 
-        servers.values.forEach { server ->
-            if (!server.gameFinders.contains(GameFinderType.PRE_EXISTING)) return@forEach
+        servers.values.forEach { registeredServer ->
+            if (!registeredServer.server.gameFinders.contains(GameFinderType.PRE_EXISTING)) return@forEach
 
             val emptyGames =
-                server.activeGames
+                registeredServer.server.activeGames
                     .filter { it.matchType == gameType }
                     .filter { it.teams.flatten().isEmpty() }
 
             if (emptyGames.isNotEmpty()) {
-                val games = serverToGames.getOrPut(server) { mutableListOf() }
+                val games = serverToGames.getOrPut(registeredServer.server) { mutableListOf() }
                 games.addAll(emptyGames)
             }
         }
@@ -82,6 +83,6 @@ class MemoryServerStore : ServerStore {
 
     override fun getTimedOutServers(): List<RegisteredServer> {
         val now = System.currentTimeMillis()
-        return servers.values.filter { it.heartbeat.timestamp < now - 15000 }
+        return servers.values.filter { it.server.heartbeat.timestamp < now - 15000 }
     }
 }

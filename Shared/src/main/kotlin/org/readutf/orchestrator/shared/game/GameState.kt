@@ -1,8 +1,7 @@
 package org.readutf.orchestrator.shared.game
 
 enum class GameState {
-    WAITING,
+    AWAITING_PLAYERS,
     ACTIVE,
-    ENDED,
-    WARMUP,
+    ENDING,
 }

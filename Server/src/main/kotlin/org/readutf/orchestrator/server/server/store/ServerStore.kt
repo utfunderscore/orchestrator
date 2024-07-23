@@ -21,7 +21,7 @@ interface ServerStore {
     fun setGames(
         serverId: UUID,
         games: List<Game>,
-    ): Server?
+    )
 
     fun findGamesByType(gameType: String): Map<Server, List<Game>>
 
