@@ -13,12 +13,13 @@ import org.readutf.orchestrator.shared.server.ServerAddress
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class ShepardClient(
     serverAddress: ServerAddress,
     supportedGameTypes: List<String>,
-    gameSupplier: ActiveGameSupplier,
     gameFinderTypes: MutableList<GameFinderType>,
+    gameSupplier: ActiveGameSupplier,
     gameRequestHandler: GameRequestHandler,
 ) {
     private val serverId: UUID = UUID.randomUUID()
@@ -42,6 +43,13 @@ class ShepardClient(
                 activeGames = gameSupplier.getActiveGames().toMutableList(),
                 heartbeat = ServerHeartbeat(serverId, System.currentTimeMillis()),
             ),
+        )
+
+        scheduledExecutorService.scheduleAtFixedRate(
+            { networkManager.sendHeartbeat() },
+            0,
+            1,
+            TimeUnit.SECONDS,
         )
     }
 

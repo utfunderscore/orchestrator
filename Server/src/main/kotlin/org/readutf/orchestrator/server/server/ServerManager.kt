@@ -26,7 +26,7 @@ class ServerManager(
     }
 
     fun registerServer(server: RegisteredServer) {
-        logger.info { "Registering server ${server.serverId}" }
+        logger.info { "Registering server ${server.server.serverId}" }
 
         serverStore.saveServer(server)
     }
@@ -40,13 +40,13 @@ class ServerManager(
     fun unregisterChannel(channelId: String) {
         logger.info { "Unregistering socket $channelId" }
 
-        serverStore.getServersByChannel(channelId).forEach { unregisterServer(it.serverId) }
+        serverStore.getServersByChannel(channelId).forEach { unregisterServer(it.server.serverId) }
     }
 
     private fun invalidateExpiredServers() {
         serverStore.getTimedOutServers().forEach {
-            logger.info { "Server ${it.serverId} has timed out" }
-            unregisterServer(it.serverId)
+            logger.info { "Server ${it.server.serverId} has timed out" }
+            unregisterServer(it.server.serverId)
         }
     }
 

@@ -10,9 +10,6 @@ dependencies {
     // add fastjson2
     implementation("com.alibaba:fastjson:2.0.51")
 
-    api("org.panda-lang:expressible:1.3.6") // Core library
-    api("org.panda-lang:expressible-kt:1.3.6") // Kotlin extensions
-
     implementation("io.netty:netty-all:4.1.111.Final")
 
     api("io.github.oshai:kotlin-logging-jvm:5.1.0")
