@@ -56,8 +56,9 @@ class ClientNetworkManager(
     fun updateGames(games: List<Game>) {
         logger.info { "Updating active games for server" }
 
+        val packet = ServerGamesUpdatePacket(serverId = serverId, games = games)
         packetManager.sendPacket(
-            ServerGamesUpdatePacket(serverId = serverId, games = games),
+            packet,
         )
     }
 

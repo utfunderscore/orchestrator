@@ -5,6 +5,6 @@ import org.readutf.orchestrator.shared.server.Server
 
 data class ServerRegisterPacket(
     val server: Server,
-) : Packet {
+) : Packet() {
     override fun toString(): String = "ServerRegisterPacket(server=$server)"
 }

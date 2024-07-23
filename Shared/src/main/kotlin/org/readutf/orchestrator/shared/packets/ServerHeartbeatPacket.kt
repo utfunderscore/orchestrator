@@ -5,4 +5,4 @@ import org.readutf.orchestrator.shared.server.ServerHeartbeat
 
 class ServerHeartbeatPacket(
     val serverHeartbeat: ServerHeartbeat,
-) : Packet
+) : Packet()
