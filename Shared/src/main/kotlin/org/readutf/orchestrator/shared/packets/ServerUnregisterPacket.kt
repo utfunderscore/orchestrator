@@ -5,6 +5,6 @@ import java.util.UUID
 
 class ServerUnregisterPacket(
     val serverId: UUID,
-) : Packet {
+) : Packet() {
     override fun toString(): String = "ServerUnregisterPacket(serverId=$serverId)"
 }

@@ -6,7 +6,7 @@ data class Game(
     val id: UUID,
     val matchType: String,
     val teams: List<List<UUID>>,
-    val gameState: GameState,
+    var gameState: GameState,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -32,7 +32,6 @@ class ClientIntegrationTest {
         }
 
     private var client: ShepardClient =
-
         ShepardClient(
             serverAddress = ServerAddress("localhost", 25565),
             supportedGameTypes = listOf("test"),
@@ -40,6 +39,12 @@ class ClientIntegrationTest {
             gameSupplier = gameSupplier,
             gameRequestHandler = gameRequestHandler,
         )
+
+    init {
+        for (game in games) {
+            client.gameManager.registerGame(game)
+        }
+    }
 }
 
 fun main() {

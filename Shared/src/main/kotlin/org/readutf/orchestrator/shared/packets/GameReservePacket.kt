@@ -5,4 +5,4 @@ import java.util.UUID
 
 data class GameReservePacket(
     val gameId: UUID,
-) : Packet
+) : Packet()

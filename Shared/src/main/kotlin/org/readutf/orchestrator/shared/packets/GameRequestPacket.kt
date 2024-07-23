@@ -5,4 +5,4 @@ import org.readutf.orchestrator.shared.game.GameRequest
 
 data class GameRequestPacket(
     val gameRequest: GameRequest,
-) : Packet
+) : Packet()

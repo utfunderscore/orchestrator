@@ -17,9 +17,9 @@ dependencies {
 
     implementation("io.netty:netty-all:4.1.111.Final")
 
-    implementation("org.readutf.hermes:core:1.3.10-SNAPSHOT")
-    implementation("org.readutf.hermes:netty:1.3.10-SNAPSHOT")
-    implementation("org.readutf.hermes:kryo:1.3.10-SNAPSHOT")
+    implementation("org.readutf.hermes:core:1.4.0")
+    implementation("org.readutf.hermes:netty:1.4.0")
+    implementation("org.readutf.hermes:kryo:1.4.0")
 
     // Hoplite
     implementation("com.sksamuel.hoplite:hoplite-core:2.7.5")

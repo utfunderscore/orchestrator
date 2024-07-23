@@ -6,14 +6,12 @@ import org.readutf.orchestrator.client.game.ActiveGameSupplier
 import org.readutf.orchestrator.client.game.GameManager
 import org.readutf.orchestrator.client.game.GameRequestHandler
 import org.readutf.orchestrator.client.network.ClientNetworkManager
+import org.readutf.orchestrator.client.server.ServerManager
 import org.readutf.orchestrator.shared.game.GameFinderType
 import org.readutf.orchestrator.shared.kryo.KryoCreator
-import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerAddress
-import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.*
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 class ShepardClient(
     serverAddress: ServerAddress,
@@ -24,37 +22,23 @@ class ShepardClient(
 ) {
     private val serverId: UUID = UUID.randomUUID()
     private val networkManager = ClientNetworkManager(KryoCreator.build(), serverId)
-    private val scheduledExecutorService = Executors.newScheduledThreadPool(1)
-    private val gameManager =
+    private val scheduledExecutor = Executors.newScheduledThreadPool(1)
+
+    val gameManager =
         GameManager(
             networkManager = networkManager,
             gameRequestHandler = gameRequestHandler,
-            activeGameSupplier = gameSupplier,
-            scheduler = scheduledExecutorService,
+            scheduler = scheduledExecutor,
         )
 
-    init {
-        networkManager.registerServer(
-            Server(
-                serverId = serverId,
-                address = serverAddress,
-                gameTypes = supportedGameTypes,
-                gameFinders = gameFinderTypes,
-                activeGames = gameSupplier.getActiveGames().toMutableList(),
-                heartbeat = ServerHeartbeat(serverId, System.currentTimeMillis()),
-            ),
+    private val serverManager =
+        ServerManager(
+            networkManager = networkManager,
+            scheduledExecutor = scheduledExecutor,
         )
-
-        scheduledExecutorService.scheduleAtFixedRate(
-            { networkManager.sendHeartbeat() },
-            0,
-            1,
-            TimeUnit.SECONDS,
-        )
-    }
 
     fun shutdown() {
         networkManager.shutdown()
-        scheduledExecutorService.shutdown()
+        scheduledExecutor.shutdown()
     }
 }
