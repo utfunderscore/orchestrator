@@ -2,7 +2,6 @@
 
 package org.readutf.orchestrator.client
 
-import org.readutf.orchestrator.client.game.ActiveGameSupplier
 import org.readutf.orchestrator.client.game.GameManager
 import org.readutf.orchestrator.client.game.GameRequestHandler
 import org.readutf.orchestrator.client.network.ClientNetworkManager
@@ -17,28 +16,36 @@ class ShepardClient(
     serverAddress: ServerAddress,
     supportedGameTypes: List<String>,
     gameFinderTypes: MutableList<GameFinderType>,
-    gameSupplier: ActiveGameSupplier,
     gameRequestHandler: GameRequestHandler,
 ) {
     private val serverId: UUID = UUID.randomUUID()
     private val networkManager = ClientNetworkManager(KryoCreator.build(), serverId)
     private val scheduledExecutor = Executors.newScheduledThreadPool(1)
 
-    val gameManager =
-        GameManager(
-            networkManager = networkManager,
-            gameRequestHandler = gameRequestHandler,
-            scheduler = scheduledExecutor,
-        )
-
     private val serverManager =
         ServerManager(
+            serverId = serverId,
+            serverAddress = serverAddress,
+            supportedGameTypes = supportedGameTypes,
+            gameFinderTypes = gameFinderTypes,
             networkManager = networkManager,
             scheduledExecutor = scheduledExecutor,
         )
 
+    val gameManager =
+        GameManager(
+            networkManager = networkManager,
+            serverManager = serverManager,
+            scheduler = scheduledExecutor,
+        )
+
+    init {
+        serverManager.registerServer()
+    }
+
     fun shutdown() {
         networkManager.shutdown()
+        serverManager.shutdown()
         scheduledExecutor.shutdown()
     }
 }

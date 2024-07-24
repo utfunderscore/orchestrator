@@ -4,5 +4,5 @@ import java.util.UUID
 
 data class ServerHeartbeat(
     val serverId: UUID,
-    val timestamp: Long,
+    val timestamp: Long = System.currentTimeMillis(),
 )

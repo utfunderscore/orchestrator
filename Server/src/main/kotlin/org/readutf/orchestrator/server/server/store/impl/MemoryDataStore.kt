@@ -2,14 +2,13 @@ package org.readutf.orchestrator.server.server.store.impl
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.server.server.RegisteredServer
-import org.readutf.orchestrator.server.server.store.ServerStore
+import org.readutf.orchestrator.server.server.store.DataStore
 import org.readutf.orchestrator.shared.game.Game
 import org.readutf.orchestrator.shared.game.GameFinderType
-import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.*
 
-class MemoryServerStore : ServerStore {
+class MemoryDataStore : DataStore {
     private val logger = KotlinLogging.logger { }
 
     private val servers = mutableMapOf<UUID, RegisteredServer>()
@@ -18,10 +17,10 @@ class MemoryServerStore : ServerStore {
     override fun getServerById(serverId: UUID): RegisteredServer? = servers[serverId]
 
     override fun saveServer(registeredServer: RegisteredServer) {
-        servers[registeredServer.server.serverId] = registeredServer
+        servers[registeredServer.serverId] = registeredServer
         channelServers
             .getOrPut(registeredServer.channel.channelId) { mutableListOf() }
-            .add(registeredServer.server.serverId)
+            .add(registeredServer.serverId)
 
         println(channelServers)
     }
@@ -38,7 +37,7 @@ class MemoryServerStore : ServerStore {
         serverHeartbeat: ServerHeartbeat,
     ) {
         servers[serverId]?.let {
-            it.server.heartbeat = serverHeartbeat
+            it.heartbeat = serverHeartbeat
         }
     }
 
@@ -48,33 +47,24 @@ class MemoryServerStore : ServerStore {
     ) {
         val serverById = getServerById(serverId)
         serverById?.let {
-            it.server.activeGames.clear()
-            it.server.activeGames.addAll(games)
+            it.activeGames.clear()
+            it.activeGames.addAll(games)
         }
     }
 
-    override fun findGamesByType(gameType: String): Map<Server, List<Game>> =
-        servers
-            .map {
-                it.value.server to
-                    it.value.server.activeGames
-                        .filter { game -> game.matchType == gameType }
-            }.toMap()
-
-    override fun findExistingGamesForSearch(gameType: String): Map<Server, List<Game>> {
-        val serverToGames = mutableMapOf<Server, MutableList<Game>>()
+    override fun findEmptyExistingGames(gameType: String): List<Pair<RegisteredServer, Game>> {
+        val serverToGames = mutableListOf<Pair<RegisteredServer, Game>>()
 
         servers.values.forEach { registeredServer ->
-            if (!registeredServer.server.gameFinders.contains(GameFinderType.PRE_EXISTING)) return@forEach
+            if (!registeredServer.gameFinders.contains(GameFinderType.PRE_EXISTING)) return@forEach
 
             val emptyGames =
-                registeredServer.server.activeGames
+                registeredServer.activeGames
                     .filter { it.matchType == gameType }
                     .filter { it.teams.flatten().isEmpty() }
 
             if (emptyGames.isNotEmpty()) {
-                val games = serverToGames.getOrPut(registeredServer.server) { mutableListOf() }
-                games.addAll(emptyGames)
+                serverToGames.add(registeredServer to emptyGames.first())
             }
         }
 
@@ -83,6 +73,6 @@ class MemoryServerStore : ServerStore {
 
     override fun getTimedOutServers(): List<RegisteredServer> {
         val now = System.currentTimeMillis()
-        return servers.values.filter { it.server.heartbeat.timestamp < now - 15000 }
+        return servers.values.filter { it.heartbeat.timestamp < now - 15000 }
     }
 }
