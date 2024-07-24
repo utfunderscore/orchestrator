@@ -2,19 +2,23 @@ package org.readutf.orchestrator.server.game
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.javalin.Javalin
+import org.readutf.hermes.PacketManager
 import org.readutf.orchestrator.server.game.endpoints.GameRequestSocket
 import org.readutf.orchestrator.server.game.finder.GameFinder
 import org.readutf.orchestrator.server.game.finder.impl.ExistingGameSearch
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.shared.game.GameRequest
 import org.readutf.orchestrator.shared.game.GameRequestResult
+import org.readutf.orchestrator.shared.packets.GameReservePacket
 import panda.std.Result
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 
 class GameManager(
     javalin: Javalin,
     serverManager: ServerManager,
+    val packetManager: PacketManager<*>,
 ) {
     init {
         javalin.ws("/game/request", GameRequestSocket(this))
@@ -25,7 +29,7 @@ class GameManager(
 
     private val finders: List<GameFinder> =
         listOf(
-            ExistingGameSearch(serverManager),
+            ExistingGameSearch(serverManager, this),
         )
 
     fun findMatch(gameRequest: GameRequest): CompletableFuture<Result<GameRequestResult, String>> =
@@ -33,10 +37,11 @@ class GameManager(
             applyMatchFinders(gameRequest)
         }, gameFinderThread)
 
+    fun reserveGame(gameId: UUID): CompletableFuture<Boolean> = packetManager.sendPacket<Boolean>(GameReservePacket(gameId))
+
     private fun applyMatchFinders(gameRequest: GameRequest): Result<GameRequestResult, String> {
         finders.forEach { finder ->
-
-            val findGameResult = finder.findGame(gameRequest)
+            val findGameResult = finder.findGame(gameRequest).join()
             if (findGameResult.isErr) {
                 logger.info { "Game could not be found with ${finder.gameFinderType.name}" }
             } else {

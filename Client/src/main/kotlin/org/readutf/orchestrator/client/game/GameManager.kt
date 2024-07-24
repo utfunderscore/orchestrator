@@ -1,30 +1,37 @@
 package org.readutf.orchestrator.client.game
 
 import org.readutf.orchestrator.client.network.ClientNetworkManager
+import org.readutf.orchestrator.client.server.ServerManager
 import org.readutf.orchestrator.shared.game.Game
 import org.readutf.orchestrator.shared.game.GameState
+import org.readutf.orchestrator.shared.packets.ServerGamesUpdatePacket
 import java.util.UUID
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 class GameManager(
     private val networkManager: ClientNetworkManager,
-    private val gameRequestHandler: GameRequestHandler,
+    private val serverManager: ServerManager,
     scheduler: ScheduledExecutorService,
 ) {
     private val games = mutableMapOf<UUID, Game>()
 
     init {
         scheduler.scheduleAtFixedRate(
-            { networkManager.updateGames(games.values.toList()) },
+            { updateGames() },
             0,
             5,
             TimeUnit.SECONDS,
         )
     }
 
-    fun registerGame(game: Game) {
-        games[game.id] = game
+    fun registerGame(
+        id: UUID,
+        matchType: String,
+        teams: List<List<UUID>>,
+        gameState: GameState,
+    ) {
+        games[id] = Game(id, serverManager.serverId, matchType, teams, gameState)
     }
 
     fun unregisterGame(game: Game) {
@@ -37,5 +44,14 @@ class GameManager(
             return true
         }
         return false
+    }
+
+    fun updateGames() {
+        networkManager.sendPacket(
+            ServerGamesUpdatePacket(
+                serverManager.serverId,
+                games.values.toList(),
+            ),
+        )
     }
 }

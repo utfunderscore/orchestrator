@@ -12,6 +12,6 @@ class ServerRegisterListener(
         packet: ServerRegisterPacket,
         channel: HermesChannel,
     ) {
-        serverManager.registerServer(RegisteredServer(channel, packet.server))
+        serverManager.registerServer(RegisteredServer.create(packet.server, channel))
     }
 }
