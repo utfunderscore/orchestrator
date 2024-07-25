@@ -12,5 +12,6 @@ open class Server(
     var heartbeat: ServerHeartbeat = ServerHeartbeat(serverId, System.currentTimeMillis()),
     val activeGames: MutableList<Game>,
 ) {
-    override fun toString(): String = "Server(serverId=$serverId, address=$address, supportedModes=$gameTypes)"
+    override fun toString(): String =
+        "Server(serverId=$serverId, address=$address, gameTypes=$gameTypes, gameFinders=$gameFinders, heartbeat=$heartbeat, activeGames=$activeGames)"
 }

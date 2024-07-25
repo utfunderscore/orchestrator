@@ -11,9 +11,9 @@ repositories {
 dependencies {
     testImplementation(kotlin("test"))
 
-    implementation("org.readutf.hermes:core:1.4.2")
-    implementation("org.readutf.hermes:netty:1.4.2")
-    implementation("org.readutf.hermes:kryo:1.4.2")
+    implementation("org.readutf.hermes:core:1.4.17")
+    implementation("org.readutf.hermes:netty:1.4.17")
+    implementation("org.readutf.hermes:kryo:1.4.17")
 
     implementation("io.netty:netty-all:4.1.111.Final")
 

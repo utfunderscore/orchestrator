@@ -54,6 +54,8 @@ class MemoryDataStore : DataStore {
     }
 
     override fun findEmptyExistingGames(gameType: String): List<Pair<RegisteredServer, Game>> {
+        println(servers)
+
         val serverToGames = mutableListOf<Pair<RegisteredServer, Game>>()
 
         servers.values.forEach { registeredServer ->
