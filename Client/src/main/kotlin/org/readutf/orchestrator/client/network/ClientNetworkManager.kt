@@ -3,10 +3,12 @@ package org.readutf.orchestrator.client.network
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.hermes.Packet
 import org.readutf.hermes.PacketManager
+import org.readutf.hermes.channel.HermesChannel
+import org.readutf.hermes.listeners.TypedListener
 import java.util.UUID
 
 class ClientNetworkManager(
-    private val packetManager: PacketManager<*>,
+    val packetManager: PacketManager<*>,
     private val serverId: UUID,
 ) {
     private var logger = KotlinLogging.logger { }
@@ -17,5 +19,11 @@ class ClientNetworkManager(
 
     fun shutdown() {
         packetManager.stop()
+    }
+
+    inline fun <reified T : Packet, reified U : HermesChannel> registerListener(listener: TypedListener<T, U>) {
+        packetManager.editListeners {
+            it.registerListener<T, U>(listener)
+        }
     }
 }

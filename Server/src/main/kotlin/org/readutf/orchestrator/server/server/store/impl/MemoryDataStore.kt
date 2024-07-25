@@ -5,6 +5,7 @@ import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.server.server.store.DataStore
 import org.readutf.orchestrator.shared.game.Game
 import org.readutf.orchestrator.shared.game.GameFinderType
+import org.readutf.orchestrator.shared.game.GameState
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.*
 
@@ -61,6 +62,7 @@ class MemoryDataStore : DataStore {
             val emptyGames =
                 registeredServer.activeGames
                     .filter { it.matchType == gameType }
+                    .filter { it.gameState == GameState.IDLE }
                     .filter { it.teams.flatten().isEmpty() }
 
             if (emptyGames.isNotEmpty()) {

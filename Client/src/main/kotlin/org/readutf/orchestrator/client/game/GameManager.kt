@@ -1,6 +1,8 @@
 package org.readutf.orchestrator.client.game
 
 import org.readutf.orchestrator.client.network.ClientNetworkManager
+import org.readutf.orchestrator.client.network.listeners.GameRequestListener
+import org.readutf.orchestrator.client.network.listeners.GameReserveListener
 import org.readutf.orchestrator.client.server.ServerManager
 import org.readutf.orchestrator.shared.game.Game
 import org.readutf.orchestrator.shared.game.GameState
@@ -23,6 +25,8 @@ class GameManager(
             5,
             TimeUnit.SECONDS,
         )
+        networkManager.registerListener(GameRequestListener(this))
+        networkManager.registerListener(GameReserveListener(this))
     }
 
     fun registerGame(
