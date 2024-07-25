@@ -5,3 +5,4 @@ rootProject.name = "orchestrator"
 include("Shared")
 include("Server")
 include("Client")
+include("ApiWrapper")

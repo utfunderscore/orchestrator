@@ -3,6 +3,7 @@ package org.readutf.orchestrator.server.game
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.javalin.Javalin
 import org.readutf.hermes.PacketManager
+import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.server.game.endpoints.GameRequestSocket
 import org.readutf.orchestrator.server.game.finder.GameFinder
 import org.readutf.orchestrator.server.game.finder.impl.ExistingGameSearch
@@ -37,13 +38,20 @@ class GameManager(
             applyMatchFinders(gameRequest)
         }, gameFinderThread)
 
-    fun reserveGame(gameId: UUID): CompletableFuture<Boolean> = packetManager.sendPacket<Boolean>(GameReservePacket(gameId))
+    fun reserveGame(
+        channel: HermesChannel,
+        gameId: UUID,
+    ): CompletableFuture<Boolean> {
+        val packet = GameReservePacket(gameId)
+        println("ID: ${packet.packetId}")
+        return channel.sendPacketFuture<Boolean>(packet)
+    }
 
     private fun applyMatchFinders(gameRequest: GameRequest): Result<GameRequestResult, String> {
         finders.forEach { finder ->
             logger.info { "Using ${finder.gameFinderType.name}" }
 
-            val findGameResult = finder.findGame(gameRequest).join()
+            val findGameResult = finder.findGame(gameRequest)
             if (findGameResult.isErr) {
                 logger.info { "Game could not be found with ${finder.gameFinderType.name}" }
             } else {
