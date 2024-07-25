@@ -29,7 +29,7 @@ class GameManager(
 
     private val finders: List<GameFinder> =
         listOf(
-            ExistingGameSearch(serverManager, this),
+            ExistingGameSearch(serverManager, gameFinderThread, this),
         )
 
     fun findMatch(gameRequest: GameRequest): CompletableFuture<Result<GameRequestResult, String>> =
@@ -41,6 +41,8 @@ class GameManager(
 
     private fun applyMatchFinders(gameRequest: GameRequest): Result<GameRequestResult, String> {
         finders.forEach { finder ->
+            logger.info { "Using ${finder.gameFinderType.name}" }
+
             val findGameResult = finder.findGame(gameRequest).join()
             if (findGameResult.isErr) {
                 logger.info { "Game could not be found with ${finder.gameFinderType.name}" }

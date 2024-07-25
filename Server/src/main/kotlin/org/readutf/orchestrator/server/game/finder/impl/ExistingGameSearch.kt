@@ -8,29 +8,26 @@ import org.readutf.orchestrator.shared.game.GameRequest
 import org.readutf.orchestrator.shared.game.GameRequestResult
 import panda.std.Result
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executor
 
 class ExistingGameSearch(
     private val serverManager: ServerManager,
+    private val executor: Executor,
     private val gameManager: GameManager,
 ) : GameFinder(GameFinderType.PRE_EXISTING) {
     override fun findGame(gameRequest: GameRequest): CompletableFuture<Result<GameRequestResult, String>> {
-//
-//        val (server, games) =
-//            availableGames.minByOrNull { it.value.size }
-//                ?: return Result.error("No available games found")
-//
-//        return Result.ok(GameRequestResult(requestId = gameRequest.requestId, serverId = server.serverId, gameId = games.first().id))
-
         val availableGames = serverManager.findEmptyExistingGames(gameRequest.gameType)
 
-        return CompletableFuture.supplyAsync {
+        return CompletableFuture.supplyAsync({
             availableGames.sortedBy { it.first.activeGames.size }.forEach {
                 val (server, game) = it
 
                 val reserveResult = gameManager.reserveGame(game.id).join()
-                if (reserveResult) return@supplyAsync Result.ok(GameRequestResult(gameRequest.requestId, server.serverId, game.id))
+                if (reserveResult) {
+                    return@supplyAsync Result.ok(GameRequestResult(gameRequest.requestId, server.serverId, game.id))
+                }
             }
             return@supplyAsync Result.error("No available games found")
-        }
+        }, executor)
     }
 }

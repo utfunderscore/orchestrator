@@ -21,6 +21,8 @@ class ServerManager(
     scheduledExecutor: ScheduledExecutorService,
 ) {
     init {
+        registerServer()
+
         scheduledExecutor.scheduleAtFixedRate(
             { sendHeartbeat() },
             1,
