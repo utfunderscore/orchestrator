@@ -7,9 +7,8 @@ import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.shared.game.GameFinderType
 import org.readutf.orchestrator.shared.game.GameRequest
 import org.readutf.orchestrator.shared.game.GameRequestResult
-import panda.std.Result
+import org.readutf.orchestrator.shared.utils.Result
 import java.util.concurrent.Executor
-import java.util.concurrent.TimeUnit
 
 class ExistingGameSearch(
     private val serverManager: ServerManager,
@@ -18,17 +17,14 @@ class ExistingGameSearch(
 ) : GameFinder(GameFinderType.PRE_EXISTING) {
     private val logger = KotlinLogging.logger { }
 
-    override fun findGame(gameRequest: GameRequest): Result<GameRequestResult, String> {
+    override fun findGame(gameRequest: GameRequest): Result<GameRequestResult> {
         val availableGames = serverManager.findEmptyExistingGames(gameRequest.gameType)
-
-        println("availableGames: ${availableGames.size}")
 
         availableGames.sortedBy { it.first.activeGames.size }.forEach {
             val (server, game) = it
 
             logger.info { "Requesting ${game.id}" }
-            val reserveResult = gameManager.reserveGame(server.channel, game.id).get(1000, TimeUnit.MILLISECONDS)
-            println("reserveResult: $reserveResult")
+            val reserveResult = gameManager.reserveGame(server.channel, game.id).join()
 
             if (reserveResult) {
                 return Result.ok(GameRequestResult(gameRequest.requestId, server.serverId, game.id))

@@ -7,14 +7,9 @@ import org.readutf.orchestrator.shared.packets.GameReservePacket
 
 class GameReserveListener(
     private val gameManager: GameManager,
-) : TypedListener<GameReservePacket, HermesChannel> {
+) : TypedListener<GameReservePacket, HermesChannel, Boolean> {
     override fun handle(
         packet: GameReservePacket,
         channel: HermesChannel,
-    ): Boolean {
-        println("Received game request")
-        val reserveGame = gameManager.reserveGame(packet.gameId)
-
-        return reserveGame
-    }
+    ): Boolean = gameManager.reserveGame(packet.gameId)
 }

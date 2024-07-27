@@ -27,4 +27,6 @@ interface DataStore {
     fun getTimedOutServers(): List<RegisteredServer>
 
     fun getServerById(serverId: UUID): RegisteredServer?
+
+    fun getAllServers(): List<RegisteredServer>
 }

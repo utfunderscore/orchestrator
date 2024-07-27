@@ -11,7 +11,7 @@ import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.shared.game.GameRequest
 import org.readutf.orchestrator.shared.game.GameRequestResult
 import org.readutf.orchestrator.shared.packets.GameReservePacket
-import panda.std.Result
+import org.readutf.orchestrator.shared.utils.Result
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
@@ -22,7 +22,7 @@ class GameManager(
     val packetManager: PacketManager<*>,
 ) {
     init {
-        javalin.ws("/game/request", GameRequestSocket(this))
+        javalin.ws("/game/request", GameRequestSocket(this, serverManager))
     }
 
     private val logger = KotlinLogging.logger { }
@@ -33,7 +33,7 @@ class GameManager(
             ExistingGameSearch(serverManager, gameFinderThread, this),
         )
 
-    fun findMatch(gameRequest: GameRequest): CompletableFuture<Result<GameRequestResult, String>> =
+    fun findMatch(gameRequest: GameRequest): CompletableFuture<Result<GameRequestResult>> =
         CompletableFuture.supplyAsync({
             applyMatchFinders(gameRequest)
         }, gameFinderThread)
@@ -43,16 +43,15 @@ class GameManager(
         gameId: UUID,
     ): CompletableFuture<Boolean> {
         val packet = GameReservePacket(gameId)
-        println("ID: ${packet.packetId}")
         return channel.sendPacketFuture<Boolean>(packet)
     }
 
-    private fun applyMatchFinders(gameRequest: GameRequest): Result<GameRequestResult, String> {
+    private fun applyMatchFinders(gameRequest: GameRequest): Result<GameRequestResult> {
         finders.forEach { finder ->
             logger.info { "Using ${finder.gameFinderType.name}" }
 
             val findGameResult = finder.findGame(gameRequest)
-            if (findGameResult.isErr) {
+            if (findGameResult.isError()) {
                 logger.info { "Game could not be found with ${finder.gameFinderType.name}" }
             } else {
                 return Result.ok(findGameResult.get())

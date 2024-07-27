@@ -6,7 +6,7 @@ import org.readutf.orchestrator.shared.packets.ServerUnregisterPacket
 
 class ServerUnregisterListener(
     private val serverManager: ServerManager,
-) : Listener<ServerUnregisterPacket> {
+) : Listener<ServerUnregisterPacket, Unit> {
     override fun handle(
         packet: ServerUnregisterPacket,
         channel: HermesChannel,
