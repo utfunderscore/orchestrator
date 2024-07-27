@@ -7,7 +7,7 @@ import org.readutf.orchestrator.shared.packets.ServerRegisterPacket
 
 class ServerRegisterListener(
     private val serverManager: ServerManager,
-) : Listener<ServerRegisterPacket> {
+) : Listener<ServerRegisterPacket, Unit> {
     override fun handle(
         packet: ServerRegisterPacket,
         channel: HermesChannel,

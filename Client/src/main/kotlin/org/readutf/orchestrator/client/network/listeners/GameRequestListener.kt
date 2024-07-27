@@ -7,7 +7,7 @@ import org.readutf.orchestrator.shared.packets.GameRequestPacket
 
 class GameRequestListener(
     private val gameManager: GameManager,
-) : TypedListener<GameRequestPacket, HermesChannel> {
+) : TypedListener<GameRequestPacket, HermesChannel, Unit> {
     override fun handle(
         packet: GameRequestPacket,
         channel: HermesChannel,

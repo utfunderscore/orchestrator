@@ -6,7 +6,7 @@ import org.readutf.orchestrator.shared.packets.ServerGamesUpdatePacket
 
 class GamesUpdateListener(
     private val serverManager: ServerManager,
-) : Listener<ServerGamesUpdatePacket> {
+) : Listener<ServerGamesUpdatePacket, Unit> {
     override fun handle(
         packet: ServerGamesUpdatePacket,
         channel: HermesChannel,

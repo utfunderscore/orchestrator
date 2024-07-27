@@ -22,8 +22,6 @@ class MemoryDataStore : DataStore {
         channelServers
             .getOrPut(registeredServer.channel.channelId) { mutableListOf() }
             .add(registeredServer.serverId)
-
-        println(channelServers)
     }
 
     override fun removeServer(serverId: UUID) {
@@ -54,8 +52,6 @@ class MemoryDataStore : DataStore {
     }
 
     override fun findEmptyExistingGames(gameType: String): List<Pair<RegisteredServer, Game>> {
-        println(servers)
-
         val serverToGames = mutableListOf<Pair<RegisteredServer, Game>>()
 
         servers.values.forEach { registeredServer ->
@@ -74,6 +70,8 @@ class MemoryDataStore : DataStore {
 
         return serverToGames
     }
+
+    override fun getAllServers(): List<RegisteredServer> = servers.values.toList()
 
     override fun getTimedOutServers(): List<RegisteredServer> {
         val now = System.currentTimeMillis()

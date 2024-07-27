@@ -21,9 +21,9 @@ class ClientNetworkManager(
         packetManager.stop()
     }
 
-    inline fun <reified T : Packet, reified U : HermesChannel> registerListener(listener: TypedListener<T, U>) {
+    inline fun <reified T : Packet, reified U : HermesChannel, V> registerListener(listener: TypedListener<T, U, V>) {
         packetManager.editListeners {
-            it.registerListener<T, U>(listener)
+            it.registerListener<T, U, V>(listener)
         }
     }
 }

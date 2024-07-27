@@ -6,7 +6,7 @@ import org.readutf.orchestrator.server.server.ServerManager
 
 class ChannelCloseListener(
     private val serverManager: ServerManager,
-) : Listener<ChannelClosePacket<HermesChannel>> {
+) : Listener<ChannelClosePacket<HermesChannel>, Unit> {
     override fun handle(
         packet: ChannelClosePacket<HermesChannel>,
         channel: HermesChannel,

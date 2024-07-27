@@ -30,6 +30,8 @@ class ServerManager(
         dataStore.saveServer(server)
     }
 
+    fun getAllServers(): List<RegisteredServer> = dataStore.getAllServers()
+
     fun unregisterServer(serverId: UUID) {
         logger.info { "Unregistering server $serverId" }
 
@@ -65,7 +67,7 @@ class ServerManager(
         serverId: UUID,
         games: List<Game>,
     ) {
-        logger.info { "Updating games for server $serverId" }
+        logger.debug { "Updating games for server $serverId" }
 
         dataStore.setGames(serverId, games)
     }

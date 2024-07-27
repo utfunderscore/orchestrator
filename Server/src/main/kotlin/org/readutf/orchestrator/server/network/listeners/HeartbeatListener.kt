@@ -6,7 +6,7 @@ import org.readutf.orchestrator.shared.packets.ServerHeartbeatPacket
 
 class HeartbeatListener(
     private val serverManager: ServerManager,
-) : Listener<ServerHeartbeatPacket> {
+) : Listener<ServerHeartbeatPacket, Unit> {
     override fun handle(
         packet: ServerHeartbeatPacket,
         channel: HermesChannel,

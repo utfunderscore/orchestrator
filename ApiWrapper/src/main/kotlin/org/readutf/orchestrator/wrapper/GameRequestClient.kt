@@ -11,19 +11,19 @@ import java.net.URI
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
-class GameRequestClient(
+internal class GameRequestClient(
     uri: String,
 ) : WebSocketClient(URI(uri)) {
     private val logger = KotlinLogging.logger { }
+
     private val futures = mutableMapOf<UUID, CompletableFuture<GameRequestResult>>()
 
     fun requestGame(
         gameType: String,
-        numOfTeams: Int,
-        teamSize: Int,
+        timeout: Long = 5000,
     ): CompletableFuture<GameRequestResult> {
         val requestId = UUID.randomUUID()
-        val gameRequest = GameRequest(requestId, gameType, numOfTeams, teamSize)
+        val gameRequest = GameRequest(requestId, gameType)
 
         if (!isOpen) connect()
 
@@ -33,7 +33,7 @@ class GameRequestClient(
 
         futures[requestId] = future
 
-        return future
+        return future.orTimeout(timeout, java.util.concurrent.TimeUnit.MILLISECONDS)
     }
 
     override fun onOpen(p0: ServerHandshake?) {
@@ -41,7 +41,11 @@ class GameRequestClient(
     }
 
     override fun onMessage(p0: String?) {
-        println(p0)
+        JSON.toJSONString(p0)?.let {
+            val gameRequestResult = JSON.parseObject(it, GameRequestResult::class.java)
+
+            futures[gameRequestResult.requestId]?.complete(gameRequestResult)
+        }
     }
 
     override fun onClose(
