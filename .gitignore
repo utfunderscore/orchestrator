@@ -24,3 +24,5 @@ Client/build/
 Server/build/
 
 gradle.properties
+
+ApiWrapper/build/
