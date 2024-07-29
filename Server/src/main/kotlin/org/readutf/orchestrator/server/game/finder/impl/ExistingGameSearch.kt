@@ -18,9 +18,9 @@ class ExistingGameSearch(
     private val logger = KotlinLogging.logger { }
 
     override fun findGame(gameRequest: GameRequest): Result<GameRequestResult> {
-        val availableGames = serverManager.findEmptyExistingGames(gameRequest.gameType)
+        val availableGames = gameManager.findEmptyExistingGames(gameRequest.gameType)
 
-        availableGames.sortedBy { it.first.activeGames.size }.forEach {
+        availableGames.sortedBy { gameManager.getGamesByServer(it.first.serverId).size }.forEach {
             val (server, game) = it
 
             logger.info { "Requesting ${game.id}" }

@@ -15,11 +15,13 @@ dependencies {
     implementation("io.javalin.community.routing:routing-core:6.1.6")
     implementation("io.javalin.community.routing:routing-annotated:6.1.6")
 
-    implementation("io.netty:netty-all:4.1.111.Final")
+    val nettyVersion: String by rootProject.extra
+    implementation("io.netty:netty-all:$nettyVersion")
 
-    implementation("org.readutf.hermes:core:1.5.1")
-    implementation("org.readutf.hermes:netty:1.5.1")
-    implementation("org.readutf.hermes:kryo:1.5.1")
+    val hermesVersion: String by rootProject.extra
+    implementation("org.readutf.hermes:core:$hermesVersion")
+    implementation("org.readutf.hermes:netty:$hermesVersion")
+    implementation("org.readutf.hermes:kryo:$hermesVersion")
 
     // Hoplite
     implementation("com.sksamuel.hoplite:hoplite-core:2.7.5")
@@ -29,11 +31,24 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.52")
 
     // Logging
-    implementation("org.apache.logging.log4j:log4j-api:2.14.1")
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
+    val log4jVersion: String by rootProject.extra
+    implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4jVersion")
 
     // FastJson2
     implementation("com.alibaba:fastjson:+")
+
+    // Commands
+    implementation("com.github.Revxrsal.Lamp:common:3.2.1")
+    implementation("com.github.Revxrsal.Lamp:cli:3.2.1")
+
+    val exposed = "0.51.0"
+    implementation("org.jetbrains.exposed:exposed-core:$exposed")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposed")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposed")
+    implementation("org.jetbrains.exposed:exposed-java-time:$exposed")
+
+    implementation("com.h2database:h2:2.2.224")
 }
 
 tasks.test {

@@ -10,12 +10,14 @@ dependencies {
     // add fastjson2
     implementation("com.alibaba:fastjson:2.0.51")
 
-    implementation("io.netty:netty-all:4.1.111.Final")
+    val nettyVersion: String by rootProject.extra
+    implementation("io.netty:netty-all:$nettyVersion")
 
     api("io.github.oshai:kotlin-logging-jvm:5.1.0")
     api("com.esotericsoftware:kryo5:5.6.0")
 
-    compileOnly("org.readutf.hermes:core:1.5.1")
+    val hermesVersion: String by rootProject.extra
+    compileOnly("org.readutf.hermes:core:$hermesVersion")
 
     implementation("io.github.classgraph:classgraph:4.8.174")
 

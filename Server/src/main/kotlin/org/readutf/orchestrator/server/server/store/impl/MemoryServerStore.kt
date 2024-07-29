@@ -2,14 +2,11 @@ package org.readutf.orchestrator.server.server.store.impl
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.server.server.RegisteredServer
-import org.readutf.orchestrator.server.server.store.DataStore
-import org.readutf.orchestrator.shared.game.Game
-import org.readutf.orchestrator.shared.game.GameFinderType
-import org.readutf.orchestrator.shared.game.GameState
+import org.readutf.orchestrator.server.server.store.ServerStore
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.*
 
-class MemoryDataStore : DataStore {
+class MemoryServerStore : ServerStore {
     private val logger = KotlinLogging.logger { }
 
     private val servers = mutableMapOf<UUID, RegisteredServer>()
@@ -38,37 +35,6 @@ class MemoryDataStore : DataStore {
         servers[serverId]?.let {
             it.heartbeat = serverHeartbeat
         }
-    }
-
-    override fun setGames(
-        serverId: UUID,
-        games: List<Game>,
-    ) {
-        val serverById = getServerById(serverId)
-        serverById?.let {
-            it.activeGames.clear()
-            it.activeGames.addAll(games)
-        }
-    }
-
-    override fun findEmptyExistingGames(gameType: String): List<Pair<RegisteredServer, Game>> {
-        val serverToGames = mutableListOf<Pair<RegisteredServer, Game>>()
-
-        servers.values.forEach { registeredServer ->
-            if (!registeredServer.gameFinders.contains(GameFinderType.PRE_EXISTING)) return@forEach
-
-            val emptyGames =
-                registeredServer.activeGames
-                    .filter { it.matchType == gameType }
-                    .filter { it.gameState == GameState.IDLE }
-                    .filter { it.teams.flatten().isEmpty() }
-
-            if (emptyGames.isNotEmpty()) {
-                serverToGames.add(registeredServer to emptyGames.first())
-            }
-        }
-
-        return serverToGames
     }
 
     override fun getAllServers(): List<RegisteredServer> = servers.values.toList()
