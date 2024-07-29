@@ -8,18 +8,23 @@ version = "1.0-SNAPSHOT"
 repositories {
 }
 
+val hermesVersion: String by project
+
 dependencies {
     testImplementation(kotlin("test"))
 
-    implementation("org.readutf.hermes:core:1.5.1")
-    implementation("org.readutf.hermes:netty:1.5.1")
-    implementation("org.readutf.hermes:kryo:1.5.1")
+    val hermesVersion: String by rootProject.extra
+    implementation("org.readutf.hermes:core:$hermesVersion")
+    implementation("org.readutf.hermes:netty:$hermesVersion")
+    implementation("org.readutf.hermes:kryo:$hermesVersion")
 
-    implementation("io.netty:netty-all:4.1.111.Final")
+    val nettyVersion: String by rootProject.extra
+    implementation("io.netty:netty-all:$nettyVersion")
 
     // Logging
-    implementation("org.apache.logging.log4j:log4j-api:2.14.1")
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1")
+    val log4jVersion: String by rootProject.extra
+    implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4jVersion")
 
     // FastJSON2
     implementation("com.alibaba:fastjson:+")

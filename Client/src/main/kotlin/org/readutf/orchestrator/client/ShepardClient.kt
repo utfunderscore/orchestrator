@@ -2,48 +2,86 @@
 
 package org.readutf.orchestrator.client
 
-import org.readutf.hermes.PacketManager
-import org.readutf.hermes.platform.netty.nettyClient
-import org.readutf.hermes.serializer.KryoPacketSerializer
-import org.readutf.orchestrator.client.game.GameManager
-import org.readutf.orchestrator.client.network.ClientNetworkManager
-import org.readutf.orchestrator.client.server.ServerManager
+import io.github.oshai.kotlinlogging.KotlinLogging
+import org.readutf.orchestrator.shared.game.Game
 import org.readutf.orchestrator.shared.game.GameFinderType
-import org.readutf.orchestrator.shared.kryo.KryoCreator
+import org.readutf.orchestrator.shared.game.GameState
 import org.readutf.orchestrator.shared.server.ServerAddress
-import java.util.*
+import java.util.UUID
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class ShepardClient(
-    serverAddress: ServerAddress,
-    supportedGameTypes: List<String>,
-    gameFinderTypes: MutableList<GameFinderType>,
+    val serverAddress: ServerAddress,
 ) {
-    private val serverId: UUID = UUID.randomUUID()
-    private val packetManager = PacketManager.nettyClient("localhost", 2980, KryoPacketSerializer(KryoCreator.build())).start()
-    private val networkManager = ClientNetworkManager(packetManager, serverId)
-    private val scheduledExecutor = Executors.newScheduledThreadPool(1)
+    private val serverId = UUID.randomUUID()
+    private val gameFinderTypes = mutableListOf<GameFinderType>()
+    private val supportedGameTypes = mutableListOf<String>()
+    private var shuttingDown = false
+    private var reconnecting = false
+    private var clientManager: ClientManager? = null
+    private var restartScheduler = Executors.newSingleThreadScheduledExecutor()
+    private var mainThread = Thread("TestThread")
 
-    private val serverManager =
-        ServerManager(
-            serverId = serverId,
-            serverAddress = serverAddress,
-            supportedGameTypes = supportedGameTypes,
-            gameFinderTypes = gameFinderTypes,
-            networkManager = networkManager,
-            scheduledExecutor = scheduledExecutor,
-        )
+    private val logger = KotlinLogging.logger { }
 
-    val gameManager =
-        GameManager(
-            networkManager = networkManager,
-            serverManager = serverManager,
-            scheduler = scheduledExecutor,
-        )
+    fun start() {
+        mainThread.run { start(emptyMap()) }
+    }
 
-    fun shutdown() {
-        networkManager.shutdown()
-        serverManager.shutdown()
-        scheduledExecutor.shutdown()
+    private fun start(games: Map<UUID, Game>) {
+        if (Thread.currentThread() != mainThread) {
+            logger.error { "Client started on invalid thread" }
+        }
+
+        logger.info { "Connecting to server" }
+        logger.info { "Thread: ${Thread.currentThread().name}" }
+
+        reconnecting = false
+        clientManager =
+            ClientManager(serverId, serverAddress, gameFinderTypes, supportedGameTypes, games) {
+                onDisconnect(it)
+            }
+    }
+
+    fun registerFinderTypes(vararg gameType: GameFinderType): ShepardClient {
+        registerFinderTypes(gameType.toList())
+        return this
+    }
+
+    fun registerFinderTypes(gamesTypes: List<GameFinderType>): ShepardClient {
+        gameFinderTypes.addAll(gamesTypes)
+        return this
+    }
+
+    fun registerGameTypes(vararg gameType: String): ShepardClient {
+        registerGameTypes(gameType.toList())
+        return this
+    }
+
+    fun registerGameTypes(gamesTypes: List<String>): ShepardClient {
+        supportedGameTypes.addAll(gamesTypes)
+        return this
+    }
+
+    fun registerGame(
+        id: UUID,
+        matchType: String,
+        teams: List<List<UUID>>,
+        gameState: GameState,
+    ) {
+        if (clientManager == null) throw Exception("Client must be active before a game can be registered")
+
+        clientManager!!.gameManager.registerGame(id, matchType, teams, gameState)
+    }
+
+    fun onDisconnect(games: Map<UUID, Game>) {
+        if (!shuttingDown && !reconnecting) {
+            logger.info { "Reconnecting..." }
+            reconnecting = true
+            restartScheduler.schedule({
+                mainThread.run { start(games) }
+            }, 5, TimeUnit.SECONDS)
+        }
     }
 }
