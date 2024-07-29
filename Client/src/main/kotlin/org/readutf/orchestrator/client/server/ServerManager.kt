@@ -15,14 +15,12 @@ import java.util.concurrent.TimeUnit
 class ServerManager(
     val serverId: UUID,
     val serverAddress: ServerAddress,
-    val supportedGameTypes: List<String>,
+    val supportedGameTypes: MutableList<String>,
     val gameFinderTypes: MutableList<GameFinderType>,
     val networkManager: ClientNetworkManager,
     scheduledExecutor: ScheduledExecutorService,
 ) {
     init {
-        registerServer()
-
         scheduledExecutor.scheduleAtFixedRate(
             { sendHeartbeat() },
             1,
@@ -40,7 +38,6 @@ class ServerManager(
                     gameTypes = supportedGameTypes,
                     gameFinders = gameFinderTypes,
                     heartbeat = ServerHeartbeat(serverId = serverId),
-                    activeGames = mutableListOf(),
                 ),
             ),
         )
