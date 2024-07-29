@@ -24,8 +24,13 @@ repositories {
     }
 }
 
+extra["hermesVersion"] = "1.5.2-SNAPSHOT-1722272314060"
+extra["nettyVersion"] = "4.1.111.Final"
+extra["log4jVersion"] = "2.23.1"
+
 subprojects {
     version = rootProject.version
+
     repositories {
         maven {
             name = "utfunderscore"
