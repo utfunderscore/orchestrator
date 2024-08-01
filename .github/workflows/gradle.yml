@@ -2,7 +2,7 @@ name: Java CI with Gradle and publish
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "**" ]
   pull_request:
     branches: [ "main" ]
 
