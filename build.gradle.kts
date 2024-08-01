@@ -14,14 +14,6 @@ repositories {
         name = "utfunderscoreReleases"
         url = uri("https://reposilite.readutf.org/releases")
     }
-    maven {
-        name = "utfunderscore"
-        url = uri("https://reposilite.readutf.org/snapshots")
-        credentials(PasswordCredentials::class)
-        authentication {
-            create<BasicAuthentication>("basic")
-        }
-    }
 }
 
 extra["hermesVersion"] = "1.5.2-SNAPSHOT-1722272314060"
