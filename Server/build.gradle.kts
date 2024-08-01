@@ -1,9 +1,9 @@
 plugins {
+    id("com.github.johnrengelman.shadow") version "8.1.1"
     kotlin("jvm")
 }
 
 group = "org.readutf.orchestrator"
-version = "1.0-SNAPSHOT"
 
 dependencies {
     testImplementation(kotlin("test"))

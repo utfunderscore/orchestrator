@@ -4,7 +4,6 @@ plugins {
 }
 
 group = "org.readutf.orchestrator"
-version = "1.0-SNAPSHOT"
 
 dependencies {
     // add fastjson2
