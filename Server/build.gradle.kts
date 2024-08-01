@@ -51,6 +51,12 @@ dependencies {
     implementation("com.h2database:h2:2.2.224")
 }
 
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "org.readutf.orchestrator.server.ServerStarterKt"
+    }
+}
+
 tasks.test {
     useJUnitPlatform()
 }

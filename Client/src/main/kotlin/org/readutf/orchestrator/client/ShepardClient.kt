@@ -34,6 +34,7 @@ class ShepardClient(
     private fun start(games: Map<UUID, Game>) {
         if (Thread.currentThread() != mainThread) {
             logger.error { "Client started on invalid thread" }
+            return
         }
 
         logger.info { "Connecting to server" }
