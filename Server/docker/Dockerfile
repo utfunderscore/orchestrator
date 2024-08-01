@@ -4,6 +4,7 @@ WORKDIR /orchestrator
 
 ADD https://github.com/utfunderscore/orchestrator/releases/download/latest/Server-1.0.0-all.jar /orchestrator
 
-EXPOSE 8410
+EXPOSE 2980
+EXPOSE 9393
 
 CMD ["java", "-jar", "Server-1.0.0-all.jar"]
