@@ -1,9 +1,10 @@
 package org.readutf.orchestrator.client.game
 
-import org.readutf.orchestrator.shared.game.GameRequest
-import org.readutf.orchestrator.shared.game.GameRequestResult
-import org.readutf.orchestrator.shared.utils.Result
+import java.util.*
 
 interface GameRequestHandler {
-    fun handleRequest(request: GameRequest): Result<GameRequestResult>
+    /**
+     * Consumes game requests and produces a game future
+     */
+    fun handleRequest(gameType: String): UUID?
 }

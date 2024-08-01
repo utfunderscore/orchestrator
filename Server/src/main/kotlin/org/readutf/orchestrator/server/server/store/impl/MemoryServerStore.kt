@@ -3,13 +3,14 @@ package org.readutf.orchestrator.server.server.store.impl
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.server.server.store.ServerStore
+import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.*
 
 class MemoryServerStore : ServerStore {
     private val logger = KotlinLogging.logger { }
 
-    private val servers = mutableMapOf<UUID, RegisteredServer>()
+    val servers = mutableMapOf<UUID, RegisteredServer>()
     private val channelServers = mutableMapOf<String, MutableList<UUID>>()
 
     override fun getServerById(serverId: UUID): RegisteredServer? = servers[serverId]
@@ -38,6 +39,8 @@ class MemoryServerStore : ServerStore {
     }
 
     override fun getAllServers(): List<RegisteredServer> = servers.values.toList()
+
+    override fun getServerByShortId(shortId: String): Server? = servers.values.first { it.serverId.toString().startsWith(shortId) }
 
     override fun getTimedOutServers(): List<RegisteredServer> {
         val now = System.currentTimeMillis()

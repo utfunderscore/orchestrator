@@ -2,14 +2,14 @@ package org.readutf.orchestrator.server.game.store.impl
 
 import org.readutf.orchestrator.server.game.store.GameStore
 import org.readutf.orchestrator.server.server.RegisteredServer
-import org.readutf.orchestrator.server.server.store.ServerStore
+import org.readutf.orchestrator.server.server.store.impl.MemoryServerStore
 import org.readutf.orchestrator.shared.game.Game
 import org.readutf.orchestrator.shared.game.GameFinderType
 import org.readutf.orchestrator.shared.game.GameState
 import java.util.*
 
 class InMemoryGameStore(
-    private val serverStore: ServerStore,
+    private val serverStore: MemoryServerStore,
 ) : GameStore {
     private val idToGame = mutableMapOf<UUID, Game>()
     private val serverToGames = mutableMapOf<UUID, MutableList<Game>>()
@@ -54,5 +54,14 @@ class InMemoryGameStore(
         games: List<Game>,
     ) {
         serverToGames[serverId] = games.toMutableList()
+    }
+
+    override fun findGameRequestServers(sortByActiveGames: Boolean): List<RegisteredServer> {
+        val onRequestServers = serverStore.servers.values.filter { it.gameFinders.contains(GameFinderType.ON_REQUEST) }
+
+        return onRequestServers
+            .takeIf { sortByActiveGames }
+            ?.sortedBy { getGamesByServerId(it.serverId).size }
+            ?: onRequestServers
     }
 }

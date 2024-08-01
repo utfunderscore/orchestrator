@@ -4,6 +4,7 @@ package org.readutf.orchestrator.server.server
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.server.server.store.ServerStore
+import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.*
 import java.util.concurrent.Executors
@@ -55,4 +56,6 @@ class ServerManager(
 
         serverStore.updateHeartbeat(serverHeartbeat.serverId, serverHeartbeat)
     }
+
+    fun getServerByShortId(shortId: String): Server? = serverStore.getServerByShortId(shortId)
 }

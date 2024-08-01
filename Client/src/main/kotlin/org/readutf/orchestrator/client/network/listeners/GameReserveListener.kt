@@ -11,5 +11,9 @@ class GameReserveListener(
     override fun handle(
         packet: GameReservePacket,
         channel: HermesChannel,
-    ): Boolean = gameManager.reserveGame(packet.gameId)
+    ): Boolean {
+        println("Reserve packet received")
+
+        return gameManager.reserveGame(packet.gameId)
+    }
 }

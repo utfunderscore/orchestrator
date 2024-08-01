@@ -12,8 +12,9 @@ import java.util.concurrent.TimeUnit
 
 class GameManager(
     private val networkManager: ClientNetworkManager,
-    private val serverId: UUID,
+    val serverId: UUID,
     scheduler: ScheduledExecutorService,
+    val gameRequestHandler: GameRequestHandler?,
 ) {
     val games = mutableMapOf<UUID, Game>()
 

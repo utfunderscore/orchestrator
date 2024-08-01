@@ -1,9 +1,13 @@
 package org.readutf.orchestrator.server.server
 
+import com.alibaba.fastjson2.JSON
+import com.alibaba.fastjson2.JSONWriter
 import org.readutf.orchestrator.server.game.GameManager
+import org.readutf.orchestrator.shared.server.Server
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Subcommand
 import revxrsal.commands.command.CommandActor
+import revxrsal.commands.ktx.returnWithMessage
 
 @Command("server")
 class ServerCommand(
@@ -13,7 +17,6 @@ class ServerCommand(
     private val maxDisplayGames = 5
 
     @Subcommand("list")
-    @Command("servers")
     fun list(actor: CommandActor) {
         val allServers = serverManager.getAllServers()
         if (allServers.isEmpty()) {
@@ -33,4 +36,21 @@ class ServerCommand(
             }
         }
     }
+
+    @Subcommand("info")
+    fun info(
+        actor: CommandActor,
+        serverId: String,
+    ) {
+        val server =
+            serverManager.getServerByShortId(serverId) ?: returnWithMessage("Could not find server with that id.")
+        for (serverInfoLine in getServerInfoLines(server)) {
+            actor.reply(serverInfoLine)
+        }
+    }
+
+    fun getServerInfoLines(server: Server): List<String> =
+        listOf(
+            "${server.getShortId()} ${JSON.toJSONString(server, JSONWriter.Feature.PrettyFormat)}",
+        )
 }

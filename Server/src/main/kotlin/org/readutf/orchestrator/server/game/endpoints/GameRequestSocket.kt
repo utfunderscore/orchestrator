@@ -6,7 +6,6 @@ import io.javalin.websocket.WsConfig
 import org.readutf.orchestrator.server.game.GameManager
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.shared.game.GameRequest
-import org.readutf.orchestrator.shared.utils.ApiResponse
 import java.util.function.Consumer
 
 class GameRequestSocket(
@@ -28,13 +27,7 @@ class GameRequestSocket(
 
             logger.info { "Received Game Request: $gameRequest" }
 
-            gameManager.findMatch(gameRequest).thenAccept {
-                if (it.isError()) {
-                    context.send(JSON.toJSONString(ApiResponse.failure<String>(it.getError())))
-                } else {
-                    context.send(JSON.toJSONString(ApiResponse.success(it.get())))
-                }
-            }
+            context.send(gameManager.findMatch(gameRequest))
         }
 
         ctx.onConnect {

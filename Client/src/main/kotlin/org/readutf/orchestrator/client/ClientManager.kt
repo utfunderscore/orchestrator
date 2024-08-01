@@ -4,6 +4,7 @@ import org.readutf.hermes.PacketManager
 import org.readutf.hermes.platform.netty.nettyClient
 import org.readutf.hermes.serializer.KryoPacketSerializer
 import org.readutf.orchestrator.client.game.GameManager
+import org.readutf.orchestrator.client.game.GameRequestHandler
 import org.readutf.orchestrator.client.network.ClientNetworkManager
 import org.readutf.orchestrator.client.server.ServerManager
 import org.readutf.orchestrator.shared.game.Game
@@ -21,6 +22,7 @@ class ClientManager(
     gameFinderTypes: MutableList<GameFinderType>,
     supportedGameTypes: MutableList<String>,
     games: Map<UUID, Game>,
+    gameRequestHandler: GameRequestHandler?,
     onClose: (games: Map<UUID, Game>) -> Unit,
 ) {
     private val packetManager: PacketManager<*> =
@@ -35,7 +37,7 @@ class ClientManager(
     private val networkManager = ClientNetworkManager(packetManager, serverId)
     private val executorService: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
     private val serverManager = ServerManager(serverId, serverAddress, supportedGameTypes, gameFinderTypes, networkManager, executorService)
-    val gameManager = GameManager(networkManager, serverId, executorService)
+    val gameManager = GameManager(networkManager, serverId, executorService, gameRequestHandler)
 
     init {
         try {

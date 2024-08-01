@@ -13,5 +13,5 @@ open class Server(
     override fun toString(): String =
         "Server(serverId=$serverId, address=$address, gameTypes=$gameTypes, gameFinders=$gameFinders, heartbeat=$heartbeat)"
 
-    fun getShortId() = serverId.toString().substring(0, 8)
+    fun getShortId(): String = serverId.toString().substring(0, 8)
 }

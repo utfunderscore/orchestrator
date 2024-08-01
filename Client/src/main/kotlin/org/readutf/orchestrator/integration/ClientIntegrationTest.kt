@@ -2,7 +2,6 @@ package org.readutf.orchestrator.integration
 
 import org.readutf.orchestrator.client.ShepardClient
 import org.readutf.orchestrator.shared.game.GameFinderType
-import org.readutf.orchestrator.shared.game.GameState
 import org.readutf.orchestrator.shared.server.ServerAddress
 import java.util.UUID
 
@@ -16,11 +15,9 @@ class ClientIntegrationTest {
     init {
         client.start()
 
-        client.registerGame(UUID.randomUUID(), "test", emptyList(), GameState.IDLE)
-        client.registerGame(UUID.randomUUID(), "test", emptyList(), GameState.IDLE)
-        client.registerGame(UUID.randomUUID(), "test", emptyList(), GameState.IDLE)
-        client.registerGame(UUID.randomUUID(), "test", emptyList(), GameState.IDLE)
-        client.registerGame(UUID.randomUUID(), "test", emptyList(), GameState.IDLE)
+        client.setGameRequestHandler {
+            UUID.randomUUID()
+        }
     }
 }
 
