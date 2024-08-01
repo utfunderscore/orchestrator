@@ -2,6 +2,7 @@ package org.readutf.orchestrator.server.server.store.impl.h2
 
 import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.server.server.store.ServerStore
+import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.*
 
@@ -34,6 +35,10 @@ class H2ServerStore : ServerStore {
     }
 
     override fun getAllServers(): List<RegisteredServer> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getServerByShortId(shortId: String): Server? {
         TODO("Not yet implemented")
     }
 }

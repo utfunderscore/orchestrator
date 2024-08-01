@@ -17,6 +17,7 @@ import org.readutf.orchestrator.server.network.listeners.ServerUnregisterListene
 import org.readutf.orchestrator.server.server.ServerCommand
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.server.store.impl.MemoryServerStore
+import org.readutf.orchestrator.server.utils.FastJsonMapper
 import org.readutf.orchestrator.shared.kryo.KryoCreator
 import revxrsal.commands.cli.ConsoleCommandHandler
 import java.net.SocketException
@@ -45,9 +46,10 @@ class Orchestrator {
         Javalin.createAndStart {
             it.jetty.defaultHost = "localhost"
             it.jetty.defaultPort = 9393
+            it.jsonMapper(FastJsonMapper)
         }
 
-    fun setupPacketManager(
+    private fun setupPacketManager(
         serverManager: ServerManager,
         gameManager: GameManager,
         kryo: Kryo,

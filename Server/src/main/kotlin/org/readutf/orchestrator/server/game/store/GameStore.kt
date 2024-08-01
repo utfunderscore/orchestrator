@@ -19,4 +19,6 @@ interface GameStore {
         serverId: UUID,
         games: List<Game>,
     )
+
+    fun findGameRequestServers(sortByActiveGames: Boolean): List<RegisteredServer>
 }

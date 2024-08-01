@@ -3,6 +3,7 @@
 package org.readutf.orchestrator.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.readutf.orchestrator.client.game.GameRequestHandler
 import org.readutf.orchestrator.shared.game.Game
 import org.readutf.orchestrator.shared.game.GameFinderType
 import org.readutf.orchestrator.shared.game.GameState
@@ -22,6 +23,7 @@ class ShepardClient(
     private var clientManager: ClientManager? = null
     private var restartScheduler = Executors.newSingleThreadScheduledExecutor()
     private var mainThread = Thread("TestThread")
+    private var gameRequestHandler: GameRequestHandler? = null
 
     private val logger = KotlinLogging.logger { }
 
@@ -35,12 +37,21 @@ class ShepardClient(
         }
 
         logger.info { "Connecting to server" }
-        logger.info { "Thread: ${Thread.currentThread().name}" }
 
         reconnecting = false
-        clientManager =
-            ClientManager(serverId, serverAddress, gameFinderTypes, supportedGameTypes, games) {
-                onDisconnect(it)
+        ClientManager(serverId, serverAddress, gameFinderTypes, supportedGameTypes, games, gameRequestHandler) {
+            onDisconnect(it)
+        }
+    }
+
+    fun setGameRequestHandler(gameRequestHandler: GameRequestHandler) {
+        this.gameRequestHandler = gameRequestHandler
+    }
+
+    fun setGameRequestHandler(gameRequestHandler: (String) -> UUID?) {
+        this.gameRequestHandler =
+            object : GameRequestHandler {
+                override fun handleRequest(gameType: String): UUID? = gameRequestHandler.invoke(gameType)
             }
     }
 

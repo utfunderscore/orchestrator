@@ -1,6 +1,7 @@
 package org.readutf.orchestrator.wrapper
 
 import com.alibaba.fastjson2.JSON
+import com.alibaba.fastjson2.TypeReference
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -25,7 +26,10 @@ internal class GameRequestClient(
         val requestId = UUID.randomUUID()
         val gameRequest = GameRequest(requestId, gameType)
 
-        if (!isOpen) connect()
+        if (!isOpen) {
+            println("Connecting...")
+            connectBlocking()
+        }
 
         send(JSON.toJSONString(gameRequest))
 
@@ -37,13 +41,12 @@ internal class GameRequestClient(
     }
 
     override fun onOpen(p0: ServerHandshake?) {
-        logger.info { "Connected to websocket" }
+        logger.debug { "Connected to game request websocket" }
     }
 
-    override fun onMessage(p0: String?) {
-        JSON.toJSONString(p0)?.let {
-            val gameRequestResult = JSON.parseObject(it, GameRequestResult::class.java)
-
+    override fun onMessage(message: String?) {
+        println(message)
+        JSON.parseObject(message, object : TypeReference<GameRequestResult>() {})?.let { gameRequestResult ->
             futures[gameRequestResult.requestId]?.complete(gameRequestResult)
         }
     }

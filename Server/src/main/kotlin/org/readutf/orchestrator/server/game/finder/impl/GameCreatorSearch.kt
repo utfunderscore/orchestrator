@@ -1,33 +1,26 @@
 package org.readutf.orchestrator.server.game.finder.impl
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.jetbrains.annotations.Blocking
 import org.readutf.orchestrator.server.game.GameManager
 import org.readutf.orchestrator.server.game.finder.GameFinder
 import org.readutf.orchestrator.shared.game.GameFinderType
 import org.readutf.orchestrator.shared.game.GameRequest
 import org.readutf.orchestrator.shared.game.GameRequestResult
+import org.readutf.orchestrator.shared.packets.GameRequestPacket
 
-class ExistingGameSearch(
+class GameCreatorSearch(
     private val gameManager: GameManager,
-    private val maxReservations: Int,
-) : GameFinder(GameFinderType.PRE_EXISTING) {
+    private val maxRequests: Int,
+) : GameFinder(GameFinderType.ON_REQUEST) {
     private val logger = KotlinLogging.logger { }
 
-    @Blocking
     override fun findGame(gameRequest: GameRequest): GameRequestResult {
-        val availableGames = gameManager.findEmptyExistingGames(gameRequest.gameType)
+        for (registeredServer in gameManager.findGameRequestServers(true).take(maxRequests)) {
+            logger.info { "Sending request to ${registeredServer.serverId}" }
 
-        availableGames
-            .take(maxReservations)
-            .forEach { (server, game) ->
-                val reserveResult = gameManager.reserveGame(server.channel, game.id).join()
-
-                if (reserveResult) {
-                    return GameRequestResult.success(gameRequest.requestId, server.serverId, game.id)
-                }
-            }
-
+            val packetResult = registeredServer.channel.sendPacketFuture<GameRequestResult>(GameRequestPacket(gameRequest)).join()
+            if (packetResult.isSuccess()) return packetResult
+        }
         return GameRequestResult.failure(gameRequest.requestId, "")
     }
 }
