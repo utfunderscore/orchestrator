@@ -7,12 +7,13 @@ import org.readutf.orchestrator.server.game.finder.impl.GameCreatorSearch
 import org.readutf.orchestrator.shared.game.GameRequest
 import org.readutf.orchestrator.shared.game.GameRequestResult
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class GameFinderManager(
     gameManager: GameManager,
 ) {
-    private val gameFinderThread = Executors.newSingleThreadExecutor()
+    private val gameFinderThreads = mutableMapOf<String, ExecutorService>()
     private val logger = KotlinLogging.logger { }
 
     private val finders: List<GameFinder> =
@@ -26,6 +27,8 @@ class GameFinderManager(
      * allowing for partial steps to occur on different threads
      */
     fun findMatch(gameRequest: GameRequest): GameRequestResult {
+        val thread = gameFinderThreads.getOrPut(gameRequest.gameType, Executors::newSingleThreadExecutor)
+
         return CompletableFuture
             .supplyAsync({
                 for (finder in finders) {
@@ -34,7 +37,7 @@ class GameFinderManager(
                     if (result.isSuccess()) return@supplyAsync result
                 }
                 return@supplyAsync GameRequestResult.failure(gameRequest.requestId, "No game server is available right now.")
-            }, gameFinderThread)
+            }, thread)
             .join()
     }
 }
