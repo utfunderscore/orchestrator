@@ -17,15 +17,17 @@ import org.readutf.orchestrator.server.network.listeners.ServerUnregisterListene
 import org.readutf.orchestrator.server.server.ServerCommand
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.server.store.impl.MemoryServerStore
+import org.readutf.orchestrator.server.settings.Settings
 import org.readutf.orchestrator.server.utils.FastJsonMapper
 import org.readutf.orchestrator.shared.kryo.KryoCreator
 import revxrsal.commands.cli.ConsoleCommandHandler
 import java.net.SocketException
 
-class Orchestrator {
+class Orchestrator(
+    val settings: Settings,
+) {
     private val logger = KotlinLogging.logger { }
 
-    private val commandThread = Thread("Command Thread")
     private val commandManager: ConsoleCommandHandler = ConsoleCommandHandler.create()
 
     init {
@@ -36,17 +38,19 @@ class Orchestrator {
         val gameManager = GameManager(javalin, serverManager, InMemoryGameStore(serverStore))
         val packetManager = setupPacketManager(serverManager, gameManager, kryo)
 
-        commandThread.run {
+        Thread({
             commandManager.register(ServerCommand(serverManager, gameManager))
             commandManager.pollInput()
-        }
+        }, "Command Thread").start()
     }
 
     private fun setupJavalin() =
         Javalin.createAndStart {
-            it.jetty.defaultHost = "localhost"
-            it.jetty.defaultPort = 9393
+            it.jetty.defaultHost = settings.apiSettings.host
+            it.jetty.defaultPort = settings.apiSettings.port
             it.jsonMapper(FastJsonMapper)
+            it.useVirtualThreads = settings.apiSettings.virtualThreads
+            it.showJavalinBanner = false
         }
 
     private fun setupPacketManager(
@@ -56,8 +60,8 @@ class Orchestrator {
     ): PacketManager<*> =
         PacketManager
             .nettyServer(
-                hostName = "localhost",
-                port = 2980,
+                hostName = settings.serversettings.host,
+                port = settings.serversettings.port,
                 serializer = KryoPacketSerializer(kryo),
             ).editListeners { listeners ->
                 listeners.registerListener(ChannelCloseListener(serverManager))
