@@ -22,21 +22,16 @@ class ShepardClient(
     private var reconnecting = false
     private var clientManager: ClientManager? = null
     private var restartScheduler = Executors.newSingleThreadScheduledExecutor()
-    private var mainThread = Thread("TestThread")
+    private val mainExecutor = Executors.newSingleThreadExecutor()
     private var gameRequestHandler: GameRequestHandler? = null
 
     private val logger = KotlinLogging.logger { }
 
     fun start() {
-        mainThread.run { start(emptyMap()) }
+        mainExecutor.submit { start(emptyMap()) }
     }
 
     private fun start(games: Map<UUID, Game>) {
-        if (Thread.currentThread() != mainThread) {
-            logger.error { "Client started on invalid thread" }
-            return
-        }
-
         logger.info { "Connecting to server" }
 
         reconnecting = false
@@ -92,7 +87,7 @@ class ShepardClient(
             logger.info { "Reconnecting..." }
             reconnecting = true
             restartScheduler.schedule({
-                mainThread.run { start(games) }
+                mainExecutor.submit { start(games) }
             }, 5, TimeUnit.SECONDS)
         }
     }
