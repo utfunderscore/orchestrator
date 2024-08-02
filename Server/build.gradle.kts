@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
     kotlin("jvm")
@@ -23,10 +25,6 @@ dependencies {
     implementation("org.readutf.hermes:netty:$hermesVersion")
     implementation("org.readutf.hermes:kryo:$hermesVersion")
 
-    // Hoplite
-    implementation("com.sksamuel.hoplite:hoplite-core:2.7.5")
-    implementation("com.sksamuel.hoplite:hoplite-yaml:2.8.0.RC3")
-
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.52")
 
@@ -48,6 +46,10 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed")
     implementation("org.jetbrains.exposed:exposed-java-time:$exposed")
 
+    // Hoplite
+    implementation("com.sksamuel.hoplite:hoplite-core:2.8.0.RC3")
+    runtimeOnly("com.sksamuel.hoplite:hoplite-yaml:2.8.0.RC3")
+
     implementation("com.h2database:h2:2.2.224")
 }
 
@@ -55,6 +57,23 @@ tasks.jar {
     manifest {
         attributes["Main-Class"] = "org.readutf.orchestrator.server.ServerStarterKt"
     }
+}
+
+tasks.register("createProperties") {
+    dependsOn(tasks.processResources)
+    doLast {
+        val propertiesFile = file("$buildDir/resources/main/version.properties")
+        propertiesFile.parentFile.mkdirs()
+        propertiesFile.writer().use { writer ->
+            val properties = Properties()
+            properties["version"] = project.version.toString()
+            properties.store(writer, null)
+        }
+    }
+}
+
+tasks.named("classes") {
+    dependsOn("createProperties")
 }
 
 tasks.test {
