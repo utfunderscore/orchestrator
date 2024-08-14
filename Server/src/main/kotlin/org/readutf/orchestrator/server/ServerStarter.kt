@@ -2,7 +2,6 @@ package org.readutf.orchestrator.server
 
 import com.sksamuel.hoplite.ConfigLoaderBuilder
 import com.sksamuel.hoplite.addFileSource
-import com.sksamuel.hoplite.addResourceSource
 import org.readutf.orchestrator.server.settings.Settings
 import java.io.File
 import java.nio.file.Files
@@ -33,7 +32,6 @@ fun main() {
     val settings: Settings =
         ConfigLoaderBuilder
             .default()
-            .addResourceSource("/settings.yml")
             .addFileSource(settingsFile)
             .build()
             .loadConfigOrThrow<Settings>()

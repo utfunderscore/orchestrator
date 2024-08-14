@@ -6,7 +6,6 @@ import org.readutf.orchestrator.server.game.finder.GameFinder
 import org.readutf.orchestrator.shared.game.GameFinderType
 import org.readutf.orchestrator.shared.game.GameRequest
 import org.readutf.orchestrator.shared.game.GameRequestResult
-import org.readutf.orchestrator.shared.packets.GameRequestPacket
 
 class GameCreatorSearch(
     private val gameManager: GameManager,
@@ -18,7 +17,7 @@ class GameCreatorSearch(
         for (registeredServer in gameManager.findGameRequestServers(true).take(maxRequests)) {
             logger.info { "Sending request to ${registeredServer.serverId}" }
 
-            val packetResult = registeredServer.channel.sendPacketFuture<GameRequestResult>(GameRequestPacket(gameRequest)).join()
+            val packetResult = gameManager.requestGame(registeredServer, gameRequest).join()
             if (packetResult.isSuccess()) return packetResult
         }
         return GameRequestResult.failure(gameRequest.requestId, "")
