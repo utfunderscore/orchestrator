@@ -26,3 +26,5 @@ Server/build/
 gradle.properties
 
 ApiWrapper/build/
+
+settings.yml

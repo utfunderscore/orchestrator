@@ -1,7 +1,7 @@
 api-settings:
-  host: 0.0.0.0
+  host: localhost
   port: 9393
   virtual-threads: false
 server-settings:
-  host: 0.0.0.0
+  host: localhost
   port: 2980
