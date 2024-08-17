@@ -1,10 +1,11 @@
 package org.readutf.orchestrator.shared.game
 
+import org.readutf.orchestrator.shared.server.Server
 import java.util.UUID
 
 data class GameRequestResult private constructor(
     val requestId: UUID,
-    val serverId: UUID?,
+    val server: Server?,
     val gameId: UUID?,
     val failureReason: String?,
 ) {
@@ -13,9 +14,9 @@ data class GameRequestResult private constructor(
     companion object {
         fun success(
             requestId: UUID,
-            serverId: UUID,
+            server: Server,
             gameId: UUID,
-        ): GameRequestResult = GameRequestResult(requestId, serverId, gameId, null)
+        ): GameRequestResult = GameRequestResult(requestId, server, gameId, null)
 
         fun failure(
             requestId: UUID,

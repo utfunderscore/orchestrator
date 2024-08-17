@@ -7,8 +7,11 @@ data class Game(
     val serverId: UUID,
     val matchType: String,
     val teams: List<List<UUID>>,
+    var reservation: GameReservation?,
     var gameState: GameState,
 ) {
+    fun isReserved(): Boolean = reservation?.let { it.expiresAt > System.currentTimeMillis() } ?: false
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

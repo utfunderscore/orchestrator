@@ -4,8 +4,10 @@ import org.readutf.orchestrator.client.network.ClientNetworkManager
 import org.readutf.orchestrator.client.network.listeners.GameRequestListener
 import org.readutf.orchestrator.client.network.listeners.GameReserveListener
 import org.readutf.orchestrator.shared.game.Game
+import org.readutf.orchestrator.shared.game.GameReservation
 import org.readutf.orchestrator.shared.game.GameState
 import org.readutf.orchestrator.shared.packets.ServerGamesUpdatePacket
+import org.readutf.orchestrator.shared.utils.Result
 import java.util.UUID
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -39,19 +41,43 @@ class GameManager(
         teams: List<List<UUID>>,
         gameState: GameState,
     ) {
-        registerGame(Game(id, serverId, matchType, teams, gameState))
+        registerGame(
+            Game(
+                id = id,
+                serverId = serverId,
+                matchType = matchType,
+                teams = teams,
+                reservation = null,
+                gameState = gameState,
+            ),
+        )
     }
 
     fun unregisterGame(game: Game) {
         games.remove(game.id)
     }
 
-    fun reserveGame(gameId: UUID): Boolean {
-        games[gameId]?.let {
-            it.gameState = GameState.AWAITING_PLAYERS
-            return true
+    fun reserveGame(
+        gameId: UUID,
+        reservationId: UUID,
+    ): Result<GameReservation> {
+        val foundGame = games[gameId] ?: return Result.error("Specified game could not be found.")
+
+        if (foundGame.isReserved()) {
+            return Result.error("Specified game is already reserved")
         }
-        return false
+
+        val reservation =
+            GameReservation(
+                reservationId,
+                System.currentTimeMillis(),
+                System.currentTimeMillis() + 5000,
+            )
+
+        foundGame.reservation =
+            reservation
+
+        return Result.ok(reservation)
     }
 
     fun updateGames() {

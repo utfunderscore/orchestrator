@@ -10,4 +10,6 @@ class ApiResponse<T>(
 
         fun <T> failure(reason: String): ApiResponse<T> = ApiResponse(false, reason, null)
     }
+
+    override fun toString(): String = "ApiResponse(success=$success, failureReason=$failureReason, response=$response)"
 }

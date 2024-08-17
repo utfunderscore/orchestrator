@@ -5,7 +5,7 @@ import org.readutf.orchestrator.server.game.GameManager
 import org.readutf.orchestrator.server.game.finder.GameFinder
 import org.readutf.orchestrator.shared.game.GameFinderType
 import org.readutf.orchestrator.shared.game.GameRequest
-import org.readutf.orchestrator.shared.game.GameRequestResult
+import org.readutf.orchestrator.shared.game.GameRequestResponse
 
 class GameCreatorSearch(
     private val gameManager: GameManager,
@@ -13,13 +13,13 @@ class GameCreatorSearch(
 ) : GameFinder(GameFinderType.ON_REQUEST) {
     private val logger = KotlinLogging.logger { }
 
-    override fun findGame(gameRequest: GameRequest): GameRequestResult {
+    override fun findGame(gameRequest: GameRequest): GameRequestResponse {
         for (registeredServer in gameManager.findGameRequestServers(true).take(maxRequests)) {
             logger.info { "Sending request to ${registeredServer.serverId}" }
 
             val packetResult = gameManager.requestGame(registeredServer, gameRequest).join()
             if (packetResult.isSuccess()) return packetResult
         }
-        return GameRequestResult.failure(gameRequest.requestId, "")
+        return GameRequestResponse.failure(gameRequest.requestId, "")
     }
 }
