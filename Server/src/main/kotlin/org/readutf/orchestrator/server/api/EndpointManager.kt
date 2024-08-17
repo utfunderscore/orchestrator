@@ -1,9 +1,10 @@
 package org.readutf.orchestrator.server.api
 
 import io.javalin.Javalin
+import io.javalin.community.routing.annotations.AnnotatedRouting.Annotated
+import org.readutf.orchestrator.server.api.endpoint.GameRequestSocket
 import org.readutf.orchestrator.server.api.endpoint.ServerEndpoint
 import org.readutf.orchestrator.server.game.GameManager
-import org.readutf.orchestrator.server.game.endpoints.GameRequestSocket
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.settings.ApiSettings
 import org.readutf.orchestrator.server.utils.FastJsonMapper
@@ -15,6 +16,8 @@ class EndpointManager(
 ) {
     private val javalin = setupJavalin()
 
+//    private val logger = KotlinLogging.logger { }
+
     init {
 
         javalin.ws(
@@ -24,8 +27,6 @@ class EndpointManager(
                 serverManager = serverManager,
             ),
         )
-
-        javalin.get("/server/list", ServerEndpoint.getServersEndpoint(serverManager))
     }
 
     fun shutdown() {
@@ -33,11 +34,22 @@ class EndpointManager(
     }
 
     private fun setupJavalin() =
-        Javalin.createAndStart {
-            it.jetty.defaultHost = apiSettings.host
-            it.jetty.defaultPort = apiSettings.port
-            it.jsonMapper(FastJsonMapper)
-            it.useVirtualThreads = apiSettings.virtualThreads
-            it.showJavalinBanner = false
+        Javalin.createAndStart { config ->
+            config.jetty.defaultHost = apiSettings.host
+            config.jetty.defaultPort = apiSettings.port
+            config.jsonMapper(FastJsonMapper)
+            config.useVirtualThreads = apiSettings.virtualThreads
+            config.showJavalinBanner = false
+            config.bundledPlugins.enableDevLogging()
+
+            // register endpoints
+            config.router.mount(Annotated) { routing ->
+                routing.registerEndpoints(ServerEndpoint(serverManager))
+            }
+
+            config.pvt.internalRouter.allHttpHandlers().forEach { parsedEndpoint ->
+                val endpoint = parsedEndpoint.endpoint
+                println("Registered ${endpoint.method.name} endpoint '${endpoint.path}")
+            }
         }
 }

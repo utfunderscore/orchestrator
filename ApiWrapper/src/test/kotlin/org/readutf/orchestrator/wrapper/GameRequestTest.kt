@@ -1,5 +1,7 @@
 package org.readutf.orchestrator.wrapper
 
+import kotlinx.coroutines.runBlocking
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 /**
@@ -7,10 +9,37 @@ import org.junit.jupiter.api.Test
  * game request tests are executed
  */
 class GameRequestTest {
+    val orchestratorApi = OrchestratorApi("localhost", 9393)
+
     @Test
     fun testGameRequest() {
-        val (requestId, serverId, gameId) = OrchestratorApi.requestGame("test").join()
+        val (requestId, server, gameId) = orchestratorApi.requestGame("test").join()
 
-        println("server: $serverId | game: $gameId")
+        println("server: $server | game: $gameId")
+    }
+
+    @Test
+    fun testGetServers() {
+        runBlocking {
+            val response = orchestratorApi.serverService
+            println(response)
+
+            Assertions.assertEquals(true, response.getAllServers().success)
+        }
+    }
+
+    @Test
+    fun testGetServer() {
+        runBlocking {
+            val allServers = orchestratorApi.serverService.getAllServers()
+
+            Assertions.assertEquals(true, allServers.success)
+            val serverId = allServers.response!![0].serverId
+
+            val getServer = orchestratorApi.serverService.getServer(serverId)
+            Assertions.assertEquals(true, getServer.success)
+
+            println(getServer)
+        }
     }
 }

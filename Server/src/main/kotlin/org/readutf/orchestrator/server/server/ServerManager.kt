@@ -58,4 +58,6 @@ class ServerManager(
     }
 
     fun getServerByShortId(shortId: String): Server? = serverStore.getServerByShortId(shortId)
+
+    fun getServerById(serverId: UUID): Server? = serverStore.getServerById(serverId)
 }

@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm")
     id("java-library")
+    id("maven-publish")
 }
 
 group = "org.readutf.orchestrator"
@@ -22,6 +23,29 @@ dependencies {
 
     implementation("org.jetbrains:annotations:24.1.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect:2.0.0")
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "utfunderscore"
+            url = uri("https://reposilite.readutf.org/releases")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
+    }
+
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "org.readutf.orchestrator"
+            artifactId = "shared"
+            version = rootProject.version.toString()
+
+            from(components["java"])
+        }
+    }
 }
 
 tasks.test {

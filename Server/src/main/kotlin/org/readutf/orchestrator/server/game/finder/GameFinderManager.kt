@@ -5,7 +5,7 @@ import org.readutf.orchestrator.server.game.GameManager
 import org.readutf.orchestrator.server.game.finder.impl.ExistingGameSearch
 import org.readutf.orchestrator.server.game.finder.impl.GameCreatorSearch
 import org.readutf.orchestrator.shared.game.GameRequest
-import org.readutf.orchestrator.shared.game.GameRequestResult
+import org.readutf.orchestrator.shared.game.GameRequestResponse
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -26,7 +26,7 @@ class GameFinderManager(
      * Recursively execute each finder on the finder thread,
      * allowing for partial steps to occur on different threads
      */
-    fun findMatch(gameRequest: GameRequest): GameRequestResult {
+    fun findMatch(gameRequest: GameRequest): GameRequestResponse {
         val thread = gameFinderThreads.getOrPut(gameRequest.gameType, Executors::newSingleThreadExecutor)
 
         return CompletableFuture
@@ -36,7 +36,7 @@ class GameFinderManager(
                     val result = finder.findGame(gameRequest)
                     if (result.isSuccess()) return@supplyAsync result
                 }
-                return@supplyAsync GameRequestResult.failure(gameRequest.requestId, "No game server is available right now.")
+                return@supplyAsync GameRequestResponse.failure(gameRequest.requestId, "No game server is available right now.")
             }, thread)
             .join()
     }

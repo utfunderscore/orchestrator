@@ -11,6 +11,7 @@ import java.lang.Exception
 import java.net.URI
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
 
 internal class GameRequestClient(
     uri: String,
@@ -37,7 +38,7 @@ internal class GameRequestClient(
 
         futures[requestId] = future
 
-        return future.orTimeout(timeout, java.util.concurrent.TimeUnit.MILLISECONDS)
+        return future.orTimeout(timeout, TimeUnit.MILLISECONDS)
     }
 
     override fun onOpen(p0: ServerHandshake?) {

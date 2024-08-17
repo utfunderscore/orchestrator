@@ -39,10 +39,13 @@ class InMemoryGameStore(
 
             serverGame.addAll(
                 games
+                    .asSequence()
                     .filter { it.matchType == gameType }
                     .filter { it.gameState == GameState.IDLE }
+                    .filter { !it.isReserved() }
                     .filter { it.teams.flatten().isEmpty() }
-                    .map { (serverById to it) },
+                    .map { (serverById to it) }
+                    .toList(),
             )
         }
 

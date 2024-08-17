@@ -7,9 +7,11 @@ import org.readutf.orchestrator.server.game.store.GameStore
 import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.shared.game.Game
 import org.readutf.orchestrator.shared.game.GameRequest
-import org.readutf.orchestrator.shared.game.GameRequestResult
+import org.readutf.orchestrator.shared.game.GameRequestResponse
+import org.readutf.orchestrator.shared.game.GameReservation
 import org.readutf.orchestrator.shared.packets.GameRequestPacket
 import org.readutf.orchestrator.shared.packets.GameReservePacket
+import org.readutf.orchestrator.shared.utils.Result
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
@@ -42,9 +44,13 @@ class GameManager(
     fun reserveGame(
         channel: HermesChannel,
         gameId: UUID,
-    ): CompletableFuture<Boolean> {
-        val packet = GameReservePacket(gameId)
-        return channel.sendPacketFuture<Boolean>(packet)
+    ): CompletableFuture<Result<GameReservation>> {
+        val packet = GameReservePacket(gameId, UUID.randomUUID())
+        val future = channel.sendPacketFuture<Result<GameReservation>>(packet)
+        return future.thenApply {
+            if (it.isOk()) gameStore.setReservation(gameId, it.get())
+            return@thenApply it
+        }
     }
 
     fun updateGames(
@@ -63,6 +69,6 @@ class GameManager(
     fun requestGame(
         findGameRequestServer: RegisteredServer,
         gameRequest: GameRequest,
-    ): CompletableFuture<GameRequestResult> =
-        findGameRequestServer.channel.sendPacketFuture<GameRequestResult>(GameRequestPacket(gameRequest))
+    ): CompletableFuture<GameRequestResponse> =
+        findGameRequestServer.channel.sendPacketFuture<GameRequestResponse>(GameRequestPacket(gameRequest))
 }
