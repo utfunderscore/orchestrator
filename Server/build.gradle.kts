@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
     kotlin("jvm")
+    id("com.bmuschko.docker-java-application") version "9.4.0"
 }
 
 group = "org.readutf.orchestrator"
@@ -57,6 +58,7 @@ tasks.jar {
     manifest {
         attributes["Main-Class"] = "org.readutf.orchestrator.server.ServerStarterKt"
     }
+    finalizedBy("dockerBuildImage")
 }
 
 tasks.register("createProperties") {
@@ -69,6 +71,15 @@ tasks.register("createProperties") {
             properties["version"] = project.version.toString()
             properties.store(writer, null)
         }
+    }
+}
+
+docker {
+    javaApplication {
+        group = "utfunderscore"
+        baseImage.set("eclipse-temurin:21-jdk-jammy")
+        images.set(listOf("utfunderscore/orchestrator:$version"))
+        ports.set(listOf(2980, 9393))
     }
 }
 
