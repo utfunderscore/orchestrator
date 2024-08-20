@@ -4,7 +4,6 @@ import org.readutf.orchestrator.server.settings.ApiSettings
 import org.readutf.orchestrator.server.settings.DockerSettings
 import org.readutf.orchestrator.server.settings.ServerSettings
 import org.readutf.orchestrator.server.settings.Settings
-import java.net.URI
 
 fun main() {
     val settings =
@@ -17,10 +16,10 @@ fun main() {
                 ),
             dockerSettings =
                 DockerSettings(
-                    uri = URI("http://localhost:2375"),
+                    uri = "http://localhost:2375",
                     maxConnections = 100,
-                    responseTimeout = java.time.Duration.ofSeconds(10),
-                    connectionTimeout = java.time.Duration.ofSeconds(10),
+                    responseTimeout = 10,
+                    connectionTimeout = 10,
                 ),
             serverSettings =
                 ServerSettings(
