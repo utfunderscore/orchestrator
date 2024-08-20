@@ -38,6 +38,7 @@ class ServerManager(
                     gameTypes = supportedGameTypes,
                     gameFinders = gameFinderTypes,
                     heartbeat = ServerHeartbeat(serverId = serverId),
+                    mapOf(),
                 ),
             ),
         )
