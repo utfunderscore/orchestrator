@@ -17,7 +17,7 @@ class RegisteredServer(
     heartbeat: ServerHeartbeat = ServerHeartbeat(serverId, System.currentTimeMillis()),
     channel: HermesChannel,
     private val registeredAt: Long = System.currentTimeMillis(),
-) : Server(serverId, address, gameTypes, gameFinders, heartbeat) {
+) : Server(serverId, address, gameTypes, gameFinders, heartbeat, mapOf()) {
     @JSONField(serialize = false)
     fun getUptime() = System.currentTimeMillis() - registeredAt
 
