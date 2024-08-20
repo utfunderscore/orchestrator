@@ -19,6 +19,8 @@ class ExistingGameSearch(
 
     @Blocking
     override fun findGame(gameRequest: GameRequest): GameRequestResponse {
+        logger.info { "Game request occuring on ${Thread.currentThread().name}" }
+
         val availableGames = gameManager.findEmptyExistingGames(gameRequest.gameType)
 
         availableGames
