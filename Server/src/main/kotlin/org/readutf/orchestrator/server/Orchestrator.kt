@@ -36,7 +36,7 @@ class Orchestrator(
         val gameManager = GameManager(InMemoryGameStore(serverStore))
         val endpointManager =
             EndpointManager(
-                settings = settings.apiSettings,
+                settings = settings,
                 serverManager = serverManager,
                 gameManager = gameManager,
             )
