@@ -5,9 +5,9 @@ class ApiResponse<T>(
     var failureReason: String?,
     val response: T?,
 ) {
-    fun getFailureReason(): String = failureReason!!
+    fun getError(): String = failureReason!!
 
-    fun getResponse(): T = response!!
+    fun get(): T = response!!
 
     companion object {
         fun <T> success(data: T): ApiResponse<T> = ApiResponse(true, null, data)
