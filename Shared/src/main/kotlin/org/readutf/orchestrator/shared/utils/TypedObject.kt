@@ -3,7 +3,7 @@ package org.readutf.orchestrator.shared.utils
 import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONObject
 
-class TypedJson(
+class TypedObject(
     any: Any,
 ) {
     val type = any::class.qualifiedName
@@ -12,14 +12,14 @@ class TypedJson(
     override fun toString(): String = "TypedJson(type=$type, data=$data)"
 
     companion object {
-        fun fromString(jsonString: String): TypedJson {
+        fun fromString(jsonString: String): TypedObject {
             val jsonObject: JSONObject = JSON.parseObject(jsonString)
 
             val clazz = Class.forName(jsonObject.getString("type"))
 
             val data = jsonObject.getObject("data", clazz)
 
-            return TypedJson(data)
+            return TypedObject(data)
         }
     }
 }
