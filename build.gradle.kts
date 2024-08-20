@@ -16,7 +16,7 @@ repositories {
     }
 }
 
-extra["hermesVersion"] = "1.5.3"
+extra["hermesVersion"] = "1.5.4"
 extra["nettyVersion"] = "4.1.111.Final"
 extra["log4jVersion"] = "2.23.1"
 
