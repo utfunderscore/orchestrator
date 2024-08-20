@@ -1,5 +1,7 @@
 plugins {
+    id("java-library")
     kotlin("jvm") version "2.0.0"
+    id("maven-publish")
 }
 
 group = "org.readutf.orchestrator"
@@ -13,12 +15,12 @@ dependencies {
     testImplementation(kotlin("test"))
 
     val hermesVersion: String by rootProject.extra
-    implementation("org.readutf.hermes:core:$hermesVersion")
-    implementation("org.readutf.hermes:netty:$hermesVersion")
-    implementation("org.readutf.hermes:kryo:$hermesVersion")
+    api("org.readutf.hermes:core:$hermesVersion")
+    api("org.readutf.hermes:netty:$hermesVersion")
+    api("org.readutf.hermes:kryo:$hermesVersion")
 
     val nettyVersion: String by rootProject.extra
-    implementation("io.netty:netty-all:$nettyVersion")
+    api("io.netty:netty-all:$nettyVersion")
 
     // Logging
     val log4jVersion: String by rootProject.extra
@@ -26,11 +28,33 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4jVersion")
 
     // FastJSON2
-    implementation("com.alibaba:fastjson:+")
+    api("com.alibaba:fastjson:2.0.52")
 
-    implementation(project(":Shared"))
+    api(project(":Shared"))
 }
 
+publishing {
+    repositories {
+        maven {
+            name = "utfunderscore"
+            url = uri("https://reposilite.readutf.org/releases")
+            credentials(PasswordCredentials::class)
+            authentication {
+                create<BasicAuthentication>("basic")
+            }
+        }
+    }
+
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "org.readutf.orchestrator"
+            artifactId = "client"
+            version = rootProject.version.toString()
+
+            from(components["java"])
+        }
+    }
+}
 tasks.test {
     useJUnitPlatform()
 }
