@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
  * The server needs to be running before
  * game request tests are executed
  */
-class GameRequestTest {
+class ApiTests {
     val orchestratorApi = OrchestratorApi("localhost", 9393)
 
     @Test

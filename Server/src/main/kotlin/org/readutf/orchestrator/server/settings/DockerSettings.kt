@@ -1,11 +1,8 @@
 package org.readutf.orchestrator.server.settings
 
-import java.net.URI
-import java.time.Duration
-
-object Docker {
-    val URI = URI("tcp://localhost:2375")
-    val maxConnections = 100
-    val responseTimeout: Duration = Duration.ofSeconds(15)
-    val connectionTimeout: Duration = Duration.ofSeconds(15)
-}
+data class DockerSettings(
+    val uri: String,
+    val maxConnections: Int,
+    val responseTimeout: Long,
+    val connectionTimeout: Long,
+)

@@ -1,4 +1,4 @@
-package org.readutf.orchestrator.wrapper
+package org.readutf.orchestrator.wrapper.services
 
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.utils.ApiResponse

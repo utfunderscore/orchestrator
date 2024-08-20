@@ -1,7 +1,12 @@
-api-settings:
+api:
   host: localhost
   port: 9393
   virtual-threads: false
-server-settings:
+server:
   host: localhost
   port: 2980
+docker:
+  uri: "tcp://localhost:2375"
+  maxConnections: 100
+  responseTimeout: 30
+  connectionTimeout: 30

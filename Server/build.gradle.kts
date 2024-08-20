@@ -47,6 +47,10 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposed")
     implementation("org.jetbrains.exposed:exposed-java-time:$exposed")
 
+    // Docker
+    implementation("com.github.docker-java:docker-java-core:3.4.0")
+    implementation("com.github.docker-java:docker-java-transport-zerodep:3.4.0")
+
     // Hoplite
     implementation("com.sksamuel.hoplite:hoplite-core:2.8.0.RC3")
     runtimeOnly("com.sksamuel.hoplite:hoplite-yaml:2.8.0.RC3")

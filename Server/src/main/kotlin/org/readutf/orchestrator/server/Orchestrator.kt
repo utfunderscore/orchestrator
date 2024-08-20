@@ -36,7 +36,7 @@ class Orchestrator(
         val gameManager = GameManager(InMemoryGameStore(serverStore))
         val endpointManager =
             EndpointManager(
-                apiSettings = settings.apiSettings,
+                settings = settings.apiSettings,
                 serverManager = serverManager,
                 gameManager = gameManager,
             )
@@ -49,7 +49,6 @@ class Orchestrator(
         }, "Command Thread").start()
 
         // shutdown hook
-
         Runtime.getRuntime().addShutdownHook(
             Thread {
                 logger.info { "Shutting down Orchestrator" }
@@ -65,8 +64,8 @@ class Orchestrator(
     ): PacketManager<*> =
         PacketManager
             .nettyServer(
-                hostName = settings.serversettings.host,
-                port = settings.serversettings.port,
+                hostName = settings.serverSettings.host,
+                port = settings.serverSettings.port,
                 serializer = KryoPacketSerializer(kryo),
             ).editListeners { listeners ->
                 listeners.registerListener(ChannelCloseListener(serverManager))
