@@ -13,6 +13,8 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class ShepardClient(
+    private val orchestratorHost: String,
+    private val orchestratorPort: Int,
     val serverAddress: ServerAddress,
 ) {
     private val serverId = UUID.randomUUID()
@@ -32,10 +34,19 @@ class ShepardClient(
     }
 
     private fun start(games: Map<UUID, Game>) {
-        logger.info { "Connecting to server" }
+        logger.info { "Connecting to server ($serverAddress)" }
 
         reconnecting = false
-        ClientManager(serverId, serverAddress, gameFinderTypes, supportedGameTypes, games, gameRequestHandler) {
+        ClientManager(
+            orchestratorHost,
+            orchestratorPort,
+            serverId,
+            serverAddress,
+            gameFinderTypes,
+            supportedGameTypes,
+            games,
+            gameRequestHandler,
+        ) {
             onDisconnect(it)
         }
     }

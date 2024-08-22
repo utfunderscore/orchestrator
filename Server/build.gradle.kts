@@ -1,8 +1,9 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import java.util.Properties
 
 plugins {
-    id("com.github.johnrengelman.shadow") version "8.1.1"
     kotlin("jvm")
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "org.readutf.orchestrator"
@@ -61,12 +62,19 @@ tasks.jar {
     manifest {
         attributes["Main-Class"] = "org.readutf.orchestrator.server.ServerStarterKt"
     }
+    finalizedBy("shadowJar")
+}
+
+tasks.named<ShadowJar>("shadowJar") {
     finalizedBy("generateDockerFile")
 }
 
-tasks.register("generateDockerFile") {
+tasks.register<Exec>("generateDockerFile") {
 
-    File("$buildDir/Dockerfile").writeText(
+    val buildFile = file("/build/docker/")
+    buildFile.mkdirs()
+
+    File(buildFile, "Dockerfile").writeText(
         """
         FROM eclipse-temurin:21-jdk-jammy as deps
         
@@ -80,6 +88,37 @@ tasks.register("generateDockerFile") {
         CMD ["java", "-jar", "Server-$version-all.jar"]
         """.trimIndent(),
     )
+
+    commandLine("docker", "build", "-t", "utfunderscore/orchestrator:$version", buildFile.absolutePath)
+}
+
+tasks.register<Exec>("generateDevDockerFile") {
+
+    val devFolder = file("/build/docker/dev/")
+    devFolder.mkdirs()
+
+    val targetFile = devFolder.resolve("Server-$version-all.jar")
+    if (!targetFile.exists()) {
+        file("/build/libs/Server-$version-all.jar").copyTo(targetFile)
+    }
+
+    File(devFolder, "Dockerfile").writeText(
+        """
+        FROM eclipse-temurin:21-jdk-jammy as deps
+        
+        WORKDIR /orchestrator
+
+        ADD /Server-$version-all.jar /orchestrator
+        ADD /settings.yml /orchestrator
+
+        EXPOSE 2980
+        EXPOSE 9393
+
+        CMD ["java", "-jar", "Server-$version-all.jar"]
+        """.trimIndent(),
+    )
+
+    commandLine("docker", "build", "-t", "utfunderscore/orchestrator-dev:$version", devFolder.absolutePath)
 }
 
 tasks.register("createProperties") {

@@ -1,12 +1,16 @@
 package org.readutf.orchestrator.shared.utils
 
+import com.alibaba.fastjson2.annotation.JSONField
+
 class ApiResponse<T>(
     val success: Boolean,
     var failureReason: String?,
     val response: T?,
 ) {
+    @JSONField(serialize = false)
     fun getError(): String = failureReason!!
 
+    @JSONField(serialize = false)
     fun get(): T = response!!
 
     companion object {
