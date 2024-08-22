@@ -69,7 +69,7 @@ tasks.named<ShadowJar>("shadowJar") {
     finalizedBy("generateDockerFile")
 }
 
-tasks.register<Exec>("generateDockerFile") {
+tasks.register("generateDockerFile") {
 
     val buildFile = file("/build/docker/")
     buildFile.mkdirs()
@@ -89,7 +89,7 @@ tasks.register<Exec>("generateDockerFile") {
         """.trimIndent(),
     )
 
-    commandLine("docker", "build", "-t", "utfunderscore/orchestrator:$version", buildFile.absolutePath)
+//    commandLine("docker", "build", "-t", "utfunderscore/orchestrator:$version", buildFile.absolutePath)
 }
 
 tasks.register<Exec>("generateDevDockerFile") {
