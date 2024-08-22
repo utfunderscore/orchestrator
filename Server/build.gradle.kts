@@ -1,4 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import java.util.Properties
 
 plugins {
@@ -63,10 +62,6 @@ tasks.jar {
         attributes["Main-Class"] = "org.readutf.orchestrator.server.ServerStarterKt"
     }
     finalizedBy("shadowJar")
-}
-
-tasks.named<ShadowJar>("shadowJar") {
-    finalizedBy("generateDockerFile")
 }
 
 tasks.register("generateDockerFile") {
