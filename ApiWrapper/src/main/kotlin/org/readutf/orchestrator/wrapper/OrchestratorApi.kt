@@ -16,7 +16,7 @@ class OrchestratorApi(
     private val retrofit: Retrofit =
         Retrofit
             .Builder()
-            .baseUrl("http://localhost:9393")
+            .baseUrl("http://$hostname:$port")
             .addConverterFactory(FastJsonConverterFactory.create())
             .build()
 

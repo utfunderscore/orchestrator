@@ -17,6 +17,8 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 
 class ClientManager(
+    orchestratorHost: String,
+    orchestratorPort: Int,
     serverId: UUID,
     serverAddress: ServerAddress,
     gameFinderTypes: MutableList<GameFinderType>,
@@ -27,7 +29,7 @@ class ClientManager(
 ) {
     private val packetManager: PacketManager<*> =
         PacketManager
-            .nettyClient("localhost", 2980, KryoPacketSerializer(KryoCreator.build()))
+            .nettyClient(orchestratorHost, orchestratorPort, KryoPacketSerializer(KryoCreator.build()))
             .exception(SocketException::class.java) {
                 println("ERROR: Socket exception")
                 shutdown()

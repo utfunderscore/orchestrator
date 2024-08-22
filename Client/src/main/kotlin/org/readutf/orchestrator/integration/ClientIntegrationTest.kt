@@ -8,6 +8,8 @@ import java.util.UUID
 class ClientIntegrationTest {
     private var client: ShepardClient =
         ShepardClient(
+            "localhost",
+            2980,
             serverAddress = ServerAddress("localhost", 25565),
         ).registerGameTypes("test")
             .registerFinderTypes(GameFinderType.PRE_EXISTING, GameFinderType.ON_REQUEST)
