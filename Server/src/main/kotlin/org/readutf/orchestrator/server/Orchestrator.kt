@@ -23,7 +23,7 @@ import revxrsal.commands.cli.ConsoleCommandHandler
 import java.net.SocketException
 
 class Orchestrator(
-    val settings: Settings,
+    private val settings: Settings,
 ) {
     private val logger = KotlinLogging.logger { }
 

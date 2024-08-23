@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
  * game request tests are executed
  */
 class ApiTests {
-    val orchestratorApi = OrchestratorApi("localhost", 9393)
+    val orchestratorApi = OrchestratorApi("89.33.85.41", 9393)
 
     @Test
     fun testGameRequest() {
@@ -25,6 +25,13 @@ class ApiTests {
             println(response)
 
             Assertions.assertEquals(true, response.getAllServers().success)
+        }
+    }
+
+    @Test
+    fun testGetPort() {
+        runBlocking {
+            println(orchestratorApi.getPort("b1666f1bf723"))
         }
     }
 
