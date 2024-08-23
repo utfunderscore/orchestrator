@@ -3,13 +3,14 @@ plugins {
 }
 
 group = "org.readutf.orchestrator"
-version = "1.4.4"
+version = "1.4.5"
 
 dependencies {
     testImplementation(kotlin("test"))
 }
 
 repositories {
+    mavenLocal()
     maven {
         name = "utfunderscoreReleases"
         url = uri("https://reposilite.readutf.org/releases")
@@ -24,6 +25,7 @@ subprojects {
     version = rootProject.version
 
     repositories {
+        mavenLocal()
         maven {
             name = "utfunderscore"
             url = uri("https://reposilite.readutf.org/snapshots")

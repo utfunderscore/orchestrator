@@ -8,6 +8,9 @@ class ApiResponse<T>(
     val response: T?,
 ) {
     @JSONField(serialize = false)
+    fun isSuccess() = failureReason == null
+
+    @JSONField(serialize = false)
     fun getError(): String = failureReason!!
 
     @JSONField(serialize = false)
