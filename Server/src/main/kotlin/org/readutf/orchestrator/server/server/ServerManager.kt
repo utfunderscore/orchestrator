@@ -57,6 +57,21 @@ class ServerManager(
         serverStore.updateHeartbeat(serverHeartbeat.serverId, serverHeartbeat)
     }
 
+    fun setAttribute(
+        serverId: UUID,
+        attributeName: String,
+        any: Any,
+    ) {
+        serverStore.setAttribute(serverId, attributeName, any)
+    }
+
+    fun removeAttribute(
+        serverId: UUID,
+        attributeName: String,
+    ) {
+        serverStore.removeAttribute(serverId, attributeName)
+    }
+
     fun getServerByShortId(shortId: String): Server? = serverStore.getServerByShortId(shortId)
 
     fun getServerById(serverId: UUID): Server? = serverStore.getServerById(serverId)

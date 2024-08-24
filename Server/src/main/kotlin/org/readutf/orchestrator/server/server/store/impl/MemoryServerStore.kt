@@ -5,6 +5,7 @@ import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.server.server.store.ServerStore
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
+import org.readutf.orchestrator.shared.utils.TypedObject
 import java.util.*
 
 class MemoryServerStore : ServerStore {
@@ -40,7 +41,26 @@ class MemoryServerStore : ServerStore {
 
     override fun getAllServers(): List<RegisteredServer> = servers.values.toList()
 
-    override fun getServerByShortId(shortId: String): Server? = servers.values.first { it.serverId.toString().startsWith(shortId) }
+    override fun getServerByShortId(shortId: String): Server? = servers.values.firstOrNull { it.serverId.toString().startsWith(shortId) }
+
+    override fun setAttribute(
+        serverId: UUID,
+        attributeName: String,
+        data: TypedObject,
+    ) {
+        val serverById = getServerById(serverId) ?: return
+
+        serverById.attributes[attributeName] = data
+    }
+
+    override fun removeAttribute(
+        serverId: UUID,
+        attributeName: String,
+    ) {
+        val serverById = getServerById(serverId) ?: return
+
+        serverById.attributes.remove(attributeName)
+    }
 
     override fun getTimedOutServers(): List<RegisteredServer> {
         val now = System.currentTimeMillis()
