@@ -1,7 +1,6 @@
 package org.readutf.orchestrator.shared.server
 
 import org.readutf.orchestrator.shared.game.GameFinderType
-import org.readutf.orchestrator.shared.utils.TypedObject
 import java.util.UUID
 
 open class Server(
@@ -10,7 +9,7 @@ open class Server(
     val gameTypes: List<String>,
     val gameFinders: List<GameFinderType>,
     var heartbeat: ServerHeartbeat = ServerHeartbeat(serverId, System.currentTimeMillis()),
-    var attributes: Map<String, TypedObject>,
+    var attributes: MutableMap<String, Any>,
 ) {
     override fun toString(): String =
         "Server(serverId=$serverId, address=$address, gameTypes=$gameTypes, gameFinders=$gameFinders, heartbeat=$heartbeat)"
