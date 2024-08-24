@@ -10,10 +10,11 @@ import org.readutf.orchestrator.server.game.GameManager
 import org.readutf.orchestrator.server.game.store.impl.InMemoryGameStore
 import org.readutf.orchestrator.server.network.exception.SocketExceptionHandler
 import org.readutf.orchestrator.server.network.listeners.ChannelCloseListener
-import org.readutf.orchestrator.server.network.listeners.GamesUpdateListener
-import org.readutf.orchestrator.server.network.listeners.HeartbeatListener
-import org.readutf.orchestrator.server.network.listeners.ServerRegisterListener
-import org.readutf.orchestrator.server.network.listeners.ServerUnregisterListener
+import org.readutf.orchestrator.server.network.listeners.game.GamesUpdateListener
+import org.readutf.orchestrator.server.network.listeners.server.AttributeUpdateListener
+import org.readutf.orchestrator.server.network.listeners.server.HeartbeatListener
+import org.readutf.orchestrator.server.network.listeners.server.ServerRegisterListener
+import org.readutf.orchestrator.server.network.listeners.server.ServerUnregisterListener
 import org.readutf.orchestrator.server.server.ServerCommand
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.server.store.impl.MemoryServerStore
@@ -73,6 +74,7 @@ class Orchestrator(
                 listeners.registerListener(ServerRegisterListener(serverManager))
                 listeners.registerListener(ServerUnregisterListener(serverManager))
                 listeners.registerListener(GamesUpdateListener(gameManager))
+                listeners.registerListener(AttributeUpdateListener(serverManager))
             }.exception(SocketException::class.java, SocketExceptionHandler())
             .exception {
                 logger.error(it) { "Netty Exception" }

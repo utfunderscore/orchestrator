@@ -4,6 +4,7 @@ import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.server.server.store.ServerStore
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
+import org.readutf.orchestrator.shared.utils.TypedObject
 import java.util.*
 
 class H2ServerStore : ServerStore {
@@ -39,6 +40,21 @@ class H2ServerStore : ServerStore {
     }
 
     override fun getServerByShortId(shortId: String): Server? {
+        TODO("Not yet implemented")
+    }
+
+    override fun setAttribute(
+        serverId: UUID,
+        attributeName: String,
+        data: TypedObject,
+    ) {
+        TODO("Not yet implemented")
+    }
+
+    override fun removeAttribute(
+        serverId: UUID,
+        attributeName: String,
+    ) {
         TODO("Not yet implemented")
     }
 }

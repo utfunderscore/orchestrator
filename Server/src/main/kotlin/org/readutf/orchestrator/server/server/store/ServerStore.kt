@@ -24,4 +24,15 @@ interface ServerStore {
     fun getAllServers(): List<RegisteredServer>
 
     fun getServerByShortId(shortId: String): Server?
+
+    fun setAttribute(
+        serverId: UUID,
+        attributeName: String,
+        any: Any,
+    )
+
+    fun removeAttribute(
+        serverId: UUID,
+        attributeName: String,
+    )
 }
