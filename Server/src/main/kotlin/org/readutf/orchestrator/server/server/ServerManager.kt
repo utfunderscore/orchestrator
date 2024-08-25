@@ -6,8 +6,10 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.server.server.store.ServerStore
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
+import org.readutf.orchestrator.shared.utils.TypedObject
 import java.util.*
 import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit.*
 
 class ServerManager(
     private val serverStore: ServerStore,
@@ -20,7 +22,7 @@ class ServerManager(
             { invalidateExpiredServers() },
             0,
             5,
-            java.util.concurrent.TimeUnit.SECONDS,
+            SECONDS,
         )
     }
 
@@ -60,9 +62,9 @@ class ServerManager(
     fun setAttribute(
         serverId: UUID,
         attributeName: String,
-        any: Any,
+        typedObject: TypedObject,
     ) {
-        serverStore.setAttribute(serverId, attributeName, any)
+        serverStore.setAttribute(serverId, attributeName, typedObject)
     }
 
     fun removeAttribute(
@@ -75,4 +77,6 @@ class ServerManager(
     fun getServerByShortId(shortId: String): Server? = serverStore.getServerByShortId(shortId)
 
     fun getServerById(serverId: UUID): Server? = serverStore.getServerById(serverId)
+
+    fun getServersByType(serverType: String): List<Server> = serverStore.getServersByType(serverType)
 }

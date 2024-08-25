@@ -46,11 +46,11 @@ class MemoryServerStore : ServerStore {
     override fun setAttribute(
         serverId: UUID,
         attributeName: String,
-        data: TypedObject,
+        typedObject: TypedObject,
     ) {
         val serverById = getServerById(serverId) ?: return
 
-        serverById.attributes[attributeName] = data
+        serverById.attributes[attributeName] = typedObject
     }
 
     override fun removeAttribute(
@@ -61,6 +61,8 @@ class MemoryServerStore : ServerStore {
 
         serverById.attributes.remove(attributeName)
     }
+
+    override fun getServersByType(gameType: String): List<Server> = servers.values.filter { server -> server.gameTypes.contains(gameType) }
 
     override fun getTimedOutServers(): List<RegisteredServer> {
         val now = System.currentTimeMillis()

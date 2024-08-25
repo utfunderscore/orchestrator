@@ -10,8 +10,13 @@ interface ServerService {
     @GET("/server/list")
     suspend fun getAllServers(): ApiResponse<List<Server>>
 
-    @GET("/server")
+    @GET("/server/byId")
     suspend fun getServer(
         @Query("serverId") serverId: UUID,
     ): ApiResponse<Server>
+
+    @GET("/server/byType")
+    suspend fun getServer(
+        @Query("serverType") serverType: String,
+    ): ApiResponse<List<Server>>
 }
