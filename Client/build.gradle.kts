@@ -33,6 +33,10 @@ dependencies {
     api(project(":Shared"))
 }
 
+java {
+    withSourcesJar()
+}
+
 publishing {
     repositories {
         maven {
