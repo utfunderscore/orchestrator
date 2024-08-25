@@ -3,8 +3,13 @@ package org.readutf.orchestrator.shared.kryo
 import com.esotericsoftware.kryo.kryo5.Kryo
 import com.esotericsoftware.kryo.kryo5.objenesis.strategy.StdInstantiatorStrategy
 import com.esotericsoftware.kryo.kryo5.util.DefaultInstantiatorStrategy
-import org.readutf.orchestrator.shared.packets.ServerRegisterPacket
-import java.util.UUID
+import org.readutf.orchestrator.shared.game.GameFinderType
+import org.readutf.orchestrator.shared.packets.*
+import org.readutf.orchestrator.shared.server.Server
+import org.readutf.orchestrator.shared.server.ServerAddress
+import org.readutf.orchestrator.shared.server.ServerHeartbeat
+import org.readutf.orchestrator.shared.utils.TypedObject
+import java.util.*
 
 object KryoCreator {
     fun build(): Kryo {
@@ -12,17 +17,27 @@ object KryoCreator {
 
         kryo.instantiatorStrategy = DefaultInstantiatorStrategy(StdInstantiatorStrategy())
 
-        kryo.isRegistrationRequired = false
-
-//        kryo.register(Collections.singletonList("")::class.java)
-//        kryo.register(Server::class.java)
-//        kryo.register(ServerAddress::class.java)
         kryo.register(UUID::class.java, UUIDSerializer())
-//        kryo.register(ArrayList::class.java)
-//
-//        // Packets
-//        kryo.register(ServerUnregisterPacket::class.java)
+
+        kryo.register(LinkedHashMap::class.java)
+        kryo.register(ServerAddress::class.java)
+        kryo.register(GameFinderType::class.java)
+        kryo.register(ArrayList::class.java)
+        kryo.register(ServerHeartbeat::class.java)
+        kryo.register(Server::class.java)
+        kryo.register(TypedObject::class.java)
+        kryo.register(Class.forName("kotlin.collections.EmptyList"))
+
         kryo.register(ServerRegisterPacket::class.java)
+        kryo.register(ServerGamesUpdatePacket::class.java)
+        kryo.register(ServerHeartbeatPacket::class.java)
+        kryo.register(GameRequestPacket::class.java)
+        kryo.register(GameReservePacket::class.java)
+        kryo.register(ServerAttributeUpdate::class.java)
+        kryo.register(ServerAttributeRemove::class.java)
+        kryo.register(ServerUnregisterPacket::class.java)
+
+        kryo.isRegistrationRequired = false
 
         return kryo
     }
