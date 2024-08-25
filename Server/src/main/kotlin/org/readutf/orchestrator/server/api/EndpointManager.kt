@@ -2,6 +2,7 @@ package org.readutf.orchestrator.server.api
 
 import io.javalin.Javalin
 import io.javalin.community.routing.annotations.AnnotatedRouting.Annotated
+import io.javalin.community.routing.annotations.HandlerResultConsumer
 import org.readutf.orchestrator.server.api.endpoint.DockerEndpoint
 import org.readutf.orchestrator.server.api.endpoint.GameRequestSocket
 import org.readutf.orchestrator.server.api.endpoint.ServerEndpoint
@@ -10,6 +11,7 @@ import org.readutf.orchestrator.server.game.GameManager
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.settings.Settings
 import org.readutf.orchestrator.server.utils.FastJsonMapper
+import org.readutf.orchestrator.shared.utils.ApiResponse
 
 class EndpointManager(
     val settings: Settings,
@@ -47,6 +49,11 @@ class EndpointManager(
             config.router.mount(Annotated) { routing ->
                 routing.registerEndpoints(ServerEndpoint(serverManager))
                 routing.registerEndpoints(DockerEndpoint(DockerManager(settings.dockerSettings)))
+
+                routing.registerResultHandler(
+                    ApiResponse::class.java,
+                    HandlerResultConsumer { ctx, value -> ctx.json(value) },
+                )
             }
 
             config.pvt.internalRouter.allHttpHandlers().forEach { parsedEndpoint ->

@@ -2,6 +2,8 @@ package org.readutf.orchestrator.server.server
 
 import com.alibaba.fastjson2.JSON
 import com.alibaba.fastjson2.JSONWriter
+import com.esotericsoftware.kryo.kryo5.Kryo
+import com.esotericsoftware.kryo.kryo5.Registration
 import org.readutf.orchestrator.server.game.GameManager
 import org.readutf.orchestrator.shared.server.Server
 import revxrsal.commands.annotation.Command
@@ -11,6 +13,7 @@ import revxrsal.commands.ktx.returnWithMessage
 
 @Command("server")
 class ServerCommand(
+    private val kryo: Kryo,
     private val serverManager: ServerManager,
     private val gameManager: GameManager,
 ) {
@@ -46,6 +49,20 @@ class ServerCommand(
             serverManager.getServerByShortId(serverId) ?: returnWithMessage("Could not find server with that id.")
         for (serverInfoLine in getServerInfoLines(server)) {
             actor.reply(serverInfoLine)
+        }
+    }
+
+    @Subcommand("debug")
+    fun debug() {
+        var previous: Registration? = null
+        var i = 0
+        while ((i == 0 || previous != null) && i++ < 5000) {
+            previous = kryo.getRegistration(i)
+            if (previous != null) {
+                println("$i: ${previous.type}")
+            } else {
+                break
+            }
         }
     }
 

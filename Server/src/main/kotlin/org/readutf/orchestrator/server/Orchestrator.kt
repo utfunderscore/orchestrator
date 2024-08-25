@@ -45,7 +45,7 @@ class Orchestrator(
         setupPacketManager(serverManager, gameManager, kryo)
 
         Thread({
-            commandManager.register(ServerCommand(serverManager, gameManager))
+            commandManager.register(ServerCommand(kryo, serverManager, gameManager))
             commandManager.pollInput()
         }, "Command Thread").start()
 

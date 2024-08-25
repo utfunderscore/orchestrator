@@ -31,7 +31,7 @@ class ApiTests {
     @Test
     fun testGetPort() {
         runBlocking {
-            println(orchestratorApi.getPort("b1666f1bf723"))
+            println(orchestratorApi.getPort("894475dac0c0"))
         }
     }
 

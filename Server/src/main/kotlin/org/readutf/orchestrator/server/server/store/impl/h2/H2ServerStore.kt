@@ -57,4 +57,8 @@ class H2ServerStore : ServerStore {
     ) {
         TODO("Not yet implemented")
     }
+
+    override fun getServersByType(gameType: String): List<Server> {
+        TODO("Not yet implemented")
+    }
 }

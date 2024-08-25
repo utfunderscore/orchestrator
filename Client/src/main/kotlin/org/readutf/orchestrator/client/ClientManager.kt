@@ -38,7 +38,7 @@ class ClientManager(
 
     private val networkManager = ClientNetworkManager(packetManager, serverId)
     private val executorService: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
-    private val serverManager = ServerManager(serverId, serverAddress, supportedGameTypes, gameFinderTypes, networkManager, executorService)
+    val serverManager = ServerManager(serverId, serverAddress, supportedGameTypes, gameFinderTypes, networkManager, executorService)
     val gameManager = GameManager(networkManager, serverId, executorService, gameRequestHandler)
 
     init {

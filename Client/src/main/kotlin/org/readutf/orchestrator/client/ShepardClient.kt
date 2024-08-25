@@ -9,6 +9,7 @@ import org.readutf.orchestrator.shared.game.GameFinderType
 import org.readutf.orchestrator.shared.game.GameState
 import org.readutf.orchestrator.shared.server.ServerAddress
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -29,26 +30,32 @@ class ShepardClient(
 
     private val logger = KotlinLogging.logger { }
 
-    fun start() {
-        mainExecutor.submit { start(emptyMap()) }
+    fun start(): CompletableFuture<Unit> {
+        val future = CompletableFuture<Unit>()
+        mainExecutor.submit {
+            start(emptyMap())
+            future.complete(Unit)
+        }
+        return future
     }
 
     private fun start(games: Map<UUID, Game>) {
         logger.info { "Connecting to server ($serverAddress)" }
 
         reconnecting = false
-        ClientManager(
-            orchestratorHost,
-            orchestratorPort,
-            serverId,
-            serverAddress,
-            gameFinderTypes,
-            supportedGameTypes,
-            games,
-            gameRequestHandler,
-        ) {
-            onDisconnect(it)
-        }
+        clientManager =
+            ClientManager(
+                orchestratorHost,
+                orchestratorPort,
+                serverId,
+                serverAddress,
+                gameFinderTypes,
+                supportedGameTypes,
+                games,
+                gameRequestHandler,
+            ) {
+                onDisconnect(it)
+            }
     }
 
     fun setGameRequestHandler(gameRequestHandler: GameRequestHandler) {
@@ -82,6 +89,19 @@ class ShepardClient(
         return this
     }
 
+    fun setAttribute(
+        key: String,
+        any: Any,
+    ) {
+        if (!isActive()) throw Exception("Not connected.")
+        clientManager!!.serverManager.setAttribute(key, any)
+    }
+
+    fun removeAttribute(key: String) {
+        if (!isActive()) throw Exception("Not connected.")
+        clientManager!!.serverManager.removeAttribute(key)
+    }
+
     fun registerGame(
         id: UUID,
         matchType: String,
@@ -101,5 +121,11 @@ class ShepardClient(
                 mainExecutor.submit { start(games) }
             }, 5, TimeUnit.SECONDS)
         }
+    }
+
+    fun isActive(): Boolean {
+        logger.info { "Client Manager: $clientManager" }
+        logger.info { "Reconnecting?: $reconnecting" }
+        return clientManager != null && !reconnecting
     }
 }
