@@ -8,7 +8,6 @@ import org.readutf.orchestrator.shared.packets.*
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerAddress
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
-import org.readutf.orchestrator.shared.utils.TypedObject
 import java.util.*
 
 object KryoCreator {
@@ -25,7 +24,6 @@ object KryoCreator {
         kryo.register(ArrayList::class.java)
         kryo.register(ServerHeartbeat::class.java)
         kryo.register(Server::class.java)
-        kryo.register(TypedObject::class.java)
         kryo.register(Class.forName("kotlin.collections.EmptyList"))
 
         kryo.register(ServerRegisterPacket::class.java)

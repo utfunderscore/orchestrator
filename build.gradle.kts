@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "org.readutf.orchestrator"
-version = "1.5.3"
+version = "1.5.7"
 
 dependencies {
     testImplementation(kotlin("test"))

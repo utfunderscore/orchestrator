@@ -1,6 +1,6 @@
 package org.readutf.orchestrator.server.server
 
-import com.alibaba.fastjson2.annotation.JSONField
+import com.fasterxml.jackson.annotation.JsonIgnore
 import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.server.utils.TimeUtils
 import org.readutf.orchestrator.shared.game.GameFinderType
@@ -18,13 +18,13 @@ class RegisteredServer(
     channel: HermesChannel,
     private val registeredAt: Long = System.currentTimeMillis(),
 ) : Server(serverId, address, gameTypes, gameFinders, heartbeat, mutableMapOf()) {
-    @JSONField(serialize = false)
+    @JsonIgnore
     fun getUptime() = System.currentTimeMillis() - registeredAt
 
-    @JSONField(serialize = false)
+    @JsonIgnore
     val channel = channel
 
-    @JSONField(serialize = false)
+    @JsonIgnore
     fun getUptimeString(): String = TimeUtils.formatDuration(getUptime())
 
     companion object {

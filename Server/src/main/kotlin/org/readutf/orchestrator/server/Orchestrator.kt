@@ -1,6 +1,7 @@
 package org.readutf.orchestrator.server
 
 import com.esotericsoftware.kryo.kryo5.Kryo
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.hermes.PacketManager
 import org.readutf.hermes.platform.netty.nettyServer
@@ -79,4 +80,8 @@ class Orchestrator(
             .exception {
                 logger.error(it) { "Netty Exception" }
             }.start()
+
+    companion object {
+        val objectMapper = ObjectMapper()
+    }
 }

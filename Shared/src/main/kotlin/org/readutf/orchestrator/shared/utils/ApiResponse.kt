@@ -1,19 +1,19 @@
 package org.readutf.orchestrator.shared.utils
 
-import com.alibaba.fastjson2.annotation.JSONField
+import com.fasterxml.jackson.annotation.JsonIgnore
 
 class ApiResponse<T>(
     val success: Boolean,
     var failureReason: String?,
     val response: T?,
 ) {
-    @JSONField(serialize = false)
+    @JsonIgnore
     fun isSuccess() = failureReason == null
 
-    @JSONField(serialize = false)
+    @JsonIgnore
     fun getError(): String = failureReason!!
 
-    @JSONField(serialize = false)
+    @JsonIgnore
     fun get(): T = response!!
 
     companion object {

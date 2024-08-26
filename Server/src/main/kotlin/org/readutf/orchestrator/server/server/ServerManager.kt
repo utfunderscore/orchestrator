@@ -6,7 +6,6 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.server.server.store.ServerStore
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
-import org.readutf.orchestrator.shared.utils.TypedObject
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit.*
@@ -62,7 +61,7 @@ class ServerManager(
     fun setAttribute(
         serverId: UUID,
         attributeName: String,
-        typedObject: TypedObject,
+        typedObject: Any,
     ) {
         serverStore.setAttribute(serverId, attributeName, typedObject)
     }

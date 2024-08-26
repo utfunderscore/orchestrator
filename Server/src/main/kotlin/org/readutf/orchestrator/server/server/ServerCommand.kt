@@ -1,9 +1,8 @@
 package org.readutf.orchestrator.server.server
 
-import com.alibaba.fastjson2.JSON
-import com.alibaba.fastjson2.JSONWriter
 import com.esotericsoftware.kryo.kryo5.Kryo
 import com.esotericsoftware.kryo.kryo5.Registration
+import org.readutf.orchestrator.server.Orchestrator
 import org.readutf.orchestrator.server.game.GameManager
 import org.readutf.orchestrator.shared.server.Server
 import revxrsal.commands.annotation.Command
@@ -68,6 +67,6 @@ class ServerCommand(
 
     fun getServerInfoLines(server: Server): List<String> =
         listOf(
-            "${server.getShortId()} ${JSON.toJSONString(server, JSONWriter.Feature.PrettyFormat)}",
+            "${server.getShortId()} ${Orchestrator.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(server)}",
         )
 }

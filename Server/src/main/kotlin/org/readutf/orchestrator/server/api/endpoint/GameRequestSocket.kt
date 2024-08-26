@@ -1,8 +1,8 @@
 package org.readutf.orchestrator.server.api.endpoint
 
-import com.alibaba.fastjson.JSON
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.javalin.websocket.WsConfig
+import org.readutf.orchestrator.server.Orchestrator
 import org.readutf.orchestrator.server.game.GameManager
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.shared.game.GameRequest
@@ -19,7 +19,7 @@ class GameRequestSocket(
         ctx.onMessage { context ->
             val messageJson = context.message()
 
-            val gameRequest = JSON.parseObject(messageJson, GameRequest::class.java)
+            val gameRequest = Orchestrator.objectMapper.readValue(messageJson, GameRequest::class.java)
             if (gameRequest == null) {
                 context.send("Invalid Request")
                 context.closeSession()
