@@ -12,13 +12,13 @@ dependencies {
 
     api(project(":Shared"))
 
-    api("com.alibaba.fastjson2:fastjson2:2.0.52")
-    api("org.ligboy.retrofit2:converter-fastjson:2.1.0")
     api("org.java-websocket:Java-WebSocket:1.5.7")
 
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC.2")
 
     api("com.squareup.retrofit2:retrofit:2.11.0")
+
+    api("com.squareup.retrofit2:converter-jackson:2.11.0")
 }
 
 publishing {

@@ -1,6 +1,6 @@
 package org.readutf.orchestrator.shared.utils
 
-import com.alibaba.fastjson2.annotation.JSONField
+import com.fasterxml.jackson.annotation.JsonIgnore
 
 class Result<T>(
     private val value: T?,
@@ -19,10 +19,10 @@ class Result<T>(
 
     fun <U> flatMap(f: (T) -> Result<U>): Result<U> = if (isOk()) f(value!!) else error(error!!)
 
-    @JSONField(serialize = false)
+    @JsonIgnore
     fun get(): T = value!!
 
-    @JSONField(serialize = false)
+    @JsonIgnore
     fun getError(): String = error!!
 
     companion object {

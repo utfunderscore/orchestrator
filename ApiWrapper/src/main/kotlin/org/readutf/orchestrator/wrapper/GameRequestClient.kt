@@ -1,7 +1,6 @@
 package org.readutf.orchestrator.wrapper
 
-import com.alibaba.fastjson2.JSON
-import com.alibaba.fastjson2.TypeReference
+import com.fasterxml.jackson.core.type.TypeReference
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
@@ -32,7 +31,7 @@ internal class GameRequestClient(
             connectBlocking()
         }
 
-        send(JSON.toJSONString(gameRequest))
+        send(OrchestratorApi.objectMapper.writeValueAsString(gameRequest))
 
         val future = CompletableFuture<GameRequestResult>()
 
@@ -47,7 +46,7 @@ internal class GameRequestClient(
 
     override fun onMessage(message: String?) {
         println(message)
-        JSON.parseObject(message, object : TypeReference<GameRequestResult>() {})?.let { gameRequestResult ->
+        OrchestratorApi.objectMapper.readValue(message, object : TypeReference<GameRequestResult>() {})?.let { gameRequestResult ->
             futures[gameRequestResult.requestId]?.complete(gameRequestResult)
         }
     }

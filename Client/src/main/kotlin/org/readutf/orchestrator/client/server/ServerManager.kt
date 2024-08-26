@@ -6,17 +6,16 @@ import org.readutf.orchestrator.shared.packets.*
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerAddress
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
-import org.readutf.orchestrator.shared.utils.TypedObject
 import java.util.UUID
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
 class ServerManager(
-    val serverId: UUID,
-    val serverAddress: ServerAddress,
-    val supportedGameTypes: MutableList<String>,
-    val gameFinderTypes: MutableList<GameFinderType>,
-    val networkManager: ClientNetworkManager,
+    private val serverId: UUID,
+    private val serverAddress: ServerAddress,
+    private val supportedGameTypes: MutableList<String>,
+    private val gameFinderTypes: MutableList<GameFinderType>,
+    private val networkManager: ClientNetworkManager,
     scheduledExecutor: ScheduledExecutorService,
 ) {
     init {
@@ -43,7 +42,7 @@ class ServerManager(
         )
     }
 
-    fun sendHeartbeat() {
+    private fun sendHeartbeat() {
         networkManager.sendPacket(
             ServerHeartbeatPacket(ServerHeartbeat(serverId = serverId)),
         )
@@ -53,7 +52,7 @@ class ServerManager(
         key: String,
         any: Any,
     ) {
-        networkManager.sendPacket(ServerAttributeUpdate(serverId, key, TypedObject(any)))
+        networkManager.sendPacket(ServerAttributeUpdate(serverId, key, any))
     }
 
     fun removeAttribute(key: String) {

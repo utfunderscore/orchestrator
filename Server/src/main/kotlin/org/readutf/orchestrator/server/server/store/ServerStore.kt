@@ -3,7 +3,6 @@ package org.readutf.orchestrator.server.server.store
 import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
-import org.readutf.orchestrator.shared.utils.TypedObject
 import java.util.UUID
 
 interface ServerStore {
@@ -29,7 +28,7 @@ interface ServerStore {
     fun setAttribute(
         serverId: UUID,
         attributeName: String,
-        typedObject: TypedObject,
+        typedObject: Any,
     )
 
     fun removeAttribute(
