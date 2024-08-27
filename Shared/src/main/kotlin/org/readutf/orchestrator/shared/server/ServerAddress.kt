@@ -1,8 +1,10 @@
 package org.readutf.orchestrator.shared.server
 
+import com.fasterxml.jackson.annotation.JsonProperty
+
 data class ServerAddress(
-    val host: String,
-    val port: Int,
+    @JsonProperty("host") val host: String,
+    @JsonProperty("port") val port: Int,
 ) {
     override fun toString(): String = "$host:$port"
 }

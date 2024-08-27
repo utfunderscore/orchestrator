@@ -2,6 +2,7 @@ package org.readutf.orchestrator.wrapper
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import org.jetbrains.annotations.Blocking
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.utils.ApiResponse
@@ -9,6 +10,7 @@ import org.readutf.orchestrator.shared.utils.Result
 import org.readutf.orchestrator.wrapper.services.DockerService
 import org.readutf.orchestrator.wrapper.services.ServerService
 import org.readutf.orchestrator.wrapper.types.ContainerPort
+import org.readutf.orchestrator.wrapper.types.NetworkAddress
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.util.Base64
@@ -40,6 +42,8 @@ class OrchestratorApi(
         val json = String(Base64.getDecoder().decode(dockerService.getPort(shortId)))
         return objectMapper.readValue(json, object : TypeReference<ApiResponse<List<ContainerPort>>>() {})
     }
+
+    suspend fun getNetworks(shortId: String): ApiResponse<List<NetworkAddress>> = dockerService.getIp(shortId)
 
     suspend fun getServerByType(gameType: String): Result<List<Server>> =
         try {
@@ -78,6 +82,6 @@ class OrchestratorApi(
         }
 
     companion object {
-        val objectMapper = ObjectMapper()
+        val objectMapper = ObjectMapper().registerKotlinModule()
     }
 }

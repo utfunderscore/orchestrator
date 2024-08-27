@@ -21,30 +21,26 @@ class ApiTests {
     @Test
     fun testGetServers() {
         runBlocking {
-            val response = orchestratorApi.serverService
-            println(response)
-
-            Assertions.assertEquals(true, response.getAllServers().success)
+            orchestratorApi.getServers()
         }
     }
 
     @Test
     fun testGetPort() {
         runBlocking {
-            println(orchestratorApi.getPort("894475dac0c0"))
+            println(orchestratorApi.getPort("20a3eae4b5a4"))
         }
     }
 
     @Test
     fun testGetServer() {
         runBlocking {
-            val allServers = orchestratorApi.serverService.getAllServers()
+            val allServers = orchestratorApi.getServers().get()
 
-            Assertions.assertEquals(true, allServers.success)
-            val serverId = allServers.response!![0].serverId
+            val serverId = allServers[0].serverId
 
-            val getServer = orchestratorApi.serverService.getServer(serverId)
-            Assertions.assertEquals(true, getServer.success)
+            val getServer = orchestratorApi.getServerById(serverId)
+            Assertions.assertEquals(true, getServer.isOk())
 
             println(getServer)
         }

@@ -2,6 +2,7 @@ package org.readutf.orchestrator.server
 
 import com.esotericsoftware.kryo.kryo5.Kryo
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.hermes.PacketManager
 import org.readutf.hermes.platform.netty.nettyServer
@@ -82,6 +83,6 @@ class Orchestrator(
             }.start()
 
     companion object {
-        val objectMapper = ObjectMapper()
+        val objectMapper = ObjectMapper().registerKotlinModule()
     }
 }

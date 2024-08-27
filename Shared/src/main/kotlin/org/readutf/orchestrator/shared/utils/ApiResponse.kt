@@ -2,7 +2,7 @@ package org.readutf.orchestrator.shared.utils
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 
-class ApiResponse<T>(
+data class ApiResponse<T>(
     val success: Boolean,
     var failureReason: String?,
     val response: T?,
