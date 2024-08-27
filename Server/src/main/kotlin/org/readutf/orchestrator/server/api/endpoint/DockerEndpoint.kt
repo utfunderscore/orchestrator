@@ -37,4 +37,35 @@ class DockerEndpoint(
             ),
         )
     }
+
+    @Get("ip")
+    fun getIp(
+        context: Context,
+        @Query("shortId") shortId: String,
+    ) {
+        val containerByShortId = dockerManager.getContainerByShortId(shortId)
+
+        if (containerByShortId.isError()) {
+            context.json(
+                Base64.getEncoder().encodeToString(
+                    Orchestrator.objectMapper.writeValueAsString(ApiResponse.failure<String>(containerByShortId.getError())).toByteArray(),
+                ),
+            )
+            return
+        }
+
+        val get = dockerManager.getContainerByShortId("557e9050b341").get()
+
+        val networkSettings = get.networkSettings ?: return
+
+        val networks =
+            networkSettings.networks.map { (name, network) ->
+                mapOf(
+                    "network" to name,
+                    "ip" to network.ipAddress,
+                )
+            }
+
+        context.json(networks)
+    }
 }
