@@ -33,6 +33,13 @@ class ApiTests {
     }
 
     @Test
+    fun testGetIp() {
+        runBlocking {
+            println(orchestratorApi.getIp("0f9d687a09ce"))
+        }
+    }
+
+    @Test
     fun testGetServer() {
         runBlocking {
             val allServers = orchestratorApi.getServers().get()

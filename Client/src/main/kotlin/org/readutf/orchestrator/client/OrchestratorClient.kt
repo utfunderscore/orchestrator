@@ -42,6 +42,13 @@ class OrchestratorClient(
         }
     }
 
+    fun setAttribute(
+        key: String,
+        value: Any,
+    ) {
+        serverManager?.setAttribute(key, value)
+    }
+
     fun onDisconnect() {
         if (!autoReconnect || reconnectAttempts >= maxReconnectAttempts) {
             disconnect()
