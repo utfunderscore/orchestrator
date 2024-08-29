@@ -12,7 +12,7 @@ open class Server(
     @JsonProperty("gameTypes") val gameTypes: List<String>,
     @JsonProperty("gameFinders") val gameFinders: List<GameFinderType>,
     @JsonProperty("heartbeat") var heartbeat: ServerHeartbeat = ServerHeartbeat(serverId, System.currentTimeMillis()),
-    @JsonProperty("attributes") var attributes: MutableMap<String, TypeWrapper>,
+    @JsonProperty("attributes") var attributes: MutableMap<String, TypeWrapper> = mutableMapOf(),
 ) {
     @JsonIgnore
     fun getShortId(): String = serverId.toString().substring(0, 8)
