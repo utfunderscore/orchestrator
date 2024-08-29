@@ -1,10 +1,13 @@
 package org.readutf.orchestrator.shared.packets
 
 import org.readutf.hermes.Packet
-import org.readutf.orchestrator.shared.server.Server
+import org.readutf.orchestrator.shared.game.GameFinderType
+import org.readutf.orchestrator.shared.server.ServerAddress
+import java.util.*
 
 data class ServerRegisterPacket(
-    val server: Server,
-) : Packet() {
-    override fun toString(): String = "ServerRegisterPacket(server=$server)"
-}
+    val serverId: UUID,
+    val address: ServerAddress,
+    val gameTypes: List<String>,
+    val gameFinders: List<GameFinderType>,
+) : Packet()
