@@ -47,16 +47,16 @@ class DockerEndpoint(
 
         if (containerByShortId.isError()) {
             context.json(
-                Base64.getEncoder().encodeToString(
-                    Orchestrator.objectMapper.writeValueAsString(ApiResponse.failure<String>(containerByShortId.getError())).toByteArray(),
-                ),
+                Orchestrator.objectMapper
+                    .writeValueAsString(
+                        ApiResponse.failure<String>(containerByShortId.getError()),
+                    ).toByteArray(),
             )
             return
         }
 
-        val get = dockerManager.getContainerByShortId("557e9050b341").get()
-
-        val networkSettings = get.networkSettings ?: return
+        val container = containerByShortId.get()
+        val networkSettings = container.networkSettings ?: return
 
         val networks =
             networkSettings.networks.map { (name, network) ->
@@ -66,6 +66,6 @@ class DockerEndpoint(
                 )
             }
 
-        context.json(networks)
+        context.json(ApiResponse.success(networks))
     }
 }
