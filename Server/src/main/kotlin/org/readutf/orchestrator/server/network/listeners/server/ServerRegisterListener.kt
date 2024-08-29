@@ -5,6 +5,7 @@ import org.readutf.orchestrator.server.network.listeners.NoopListener
 import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.shared.packets.ServerRegisterPacket
+import org.readutf.orchestrator.shared.server.Server
 
 class ServerRegisterListener(
     private val serverManager: ServerManager,
@@ -13,6 +14,13 @@ class ServerRegisterListener(
         packet: ServerRegisterPacket,
         channel: HermesChannel,
     ) {
-        serverManager.registerServer(RegisteredServer.create(packet.server, channel))
+        val server = Server(packet.serverId, packet.address, packet.gameTypes, packet.gameFinders)
+
+        serverManager.registerServer(
+            RegisteredServer.create(
+                server,
+                channel,
+            ),
+        )
     }
 }
