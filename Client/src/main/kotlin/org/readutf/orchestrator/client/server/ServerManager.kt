@@ -2,10 +2,10 @@ package org.readutf.orchestrator.client.server
 
 import org.readutf.orchestrator.client.network.NetworkManager
 import org.readutf.orchestrator.shared.game.GameFinderType
+import org.readutf.orchestrator.shared.packets.ServerAttributeUpdate
 import org.readutf.orchestrator.shared.packets.ServerHeartbeatPacket
 import org.readutf.orchestrator.shared.packets.ServerRegisterPacket
 import org.readutf.orchestrator.shared.packets.ServerUnregisterPacket
-import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerAddress
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.UUID
@@ -24,12 +24,10 @@ class ServerManager(
     fun registerServer() {
         networkManager.sendPacket(
             ServerRegisterPacket(
-                Server(
-                    serverId = serverId,
-                    address = address,
-                    gameTypes = gameTypes,
-                    gameFinders = gameFinders,
-                ),
+                serverId = serverId,
+                address = address,
+                gameTypes = gameTypes,
+                gameFinders = gameFinders,
             ),
         )
     }
@@ -66,5 +64,18 @@ class ServerManager(
 
     fun shutdown() {
         unregisterServer(serverId)
+    }
+
+    fun setAttribute(
+        key: String,
+        value: Any,
+    ) {
+        networkManager.sendPacket(
+            ServerAttributeUpdate(
+                serverId,
+                key,
+                value,
+            ),
+        )
     }
 }

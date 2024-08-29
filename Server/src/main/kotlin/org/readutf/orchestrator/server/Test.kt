@@ -8,7 +8,7 @@ fun main() {
     val dockerManager =
         DockerManager(
             DockerSettings(
-                uri = "tcp://localhost:2375",
+                uri = "tcp://0.0.0.0:2375",
                 maxConnections = 100,
                 responseTimeout = 30,
                 connectionTimeout = 30,

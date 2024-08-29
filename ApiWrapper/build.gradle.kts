@@ -17,7 +17,7 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0-RC.2")
 
     api("com.squareup.retrofit2:retrofit:2.11.0")
-
+    api("com.squareup.okhttp3:logging-interceptor:4.11.0")
     api("com.squareup.retrofit2:converter-jackson:2.11.0")
 }
 
