@@ -13,11 +13,11 @@ class OrchestratorClient(
     val orchestratorHost: String,
     val orchestratorPort: Int,
     val serverAddress: ServerAddress,
+    private val onConnect: (ServerManager) -> Unit,
     val gameTypes: List<String> = emptyList(),
     val gameFinders: List<GameFinderType> = emptyList(),
     private val autoReconnect: Boolean = true,
     private val maxReconnectAttempts: Int = 15,
-    private val onConnect: (ServerManager) -> Unit = {},
 ) {
     private val logger = KotlinLogging.logger { }
 
