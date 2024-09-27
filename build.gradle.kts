@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "org.readutf.orchestrator"
-version = "1.7.3"
+version = "1.7.7"
 
 dependencies {
     testImplementation(kotlin("test"))
@@ -13,11 +13,11 @@ repositories {
     mavenLocal()
     maven {
         name = "utfunderscoreReleases"
-        url = uri("https://reposilite.readutf.org/releases")
+        url = uri("https://repo.readutf.org/releases")
     }
 }
 
-extra["hermesVersion"] = "1.6.3"
+extra["hermesVersion"] = "1.6.4"
 extra["nettyVersion"] = "4.1.111.Final"
 extra["log4jVersion"] = "2.23.1"
 
@@ -28,7 +28,7 @@ subprojects {
         mavenLocal()
         maven {
             name = "utfunderscore"
-            url = uri("https://reposilite.readutf.org/snapshots")
+            url = uri("https://repo.readutf.org/snapshots")
             credentials(PasswordCredentials::class)
             authentication {
                 create<BasicAuthentication>("basic")
@@ -36,7 +36,7 @@ subprojects {
 
             maven {
                 name = "utfunderscoreReleases"
-                url = uri("https://reposilite.readutf.org/releases")
+                url = uri("https://repo.readutf.org/releases")
             }
         }
     }
