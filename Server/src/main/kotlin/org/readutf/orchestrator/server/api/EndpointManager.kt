@@ -8,6 +8,7 @@ import org.readutf.orchestrator.server.api.endpoint.GameRequestSocket
 import org.readutf.orchestrator.server.api.endpoint.ServerEndpoint
 import org.readutf.orchestrator.server.docker.DockerManager
 import org.readutf.orchestrator.server.game.GameManager
+import org.readutf.orchestrator.server.notification.NotificationManager
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.settings.Settings
 import org.readutf.orchestrator.server.utils.FastJsonMapper
@@ -30,6 +31,10 @@ class EndpointManager(
                 serverManager = serverManager,
             ),
         )
+        javalin.ws(
+            "/notifications",
+            NotificationManager.NotificationSocket(),
+        )
     }
 
     fun shutdown() {
@@ -43,7 +48,7 @@ class EndpointManager(
             config.jsonMapper(FastJsonMapper)
             config.useVirtualThreads = settings.apiSettings.virtualThreads
             config.showJavalinBanner = false
-            config.bundledPlugins.enableDevLogging()
+//            config.bundledPlugins.enableDevLogging()
 
             // register endpoints
             config.router.mount(Annotated) { routing ->

@@ -22,7 +22,6 @@ fun main() {
     val version = properties.getOrDefault("version", "UNKNOWN")
 
     println("   Running Shepard Server v$version")
-    println("")
 
     val settingsFile = File(System.getProperty("user.dir"), "settings.yml")
     if (!settingsFile.exists()) {
@@ -35,6 +34,9 @@ fun main() {
             .addFileSource(settingsFile)
             .build()
             .loadConfigOrThrow<Settings>()
+
+    println("   Rest API: ${settings.apiSettings.host}:${settings.apiSettings.port}")
+    println("   TCP Socket: ${settings.serverSettings.host}:${settings.serverSettings.port}")
 
     Orchestrator(settings)
 }

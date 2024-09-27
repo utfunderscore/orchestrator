@@ -48,7 +48,11 @@ class MemoryServerStore : ServerStore {
         attributeName: String,
         typedObject: Any,
     ) {
-        val serverById = getServerById(serverId) ?: return
+        val serverById =
+            getServerById(serverId) ?: let {
+                logger.warn { "Server attempting to update attribute before registering" }
+                return
+            }
 
         serverById.attributes[attributeName] = TypeWrapper(typedObject)
     }
@@ -57,7 +61,11 @@ class MemoryServerStore : ServerStore {
         serverId: UUID,
         attributeName: String,
     ) {
-        val serverById = getServerById(serverId) ?: return
+        val serverById =
+            getServerById(serverId) ?: let {
+                logger.warn { "Server attempting to update attribute before registering" }
+                return
+            }
 
         serverById.attributes.remove(attributeName)
     }

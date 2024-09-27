@@ -3,7 +3,10 @@
 package org.readutf.orchestrator.server.server
 
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.readutf.orchestrator.server.notification.NotificationManager
 import org.readutf.orchestrator.server.server.store.ServerStore
+import org.readutf.orchestrator.shared.notification.impl.ServerRegisterNotification
+import org.readutf.orchestrator.shared.notification.impl.ServerUnregisterNotification
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.*
@@ -28,6 +31,8 @@ class ServerManager(
     fun registerServer(server: RegisteredServer) {
         logger.info { "Registering server ${server.serverId}" }
 
+        NotificationManager.notifyAll(ServerRegisterNotification(server))
+
         serverStore.saveServer(server)
     }
 
@@ -35,6 +40,8 @@ class ServerManager(
 
     fun unregisterServer(serverId: UUID) {
         logger.info { "Unregistering server $serverId" }
+
+        NotificationManager.notifyAll(ServerUnregisterNotification(serverId))
 
         serverStore.removeServer(serverId)
     }
