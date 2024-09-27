@@ -24,6 +24,7 @@ dependencies {
     implementation("org.readutf.hermes:core:$hermesVersion")
     implementation("org.readutf.hermes:netty:$hermesVersion")
     implementation("org.readutf.hermes:kryo:$hermesVersion")
+    implementation("org.readutf.hermes:fastjson:$hermesVersion")
 
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.52")
@@ -54,84 +55,53 @@ dependencies {
     implementation("com.h2database:h2:2.2.224")
 }
 
-tasks.jar {
-    manifest {
-        attributes["Main-Class"] = "org.readutf.orchestrator.server.ServerStarterKt"
-    }
-    finalizedBy("shadowJar")
+task("copyJarToDockerFile") {
+    file("build/libs/Orchestrator.jar").copyTo(file("docker/Orchestrator.jar"), true)
 }
 
-tasks.register("generateDockerFile") {
+tasks {
 
-    val buildFile = file("/build/docker/")
-    buildFile.mkdirs()
-
-    File(buildFile, "Dockerfile").writeText(
-        """
-        FROM eclipse-temurin:21-jdk-jammy as deps
-        
-        WORKDIR /orchestrator
-
-        ADD https://github.com/utfunderscore/orchestrator/releases/download/latest/Server-$version-all.jar /orchestrator
-
-        EXPOSE 2980
-        EXPOSE 9393
-
-        CMD ["java", "-jar", "Server-$version-all.jar"]
-        """.trimIndent(),
-    )
-
-//    commandLine("docker", "build", "-t", "utfunderscore/orchestrator:$version", buildFile.absolutePath)
-}
-
-tasks.register<Exec>("generateDevDockerFile") {
-
-    val devFolder = file("/build/docker/dev/")
-    devFolder.mkdirs()
-
-    val targetFile = devFolder.resolve("Server-$version-all.jar")
-    if (!targetFile.exists()) {
-        file("/build/libs/Server-$version-all.jar").copyTo(targetFile)
+    jar {
+        manifest {
+            attributes["Main-Class"] = "org.readutf.orchestrator.server.ServerStarterKt"
+        }
+        finalizedBy("shadowJar")
     }
 
-    File(devFolder, "Dockerfile").writeText(
-        """
-        FROM eclipse-temurin:21-jdk-jammy as deps
-        
-        WORKDIR /orchestrator
-
-        ADD /Server-$version-all.jar /orchestrator
-        ADD /settings.yml /orchestrator
-
-        EXPOSE 2980
-        EXPOSE 9393
-
-        CMD ["java", "-jar", "Server-$version-all.jar"]
-        """.trimIndent(),
-    )
-
-    commandLine("docker", "build", "-t", "utfunderscore/orchestrator-dev:$version", devFolder.absolutePath)
-}
-
-tasks.register("createProperties") {
-    dependsOn(tasks.processResources)
-    doLast {
-        val propertiesFile = file("$buildDir/resources/main/version.properties")
-        propertiesFile.parentFile.mkdirs()
-        propertiesFile.writer().use { writer ->
-            val properties = Properties()
-            properties["version"] = project.version.toString()
-            properties.store(writer, null)
+    register("createProperties") {
+        dependsOn(processResources)
+        finalizedBy("copyJarToDockerFile")
+        doLast {
+            val propertiesFile = file("$buildDir/resources/main/version.properties")
+            propertiesFile.parentFile.mkdirs()
+            propertiesFile.writer().use { writer ->
+                val properties = Properties()
+                properties["version"] = project.version.toString()
+                properties.store(writer, null)
+            }
         }
     }
-}
 
-tasks.named("classes") {
-    dependsOn("createProperties")
-}
+    shadowJar {
+        archiveFileName = "Orchestrator.jar"
+        finalizedBy("copyArchive")
+    }
 
-tasks.test {
-    useJUnitPlatform()
+    register("copyArchive") {
+        doLast {
+            val archive = file("$buildDir/libs/Orchestrator.jar")
+            val destination = file("$projectDir/docker/Orchestrator.jar")
+            archive.copyTo(destination, true)
+        }
+    }
+
+    named("classes") {
+        dependsOn("createProperties")
+    }
+
+    test {
+        useJUnitPlatform()
+    }
 }
 kotlin {
     jvmToolchain(17)

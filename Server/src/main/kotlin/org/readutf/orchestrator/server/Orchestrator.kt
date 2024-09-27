@@ -13,12 +13,12 @@ import org.readutf.orchestrator.server.game.store.impl.InMemoryGameStore
 import org.readutf.orchestrator.server.network.exception.SocketExceptionHandler
 import org.readutf.orchestrator.server.network.listeners.ChannelCloseListener
 import org.readutf.orchestrator.server.network.listeners.game.GamesUpdateListener
-import org.readutf.orchestrator.server.network.listeners.server.AttributeUpdateListener
-import org.readutf.orchestrator.server.network.listeners.server.HeartbeatListener
-import org.readutf.orchestrator.server.network.listeners.server.ServerRegisterListener
-import org.readutf.orchestrator.server.network.listeners.server.ServerUnregisterListener
 import org.readutf.orchestrator.server.server.ServerCommand
 import org.readutf.orchestrator.server.server.ServerManager
+import org.readutf.orchestrator.server.server.listeners.AttributeUpdateListener
+import org.readutf.orchestrator.server.server.listeners.HeartbeatListener
+import org.readutf.orchestrator.server.server.listeners.ServerRegisterListener
+import org.readutf.orchestrator.server.server.listeners.ServerUnregisterListener
 import org.readutf.orchestrator.server.server.store.impl.MemoryServerStore
 import org.readutf.orchestrator.server.settings.Settings
 import org.readutf.orchestrator.shared.kryo.KryoCreator
