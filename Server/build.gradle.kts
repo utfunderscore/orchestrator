@@ -95,6 +95,18 @@ tasks {
         }
     }
 
+    register("createProperties") {
+        doLast {
+            val propertiesFile = file("$buildDir/resources/main/version.properties")
+            propertiesFile.parentFile.mkdirs()
+            propertiesFile.writer().use { writer ->
+                val properties = Properties()
+                properties["version"] = project.version.toString()
+                properties["buildTime"] = System.currentTimeMillis().toString()
+                properties.store(writer, null)
+            }
+        }
+    }
     named("classes") {
         dependsOn("createProperties")
     }
