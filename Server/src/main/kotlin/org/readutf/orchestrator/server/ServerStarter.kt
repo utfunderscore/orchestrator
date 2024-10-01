@@ -5,6 +5,7 @@ import com.sksamuel.hoplite.addFileSource
 import org.readutf.orchestrator.server.settings.Settings
 import java.io.File
 import java.nio.file.Files
+import java.text.SimpleDateFormat
 import java.util.*
 
 fun main() {
@@ -20,8 +21,11 @@ fun main() {
     properties.load(Orchestrator::class.java.getResourceAsStream("/version.properties"))
 
     val version = properties.getOrDefault("version", "UNKNOWN")
+    val builtAt = properties.getOrDefault("buildTime", "UNKNOWN") as String
 
-    println("   Running Shepard Server v$version")
+    val formattedBuildTime = SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss").format(Date(builtAt.toLong()))
+
+    println("   Running Shepard Server v$version built on $formattedBuildTime")
 
     val settingsFile = File(System.getProperty("user.dir"), "settings.yml")
     if (!settingsFile.exists()) {
