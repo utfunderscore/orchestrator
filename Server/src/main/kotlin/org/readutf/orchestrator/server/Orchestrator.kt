@@ -1,6 +1,7 @@
 package org.readutf.orchestrator.server
 
 import com.esotericsoftware.kryo.kryo5.Kryo
+import com.esotericsoftware.kryo.kryo5.util.Pool
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -24,6 +25,7 @@ import org.readutf.orchestrator.server.settings.Settings
 import org.readutf.orchestrator.shared.kryo.KryoCreator
 import revxrsal.commands.cli.ConsoleCommandHandler
 import java.net.SocketException
+import java.util.concurrent.Executors
 
 class Orchestrator(
     private val settings: Settings,
@@ -69,7 +71,13 @@ class Orchestrator(
             .nettyServer(
                 hostName = settings.serverSettings.host,
                 port = settings.serverSettings.port,
-                serializer = KryoPacketSerializer(kryo),
+                serializer =
+                    KryoPacketSerializer(
+                        object : Pool<Kryo>(true, false, 16) {
+                            override fun create(): Kryo = KryoCreator.build()
+                        },
+                    ),
+                executorService = Executors.newSingleThreadExecutor(),
             ).editListeners { listeners ->
                 listeners.registerListener(ChannelCloseListener(serverManager))
                 listeners.registerListener(HeartbeatListener(serverManager))
