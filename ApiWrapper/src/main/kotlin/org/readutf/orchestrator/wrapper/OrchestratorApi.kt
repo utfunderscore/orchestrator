@@ -6,11 +6,14 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.jetbrains.annotations.Blocking
+import org.readutf.orchestrator.shared.notification.Notification
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.utils.ApiResponse
 import org.readutf.orchestrator.shared.utils.Result
 import org.readutf.orchestrator.wrapper.services.DockerService
 import org.readutf.orchestrator.wrapper.services.ServerService
+import org.readutf.orchestrator.wrapper.socket.GameRequestSocket
+import org.readutf.orchestrator.wrapper.socket.NotificationSocket
 import org.readutf.orchestrator.wrapper.types.ContainerPort
 import org.readutf.orchestrator.wrapper.types.NetworkAddress
 import retrofit2.Retrofit
@@ -18,10 +21,10 @@ import retrofit2.converter.jackson.JacksonConverterFactory
 import java.util.*
 
 class OrchestratorApi(
-    hostname: String,
-    port: Int,
+    val hostname: String,
+    val port: Int,
 ) {
-    private val requestClient by lazy { GameRequestClient("ws://$hostname:$port/game/request") }
+    private val requestClient by lazy { GameRequestSocket("ws://$hostname:$port/game/request") }
 
     private val retrofit: Retrofit =
         getRetrofit(hostname, port)
@@ -34,6 +37,11 @@ class OrchestratorApi(
         gameType: String,
         timeout: Long = 5000,
     ) = requestClient.requestGame(gameType, timeout)
+
+    fun createNotificationSocket(
+        objectMapper: ObjectMapper = ObjectMapper(),
+        listener: (Notification) -> Unit,
+    ): NotificationSocket = NotificationSocket("ws://$hostname:$port/notifications", objectMapper, listener)
 
     suspend fun getPort(shortId: String): ApiResponse<List<ContainerPort>> {
         val json = String(Base64.getDecoder().decode(dockerService.getPort(shortId)))
