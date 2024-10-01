@@ -1,4 +1,4 @@
-package org.readutf.orchestrator.wrapper
+package org.readutf.orchestrator.wrapper.socket
 
 import com.fasterxml.jackson.core.type.TypeReference
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -6,13 +6,14 @@ import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import org.readutf.orchestrator.shared.game.GameRequest
 import org.readutf.orchestrator.shared.game.GameRequestResult
+import org.readutf.orchestrator.wrapper.OrchestratorApi
 import java.lang.Exception
 import java.net.URI
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
 
-internal class GameRequestClient(
+internal class GameRequestSocket(
     uri: String,
 ) : WebSocketClient(URI(uri)) {
     private val logger = KotlinLogging.logger { }
@@ -27,8 +28,9 @@ internal class GameRequestClient(
         val gameRequest = GameRequest(requestId, gameType)
 
         if (!isOpen) {
-            println("Connecting...")
+            logger.info { "Connecting to game request socket..." }
             connectBlocking()
+            logger.info { "Connected to game request socket" }
         }
 
         send(OrchestratorApi.objectMapper.writeValueAsString(gameRequest))
