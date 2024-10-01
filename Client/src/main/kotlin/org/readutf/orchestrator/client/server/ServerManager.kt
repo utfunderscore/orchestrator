@@ -10,6 +10,7 @@ import org.readutf.orchestrator.shared.packets.ServerUnregisterPacket
 import org.readutf.orchestrator.shared.server.ServerAddress
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -23,17 +24,23 @@ class ServerManager(
     private val logger = KotlinLogging.logger { }
     private val schedular = Executors.newSingleThreadScheduledExecutor()
 
-    fun registerServer() {
+    /**
+     * Register the server with the orchestrator
+     * If the server registers successfully, the result of the future will be true
+     * @return CompletableFuture<Boolean>
+     */
+    fun registerServer(): CompletableFuture<Boolean> {
         logger.info { "Registering server with orchestrator" }
 
-        networkManager.sendPacket(
-            ServerRegisterPacket(
-                serverId = serverId,
-                address = address,
-                gameTypes = gameTypes,
-                gameFinders = gameFinders,
-            ),
-        )
+        return networkManager
+            .sendPacketWithResponse<Boolean>(
+                ServerRegisterPacket(
+                    serverId = serverId,
+                    address = address,
+                    gameTypes = gameTypes,
+                    gameFinders = gameFinders,
+                ),
+            )
     }
 
     fun unregisterServer(serverId: UUID) {
