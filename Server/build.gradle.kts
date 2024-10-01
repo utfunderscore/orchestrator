@@ -55,31 +55,13 @@ dependencies {
     implementation("com.h2database:h2:2.2.224")
 }
 
-task("copyJarToDockerFile") {
-    file("build/libs/Orchestrator.jar").copyTo(file("docker/Orchestrator.jar"), true)
-}
-
 tasks {
 
     jar {
         manifest {
             attributes["Main-Class"] = "org.readutf.orchestrator.server.ServerStarterKt"
         }
-        finalizedBy("shadowJar")
-    }
-
-    register("createProperties") {
-        dependsOn(processResources)
-        finalizedBy("copyJarToDockerFile")
-        doLast {
-            val propertiesFile = file("$buildDir/resources/main/version.properties")
-            propertiesFile.parentFile.mkdirs()
-            propertiesFile.writer().use { writer ->
-                val properties = Properties()
-                properties["version"] = project.version.toString()
-                properties.store(writer, null)
-            }
-        }
+        finalizedBy("createProperties")
     }
 
     shadowJar {
