@@ -19,13 +19,17 @@ dependencies {
     api("com.squareup.retrofit2:retrofit:2.11.0")
     api("com.squareup.okhttp3:logging-interceptor:4.11.0")
     api("com.squareup.retrofit2:converter-jackson:2.11.0")
+
+    val log4jVersion: String by rootProject.extra
+    testImplementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
+    testImplementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4jVersion")
 }
 
 publishing {
     repositories {
         maven {
             name = "utfunderscore"
-            url = uri("https://reposilite.readutf.org/releases")
+            url = uri("https://repo.readutf.org/releases")
             credentials(PasswordCredentials::class)
             authentication {
                 create<BasicAuthentication>("basic")
