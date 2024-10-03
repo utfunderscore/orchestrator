@@ -15,8 +15,8 @@ class AttributeUpdateListener(
         packet: ServerAttributeUpdate,
         channel: HermesChannel,
     ) {
-        logger.info { "Updating attribute ${packet.attributeName} on server ${packet.serverId}" }
-        logger.info { "Attribute: ${packet.attribute}" }
+        logger.debug { "Updating attribute ${packet.attributeName} on server ${packet.serverId}" }
+        logger.debug { "Attribute: ${packet.attribute}" }
 
         serverManager
             .setAttribute(packet.serverId, packet.attributeName, packet.attribute)
