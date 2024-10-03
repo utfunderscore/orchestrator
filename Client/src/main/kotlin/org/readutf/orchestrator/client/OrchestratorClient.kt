@@ -1,5 +1,6 @@
 package org.readutf.orchestrator.client
 
+import com.esotericsoftware.kryo.kryo5.Kryo
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.client.network.NetworkManager
 import org.readutf.orchestrator.client.server.ServerManager
@@ -13,6 +14,7 @@ class OrchestratorClient(
     val orchestratorHost: String,
     val orchestratorPort: Int,
     val serverAddress: ServerAddress,
+    val kryo: Kryo,
     private val onConnect: (ServerManager) -> Unit,
     val gameTypes: List<String> = emptyList(),
     val gameFinders: List<GameFinderType> = emptyList(),
@@ -22,7 +24,7 @@ class OrchestratorClient(
     private val logger = KotlinLogging.logger { }
 
     private val serverId = UUID.randomUUID()
-    private var networkManager: NetworkManager? = null
+    var networkManager: NetworkManager? = null
     private var serverManager: ServerManager? = null
 
     private val reconnectScheduler = Executors.newSingleThreadScheduledExecutor()
@@ -32,9 +34,15 @@ class OrchestratorClient(
     fun connect() {
         logger.info { "Connecting to orchestrator... ($orchestratorHost:$orchestratorPort)" }
         try {
-            networkManager = NetworkManager(this)
+            networkManager =
+                NetworkManager(orchestratorHost, orchestratorPort, kryo, ::onDisconnect)
             serverManager = ServerManager(serverId, serverAddress, gameTypes, gameFinders, networkManager!!)
-            onConnect(serverManager!!)
+            val executor = Executors.newSingleThreadScheduledExecutor()
+            executor.schedule({
+                if (networkManager != null) {
+                    onConnect(serverManager!!)
+                }
+            }, 10, TimeUnit.MILLISECONDS)
             reconnectAttempts = 0
         } catch (e: Exception) {
             logger.error(e) { "Failed to connect to orchestrator" }
@@ -72,16 +80,4 @@ class OrchestratorClient(
 
         networkManager?.shutdown()
     }
-}
-
-fun main() {
-    OrchestratorClient(
-        orchestratorHost = "localhost",
-        orchestratorPort = 2980,
-        serverAddress = ServerAddress("localhost", 9394),
-        onConnect = {
-            it.registerServer()
-            it.scheduleHeartbeat()
-        },
-    ).connect()
 }
