@@ -1,20 +1,18 @@
-package org.readutf.orchestrator.server.server
+package org.readutf.orchestrator.server.command
 
 import com.esotericsoftware.kryo.kryo5.Kryo
 import com.esotericsoftware.kryo.kryo5.Registration
 import org.readutf.orchestrator.server.Orchestrator
-import org.readutf.orchestrator.server.game.GameManager
+import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.shared.server.Server
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Subcommand
 import revxrsal.commands.command.CommandActor
-import revxrsal.commands.ktx.returnWithMessage
 
 @Command("server")
 class ServerCommand(
     private val kryo: Kryo,
     private val serverManager: ServerManager,
-    private val gameManager: GameManager,
 ) {
     private val maxDisplayGames = 5
 
@@ -27,14 +25,34 @@ class ServerCommand(
         }
 
         allServers.forEach { server ->
-            actor.reply("${server.getShortId()} (uptime: ${server.getUptimeString()}, address: ${server.address})")
-            val games = gameManager.getGamesByServer(server.serverId)
-            for ((index, game) in games.withIndex()) {
-                if (index >= maxDisplayGames) break
-                actor.reply("  - ${game.shortId()} (type: ${game.matchType}, ingame: ${game.teams.flatten().size})")
-            }
-            if (games.size > maxDisplayGames) {
-                actor.reply("    ... and ${games.size - maxDisplayGames} more games.")
+            actor.reply(
+                server.getInfoString(),
+            )
+//            val games = gameManager.getGamesByServer(server.serverId)
+//            for ((index, game) in games.withIndex()) {
+//                if (index >= maxDisplayGames) break
+//                actor.reply("  - ${game.shortId()} (type: ${game.matchType}, ingame: ${game.teams.flatten().size})")
+//            }
+//            if (games.size > maxDisplayGames) {
+//                actor.reply("    ... and ${games.size - maxDisplayGames} more games.")
+//            }
+        }
+    }
+
+    @Subcommand("scale")
+    fun scaleType(
+        actor: CommandActor,
+        serverType: String,
+        scale: Int,
+    ) {
+        actor.reply("Scaling $serverType to $scale instances...")
+        val start = System.currentTimeMillis()
+        serverManager.scaleServerType(serverType, scale).thenAccept { result ->
+            if (result.isSuccess) {
+                actor.reply("Scaled $serverType to $scale instances in ${System.currentTimeMillis() - start}ms.")
+            } else {
+                actor.error("Failed to scale $serverType to $scale instances.")
+                actor.error(result.getErrorOrNull().toString())
             }
         }
     }
@@ -45,7 +63,10 @@ class ServerCommand(
         serverId: String,
     ) {
         val server =
-            serverManager.getServerByShortId(serverId) ?: returnWithMessage("Could not find server with that id.")
+            serverManager.getServerByShortId(serverId) ?: let {
+                actor.error("Server with id $serverId not found.")
+                return
+            }
         for (serverInfoLine in getServerInfoLines(server)) {
             actor.reply(serverInfoLine)
         }

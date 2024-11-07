@@ -27,7 +27,9 @@ fun main() {
 
     println("   Running Shepard Server v$version built on $formattedBuildTime")
 
-    val settingsFile = File(System.getProperty("user.dir"), "settings.yml")
+    val baseDir = File(System.getProperty("user.dir"))
+
+    val settingsFile = File(baseDir, "settings.yml")
     if (!settingsFile.exists()) {
         Orchestrator::class.java.getResourceAsStream("/settings.yml")?.let { Files.copy(it, settingsFile.toPath()) }
     }
@@ -42,5 +44,5 @@ fun main() {
     println("   Rest API: ${settings.apiSettings.host}:${settings.apiSettings.port}")
     println("   TCP Socket: ${settings.serverSettings.host}:${settings.serverSettings.port}")
 
-    Orchestrator(settings)
+    Orchestrator(settings, baseDir)
 }

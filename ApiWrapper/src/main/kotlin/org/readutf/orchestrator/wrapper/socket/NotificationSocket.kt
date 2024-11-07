@@ -14,8 +14,8 @@ import java.util.concurrent.TimeUnit
 class NotificationSocket internal constructor(
     uri: String,
     private val objectMapper: ObjectMapper,
-    private val notificationListener: (Notification) -> Unit,
     private val autoReconnect: Boolean = true,
+    private val notificationListener: (Notification) -> Unit,
 ) : WebSocketClient(URI(uri)) {
     private val logger = KotlinLogging.logger { }
     private val reconnectExecutor = Executors.newSingleThreadScheduledExecutor()

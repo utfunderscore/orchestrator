@@ -9,48 +9,61 @@ import org.readutf.hermes.PacketManager
 import org.readutf.hermes.platform.netty.nettyServer
 import org.readutf.hermes.serializer.KryoPacketSerializer
 import org.readutf.orchestrator.server.api.EndpointManager
-import org.readutf.orchestrator.server.game.GameManager
-import org.readutf.orchestrator.server.game.store.impl.InMemoryGameStore
+import org.readutf.orchestrator.server.command.ServerCommand
+import org.readutf.orchestrator.server.command.TemplateCommand
+import org.readutf.orchestrator.server.docker.DockerManager
+import org.readutf.orchestrator.server.loadbalancer.LoadBalanceManager
 import org.readutf.orchestrator.server.network.exception.SocketExceptionHandler
 import org.readutf.orchestrator.server.network.listeners.ChannelCloseListener
-import org.readutf.orchestrator.server.network.listeners.game.GamesUpdateListener
-import org.readutf.orchestrator.server.server.ServerCommand
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.server.listeners.AttributeUpdateListener
 import org.readutf.orchestrator.server.server.listeners.HeartbeatListener
 import org.readutf.orchestrator.server.server.listeners.ServerRegisterListener
 import org.readutf.orchestrator.server.server.listeners.ServerUnregisterListener
 import org.readutf.orchestrator.server.server.store.impl.MemoryServerStore
+import org.readutf.orchestrator.server.server.type.ServerTemplateManager
+import org.readutf.orchestrator.server.server.type.store.impl.YamlTemplateStore
 import org.readutf.orchestrator.server.settings.Settings
 import org.readutf.orchestrator.shared.kryo.KryoCreator
-import revxrsal.commands.cli.ConsoleCommandHandler
+import revxrsal.commands.cli.CLILamp
+import revxrsal.commands.cli.ConsoleActor
+import java.io.File
 import java.net.SocketException
 import java.util.concurrent.Executors
 
 class Orchestrator(
     private val settings: Settings,
+    private val baseDir: File,
 ) {
     private val logger = KotlinLogging.logger { }
 
-    private val commandManager: ConsoleCommandHandler = ConsoleCommandHandler.create()
+    private val commandManager =
+        CLILamp
+            .builder<ConsoleActor>()
+            .build()
 
     init {
         val kryo = KryoCreator.build()
         val serverStore = MemoryServerStore()
-        val serverManager = ServerManager(serverStore)
-        val gameManager = GameManager(InMemoryGameStore(serverStore))
+        val dockerManager = DockerManager(settings.dockerSettings)
+        val serverTemplateManager = ServerTemplateManager(dockerManager, YamlTemplateStore(baseDir = baseDir))
+        val serverManager = ServerManager(serverStore, serverTemplateManager)
+        val loadBalanceManager = LoadBalanceManager(serverManager)
         val endpointManager =
             EndpointManager(
+                dockerManager = dockerManager,
                 settings = settings,
                 serverManager = serverManager,
-                gameManager = gameManager,
+                loadBalanceManager = loadBalanceManager,
             )
 
-        setupPacketManager(serverManager, gameManager, kryo)
+        setupPacketManager(serverManager, kryo)
+
+        commandManager.register(ServerCommand(kryo, serverManager))
+        commandManager.register(TemplateCommand(serverTemplateManager))
 
         Thread({
-            commandManager.register(ServerCommand(kryo, serverManager, gameManager))
-            commandManager.pollInput()
+            commandManager.accept(CLILamp.pollStdin())
         }, "Command Thread").start()
 
         // shutdown hook
@@ -64,7 +77,6 @@ class Orchestrator(
 
     private fun setupPacketManager(
         serverManager: ServerManager,
-        gameManager: GameManager,
         kryo: Kryo,
     ): PacketManager<*> =
         PacketManager
@@ -83,7 +95,6 @@ class Orchestrator(
                 listeners.registerListener(HeartbeatListener(serverManager))
                 listeners.registerListener(ServerRegisterListener(serverManager))
                 listeners.registerListener(ServerUnregisterListener(serverManager))
-                listeners.registerListener(GamesUpdateListener(gameManager))
                 listeners.registerListener(AttributeUpdateListener(serverManager))
             }.exception(SocketException::class.java, SocketExceptionHandler())
             .exception {

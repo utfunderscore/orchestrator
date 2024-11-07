@@ -4,7 +4,7 @@ import java.util.UUID
 
 data class Game(
     val id: UUID,
-    val serverId: UUID,
+    val serverId: String,
     val matchType: String,
     val teams: List<List<UUID>>,
     var reservation: GameReservation?,

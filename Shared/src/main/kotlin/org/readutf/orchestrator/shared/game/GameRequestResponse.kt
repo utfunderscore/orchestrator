@@ -5,13 +5,13 @@ import java.util.UUID
 
 data class GameRequestResponse private constructor(
     val requestId: UUID,
-    val serverId: UUID?,
+    val serverId: String?,
     val gameId: UUID?,
     val failureReason: String?,
 ) {
     fun isSuccess(): Boolean = failureReason == null
 
-    fun toResult(idToServer: (UUID) -> Server?): GameRequestResult =
+    fun toResult(idToServer: (String) -> Server?): GameRequestResult =
         if (isSuccess()) {
             val foundServer = idToServer(serverId!!)
             if (foundServer == null) {
@@ -26,7 +26,7 @@ data class GameRequestResponse private constructor(
     companion object {
         fun success(
             requestId: UUID,
-            serverId: UUID,
+            serverId: String,
             gameId: UUID,
         ): GameRequestResponse = GameRequestResponse(requestId, serverId, gameId, null)
 

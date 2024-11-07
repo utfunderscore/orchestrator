@@ -12,6 +12,7 @@ import org.readutf.hermes.platform.netty.NettyClientPlatform
 import org.readutf.hermes.platform.netty.nettyClient
 import org.readutf.hermes.serializer.KryoPacketSerializer
 import org.readutf.orchestrator.shared.kryo.KryoCreator
+import org.readutf.orchestrator.shared.packets.S2CServerGracefulShutdownPacket
 import java.net.SocketException
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
@@ -19,8 +20,8 @@ import java.util.concurrent.Executors
 class NetworkManager(
     private val orchestratorHost: String,
     private val orchestratorPort: Int,
-    private val kryo: Kryo,
     val onDisconnect: () -> Unit,
+    val shutdownHandler: () -> Unit,
 ) {
     val packetManager = createPacketManager()
 
@@ -43,6 +44,11 @@ class NetworkManager(
                         println("Connected to orchestrator")
                         startAwait.complete(null)
                     }
+
+                    it.registerListener<S2CServerGracefulShutdownPacket> { packet ->
+                        shutdownHandler()
+                    }
+
                     it.registerListener(
                         ChannelClosePacket::class.java,
                         object : Listener {
@@ -60,7 +66,6 @@ class NetworkManager(
                     onDisconnect()
                 }.start()
 
-        println("awaiting connection")
         startAwait.join()
 
         return packetManager

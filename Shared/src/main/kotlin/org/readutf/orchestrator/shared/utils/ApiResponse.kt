@@ -24,3 +24,9 @@ data class ApiResponse<T>(
 
     override fun toString(): String = "ApiResponse(success=$success, failureReason=$failureReason, response=$response)"
 }
+
+fun <T> Result<T, String>.toApiResponse(): ApiResponse<T> =
+    when (this.isSuccess) {
+        true -> ApiResponse.success(this.getValue())
+        false -> ApiResponse.failure<T>(this.getError())
+    }
