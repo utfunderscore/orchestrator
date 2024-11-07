@@ -2,60 +2,64 @@ package org.readutf.orchestrator.client.server
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.client.network.NetworkManager
-import org.readutf.orchestrator.shared.game.GameFinderType
-import org.readutf.orchestrator.shared.packets.ServerAttributeUpdate
-import org.readutf.orchestrator.shared.packets.ServerHeartbeatPacket
-import org.readutf.orchestrator.shared.packets.ServerRegisterPacket
-import org.readutf.orchestrator.shared.packets.ServerUnregisterPacket
+import org.readutf.orchestrator.shared.packets.*
 import org.readutf.orchestrator.shared.server.ServerAddress
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
-import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class ServerManager(
-    private val serverId: UUID,
+    private val serverId: String,
     private val address: ServerAddress,
-    private val gameTypes: List<String>,
-    private val gameFinders: List<GameFinderType>,
+    private val serverType: String,
     private val networkManager: NetworkManager,
 ) {
     private val logger = KotlinLogging.logger { }
     private val schedular = Executors.newSingleThreadScheduledExecutor()
+
+    init {
+        val registerResult = registerServer().join()
+
+        if (registerResult != ServerRegisterResponse.SUCCESS) {
+            logger.error { "Failed to register server with orchestrator" }
+            throw IllegalStateException("Failed to register server with orchestrator")
+        }
+
+        scheduleHeartbeat()
+    }
 
     /**
      * Register the server with the orchestrator
      * If the server registers successfully, the result of the future will be true
      * @return CompletableFuture<Boolean>
      */
-    fun registerServer(): CompletableFuture<Boolean> {
+    private fun registerServer(): CompletableFuture<ServerRegisterResponse> {
         logger.info { "Registering server with orchestrator" }
 
         return networkManager
-            .sendPacketWithResponse<Boolean>(
+            .sendPacketWithResponse<ServerRegisterResponse>(
                 ServerRegisterPacket(
                     serverId = serverId,
+                    serverType = serverType,
                     address = address,
-                    gameTypes = gameTypes,
-                    gameFinders = gameFinders,
                 ),
             )
     }
 
-    fun unregisterServer(serverId: UUID) {
+    private fun unregisterServer(serverId: String) {
         logger.info { "Unregistering server with orchestrator" }
         networkManager.sendPacket(
-            ServerUnregisterPacket(
+            C2SServerUnregisterPacket(
                 serverId,
             ),
         )
     }
 
-    fun sendHeartbeat(serverId: UUID) {
+    private fun sendHeartbeat(serverId: String) {
         logger.debug { "Sending heartbeat" }
         networkManager.sendPacket(
-            ServerHeartbeatPacket(
+            C2SServerHeartbeatPacket(
                 serverHeartbeat =
                     ServerHeartbeat(
                         serverId,
@@ -64,7 +68,7 @@ class ServerManager(
         )
     }
 
-    fun scheduleHeartbeat() {
+    private fun scheduleHeartbeat() {
         logger.info { "Scheduling heartbeat" }
         schedular.scheduleAtFixedRate(
             {
@@ -85,7 +89,7 @@ class ServerManager(
         value: Any,
     ) {
         networkManager.sendPacket(
-            ServerAttributeUpdate(
+            C2SServerAttributeUpdate(
                 serverId,
                 key,
                 value,

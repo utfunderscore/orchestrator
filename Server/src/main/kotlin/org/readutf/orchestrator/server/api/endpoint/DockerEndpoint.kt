@@ -18,21 +18,23 @@ class DockerEndpoint(
         context: Context,
         @Query("shortId") shortId: String,
     ) {
-        val containerByShortId = dockerManager.getContainerByShortId(shortId)
-
-        if (containerByShortId.isError()) {
-            context.json(
-                Base64.getEncoder().encodeToString(
-                    Orchestrator.objectMapper.writeValueAsString(ApiResponse.failure<String>(containerByShortId.getError())).toByteArray(),
-                ),
-            )
-            return
-        }
+        val containerByShortId =
+            dockerManager.getContainerByShortId(shortId).onFailure {
+                context.json(
+                    Base64.getEncoder().encodeToString(
+                        Orchestrator.objectMapper
+                            .writeValueAsString(
+                                ApiResponse.failure<String>(it.getError()),
+                            ).toByteArray(),
+                    ),
+                )
+                return
+            }
 
         context.json(
             Base64.getEncoder().encodeToString(
                 Orchestrator.objectMapper
-                    .writeValueAsString(ApiResponse.success(containerByShortId.get().getPorts()))
+                    .writeValueAsString(ApiResponse.success(containerByShortId.getPorts()))
                     .toByteArray(),
             ),
         )
@@ -45,7 +47,7 @@ class DockerEndpoint(
     ) {
         val containerByShortId = dockerManager.getContainerByShortId(shortId)
 
-        if (containerByShortId.isError()) {
+        if (containerByShortId.isFailure) {
             context.json(
                 Orchestrator.objectMapper
                     .writeValueAsString(
@@ -55,7 +57,7 @@ class DockerEndpoint(
             return
         }
 
-        val container = containerByShortId.get()
+        val container = containerByShortId.getOrNull() ?: return
         val networkSettings = container.networkSettings ?: return
 
         val networks =

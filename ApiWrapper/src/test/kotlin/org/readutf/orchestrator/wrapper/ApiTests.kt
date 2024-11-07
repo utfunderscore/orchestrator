@@ -1,21 +1,34 @@
 package org.readutf.orchestrator.wrapper
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.readutf.orchestrator.wrapper.socket.NotificationSocket
+import java.util.concurrent.CompletableFuture
 
 /**
  * The server needs to be running before
  * game request tests are executed
  */
 class ApiTests {
-    val orchestratorApi = OrchestratorApi("89.33.85.41", 9393)
+    val orchestratorApi = OrchestratorApi("localhost", 9393)
 
     @Test
     fun testGameRequest() {
-        val (requestId, server, gameId) = orchestratorApi.requestGame("test").join()
+        val (_, server, gameId) = orchestratorApi.requestGame("test").join()
 
         println("server: $server | game: $gameId")
+    }
+
+    @Test
+    fun testNotificationSocket() {
+        val future = CompletableFuture<Unit>()
+        NotificationSocket(uri = "ws://localhost:9393/notifications", objectMapper = ObjectMapper().registerKotlinModule()) {
+            future.complete(null)
+        }
+        future.join()
     }
 
     @Test
@@ -42,12 +55,12 @@ class ApiTests {
     @Test
     fun testGetServer() {
         runBlocking {
-            val allServers = orchestratorApi.getServers().get()
+            val allServers = orchestratorApi.getServers().getOrThrow()
 
             val serverId = allServers[0].serverId
 
             val getServer = orchestratorApi.getServerById(serverId)
-            Assertions.assertEquals(true, getServer.isOk())
+            Assertions.assertEquals(true, getServer.isSuccess)
 
             println(getServer)
         }

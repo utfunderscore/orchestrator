@@ -11,10 +11,10 @@ import java.util.*
 class MemoryServerStore : ServerStore {
     private val logger = KotlinLogging.logger { }
 
-    val servers = mutableMapOf<UUID, RegisteredServer>()
-    private val channelServers = mutableMapOf<String, MutableList<UUID>>()
+    val servers = mutableMapOf<String, RegisteredServer>()
+    private val channelServers = mutableMapOf<String, MutableList<String>>()
 
-    override fun getServerById(serverId: UUID): RegisteredServer? = servers[serverId]
+    override fun getServerById(serverId: String): RegisteredServer? = servers[serverId]
 
     override fun saveServer(registeredServer: RegisteredServer) {
         servers[registeredServer.serverId] = registeredServer
@@ -23,15 +23,13 @@ class MemoryServerStore : ServerStore {
             .add(registeredServer.serverId)
     }
 
-    override fun removeServer(serverId: UUID) {
-        servers.remove(serverId)
-    }
+    override fun removeServer(serverId: String): RegisteredServer? = servers.remove(serverId)
 
     override fun getServersByChannel(channelId: String): List<RegisteredServer> =
         channelServers[channelId]?.mapNotNull { servers[it] } ?: emptyList()
 
     override fun updateHeartbeat(
-        serverId: UUID,
+        serverId: String,
         serverHeartbeat: ServerHeartbeat,
     ) {
         servers[serverId]?.let {
@@ -44,7 +42,7 @@ class MemoryServerStore : ServerStore {
     override fun getServerByShortId(shortId: String): Server? = servers.values.firstOrNull { it.serverId.toString().startsWith(shortId) }
 
     override fun setAttribute(
-        serverId: UUID,
+        serverId: String,
         attributeName: String,
         typedObject: Any,
     ) {
@@ -58,7 +56,7 @@ class MemoryServerStore : ServerStore {
     }
 
     override fun removeAttribute(
-        serverId: UUID,
+        serverId: String,
         attributeName: String,
     ) {
         val serverById =
@@ -70,7 +68,14 @@ class MemoryServerStore : ServerStore {
         serverById.attributes.remove(attributeName)
     }
 
-    override fun getServersByType(gameType: String): List<Server> = servers.values.filter { server -> server.gameTypes.contains(gameType) }
+    override fun getServersByType(gameType: String): List<Server> =
+        servers.values.filter { server -> server.serverType.equals(gameType, true) }
+
+    override fun markServerForDeletion(serverId: String) {
+        servers[serverId]?.let { server ->
+            server.pendingDeletion = true
+        }
+    }
 
     override fun getTimedOutServers(): List<RegisteredServer> {
         val now = System.currentTimeMillis()

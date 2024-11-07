@@ -41,7 +41,12 @@ class OrchestratorApi(
     fun createNotificationSocket(
         objectMapper: ObjectMapper = ObjectMapper(),
         listener: (Notification) -> Unit,
-    ): NotificationSocket = NotificationSocket("ws://$hostname:$port/notifications", objectMapper, listener)
+    ): NotificationSocket =
+        NotificationSocket(
+            uri = "ws://$hostname:$port/notifications",
+            objectMapper = objectMapper,
+            notificationListener = listener,
+        )
 
     suspend fun getPort(shortId: String): ApiResponse<List<ContainerPort>> {
         val json = String(Base64.getDecoder().decode(dockerService.getPort(shortId)))
@@ -52,40 +57,40 @@ class OrchestratorApi(
 
     suspend fun getNetworks(shortId: String): ApiResponse<List<NetworkAddress>> = dockerService.getIp(shortId)
 
-    suspend fun getServerByType(gameType: String): Result<List<Server>> =
+    suspend fun getServerByType(gameType: String): Result<List<Server>, String> =
         try {
-            val response = serverService.getServer(gameType)
+            val response = serverService.getServerByType(gameType)
             if (response.isSuccess()) {
-                Result.ok(response.get())
+                Result.success(response.get())
             } else {
-                Result.error(response.getError())
+                Result.failure(response.getError())
             }
         } catch (e: Exception) {
-            Result.error(e.message.toString())
+            Result.failure(e.message.toString())
         }
 
-    suspend fun getServerById(serverId: UUID): Result<Server> =
+    suspend fun getServerById(serverId: String): Result<Server, String> =
         try {
             val response = serverService.getServer(serverId)
             if (response.isSuccess()) {
-                Result.ok(response.get())
+                Result.success(response.get())
             } else {
-                Result.error(response.getError())
+                Result.failure(response.getError())
             }
         } catch (e: Exception) {
-            Result.error(e.message.toString())
+            Result.failure(e.message.toString())
         }
 
-    suspend fun getServers(): Result<List<Server>> =
+    suspend fun getServers(): Result<List<Server>, String> =
         try {
             val response = serverService.getAllServers()
             if (response.isSuccess()) {
-                Result.ok(response.get())
+                Result.success(response.get())
             } else {
-                Result.error(response.getError())
+                Result.failure(response.getError())
             }
         } catch (e: Exception) {
-            Result.error(e.message.toString())
+            Result.failure(e.message.toString())
         }
 
     private fun getRetrofit(

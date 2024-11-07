@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 import java.util.Properties
 
 plugins {
@@ -13,7 +14,7 @@ dependencies {
     implementation(project(":Shared"))
 
     // Javalin
-    implementation("io.javalin:javalin:+")
+    implementation("io.javalin:javalin:6.3.0")
     implementation("io.javalin.community.routing:routing-core:6.1.6")
     implementation("io.javalin.community.routing:routing-annotated:6.1.6")
 
@@ -35,8 +36,8 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:$log4jVersion")
 
     // Commands
-    implementation("com.github.Revxrsal.Lamp:common:3.2.1")
-    implementation("com.github.Revxrsal.Lamp:cli:3.2.1")
+    implementation("io.github.revxrsal:lamp.common:4.0.0-beta.19")
+    implementation("io.github.revxrsal:lamp.cli:4.0.0-beta.19")
 
     val exposed = "0.51.0"
     implementation("org.jetbrains.exposed:exposed-core:$exposed")
@@ -53,6 +54,9 @@ dependencies {
     runtimeOnly("com.sksamuel.hoplite:hoplite-yaml:2.8.0.RC3")
 
     implementation("com.h2database:h2:2.2.224")
+
+    // https://mvnrepository.com/artifact/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.18.1")
 }
 
 tasks {
@@ -67,6 +71,17 @@ tasks {
     shadowJar {
         archiveFileName = "Orchestrator.jar"
         finalizedBy("copyArchive")
+    }
+
+    withType<JavaCompile> {
+        // Preserve parameter names in the bytecode
+        options.compilerArgs.add("-parameters")
+    }
+
+    withType<KotlinJvmCompile> {
+        compilerOptions {
+            javaParameters = true
+        }
     }
 
     register("copyArchive") {
@@ -88,9 +103,6 @@ tasks {
                 properties.store(writer, null)
             }
         }
-    }
-    named("classes") {
-        dependsOn("createProperties")
     }
 
     test {

@@ -14,7 +14,7 @@ dependencies {
     api("io.github.oshai:kotlin-logging-jvm:5.1.0")
     api("com.esotericsoftware:kryo5:5.6.0")
     api("com.fasterxml.jackson.core:jackson-databind:2.17.2")
-    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.+")
+    api("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
 
     val hermesVersion: String by rootProject.extra
     api("org.readutf.hermes:core:$hermesVersion")

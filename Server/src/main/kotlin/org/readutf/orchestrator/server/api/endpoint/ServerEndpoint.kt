@@ -7,7 +7,6 @@ import io.javalin.http.Context
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.utils.ApiResponse
-import java.util.UUID
 
 @Endpoints("/server")
 class ServerEndpoint(
@@ -19,25 +18,17 @@ class ServerEndpoint(
     @Get("byId")
     fun getServer(
         context: Context,
-        @Query("serverId") serverIdString: String,
-    ): ApiResponse<Server> {
-        val serverId =
-            try {
-                UUID.fromString(serverIdString)
-            } catch (e: Exception) {
-                return ApiResponse.failure("Invalid uuid 'serverId'")
-            }
-
-        return serverManager.getServerById(serverId)?.let { server ->
+        @Query("serverId") serverId: String,
+    ): ApiResponse<Server> =
+        serverManager.getServerById(serverId)?.let { server ->
             ApiResponse.success(server)
         } ?: let { _ ->
             ApiResponse.failure("Could not find server with that id")
         }
-    }
 
     @Get("byType")
     fun getServerByType(
         context: Context,
-        @Query("serverType") gameType: String,
-    ): ApiResponse<List<Server>> = ApiResponse.success(serverManager.getServersByType(gameType))
+        @Query("serverType") serverType: String,
+    ): ApiResponse<List<Server>> = ApiResponse.success(serverManager.getServersByType(serverType))
 }

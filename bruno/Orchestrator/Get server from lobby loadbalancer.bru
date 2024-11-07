@@ -1,0 +1,15 @@
+meta {
+  name: Get server from lobby loadbalancer
+  type: http
+  seq: 1
+}
+
+get {
+  url: http://localhost:9393/loadbalancer/lobby/lobby
+  body: json
+  auth: none
+}
+
+body:json {
+  ["81532772-7648-487b-bd00-23e2389f2925"]
+}
