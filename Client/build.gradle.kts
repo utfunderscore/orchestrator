@@ -22,6 +22,8 @@ dependencies {
     val nettyVersion: String by rootProject.extra
     api("io.netty:netty-all:$nettyVersion")
 
+    implementation("org.jetbrains:annotations:26.0.1")
+
     // Logging
     val log4jVersion: String by rootProject.extra
     implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")

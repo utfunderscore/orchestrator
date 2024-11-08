@@ -1,89 +1,100 @@
 package org.readutf.orchestrator.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.readutf.orchestrator.client.network.NetworkManager
-import org.readutf.orchestrator.client.server.ServerManager
-import org.readutf.orchestrator.shared.packets.C2SServerUnregisterPacket
+import org.jetbrains.annotations.Blocking
+import org.readutf.orchestrator.client.capacity.ServerCapacityProducer
+import org.readutf.orchestrator.client.capacity.defaults.ManualCapacityProducer
+import org.readutf.orchestrator.client.settings.ConnectionSettings
 import org.readutf.orchestrator.shared.server.ServerAddress
-import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
+import java.util.UUID
+import java.util.concurrent.CompletableFuture
 
 class OrchestratorClient(
     val serverId: String,
-    val orchestratorHost: String,
-    val orchestratorPort: Int,
-    val serverAddress: ServerAddress,
     val serverType: String,
-    private val autoReconnect: Boolean = true,
-    private val maxReconnectAttempts: Int = 15,
-    private var shutdownRequestHandler: () -> Unit,
-    private val onConnect: ServerManager.() -> Unit,
+    val localAddress: ServerAddress,
+    val connectionSettings: ConnectionSettings,
+    val capacityProducer: ServerCapacityProducer,
+    val onConnect: ClientManager.() -> Unit,
+    val onDisconnect: ClientManager.() -> Unit,
 ) {
-    private val logger = KotlinLogging.logger { }
+    private val lock = Any()
+    private val logger = KotlinLogging.logger {}
+    private var clientManager: ClientManager? = null
 
-    var networkManager: NetworkManager? = null
-    private var serverManager: ServerManager? = null
+    /**
+     * Connect to the orchestrator server
+     * @return [CompletableFuture] that completes when the connection has exceeded the reconnect attempts
+     */
+    fun connect(onExit: Runnable) {
+        Thread {
+            connectBlocking(onExit)
+        }.start()
+    }
 
-    private val reconnectScheduler = Executors.newSingleThreadScheduledExecutor()
-    private var shuttingDown = false
-    private var reconnectAttempts = 0
+    @Blocking
+    fun connectBlocking(onExit: Runnable) {
+        var reconnectAttempts = 0
 
-    fun connect() {
-        logger.info { "Connecting to orchestrator... ($orchestratorHost:$orchestratorPort)" }
-        try {
-            networkManager =
-                NetworkManager(
-                    orchestratorHost = orchestratorHost,
-                    orchestratorPort = orchestratorPort,
-                    onDisconnect = ::onDisconnect,
-                    shutdownHandler = shutdownRequestHandler,
-                )
-            serverManager = ServerManager(serverId, serverAddress, serverType, networkManager!!)
-            val executor = Executors.newSingleThreadScheduledExecutor()
-            executor.schedule({
-                if (serverManager != null) {
-                    onConnect(serverManager!!)
+        while (connectionSettings.maxReconnectAttempts == -1 || reconnectAttempts <= connectionSettings.maxReconnectAttempts) {
+            if (reconnectAttempts > 0) {
+                logger.info { "Connection failed, reconnecting in 5 seconds..." }
+                Thread.sleep(5000)
+            }
+
+            synchronized(lock) {
+                val successful =
+                    ClientManager(
+                        remoteAddress = connectionSettings.remoteAddress,
+                        remotePort = connectionSettings.remotePort,
+                        serverId = serverId,
+                        serverType = serverType,
+                        localAddress = localAddress,
+                        capacityProducer = capacityProducer,
+                        onConnect = onConnect,
+                        onDisconnect = onDisconnect,
+                    ).start().join()
+
+                if (!successful) reconnectAttempts++
+
+                if (!connectionSettings.autoReconnect) {
+                    return
                 }
-            }, 10, TimeUnit.MILLISECONDS)
-            reconnectAttempts = 0
-        } catch (e: Throwable) {
-            logger.error(e) { "Failed to connect to orchestrator" }
-            onDisconnect()
+            }
         }
-    }
 
-    fun setAttribute(
-        key: String,
-        value: Any,
-    ) {
-        serverManager?.setAttribute(key, value)
-    }
-
-    fun onDisconnect() {
-        if (!autoReconnect || reconnectAttempts >= maxReconnectAttempts) {
-            disconnect()
-            return
-        }
-        if (shuttingDown) return
-        serverManager?.shutdown()
-        networkManager?.shutdown()
-
-        scheduleReconnect()
-        reconnectAttempts++
-    }
-
-    private fun scheduleReconnect() {
-        println("Reconnecting in 5 seconds (attempts: $reconnectAttempts)")
-        reconnectScheduler.schedule(::connect, 5, TimeUnit.SECONDS)
+        onExit.run()
     }
 
     fun disconnect() {
-        networkManager?.sendPacket(
-            C2SServerUnregisterPacket(serverId),
-        )
+        synchronized(lock) {
+            clientManager?.disconnect()
+        }
+    }
+}
 
-        shuttingDown = true
+fun main() {
+    val logger = KotlinLogging.logger {}
 
-        networkManager?.shutdown()
+    OrchestratorClient(
+        serverId = UUID.randomUUID().toString(),
+        serverType = "lobby",
+        localAddress = ServerAddress("localhost", 25565),
+        connectionSettings =
+            ConnectionSettings(
+                remoteAddress = "localhost",
+                remotePort = 2980,
+                autoReconnect = true,
+                maxReconnectAttempts = 5,
+            ),
+        capacityProducer = ManualCapacityProducer(),
+        onConnect = {
+            logger.info { "Connected to orchestrator" }
+        },
+        onDisconnect = {
+            logger.info { "Disconnected from orchestrator" }
+        },
+    ).connect {
+        println("Exiting...")
     }
 }

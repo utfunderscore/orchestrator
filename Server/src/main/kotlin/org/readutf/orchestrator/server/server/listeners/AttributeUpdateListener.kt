@@ -4,15 +4,15 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.server.network.listeners.NoopListener
 import org.readutf.orchestrator.server.server.ServerManager
-import org.readutf.orchestrator.shared.packets.C2SServerAttributeUpdate
+import org.readutf.orchestrator.shared.packets.C2SAttributeUpdate
 
 class AttributeUpdateListener(
     val serverManager: ServerManager,
-) : NoopListener<C2SServerAttributeUpdate> {
+) : NoopListener<C2SAttributeUpdate> {
     private val logger = KotlinLogging.logger { }
 
     override fun handle(
-        packet: C2SServerAttributeUpdate,
+        packet: C2SAttributeUpdate,
         channel: HermesChannel,
     ) {
         logger.debug { "Updating attribute ${packet.attributeName} on server ${packet.serverId}" }
