@@ -3,7 +3,7 @@ plugins {
 }
 
 group = "org.readutf.orchestrator"
-version = "1.7.9"
+version = "1.8.0"
 
 dependencies {
     testImplementation(kotlin("test"))
@@ -17,7 +17,7 @@ repositories {
     }
 }
 
-extra["hermesVersion"] = "1.6.4"
+extra["hermesVersion"] = "1.6.5"
 extra["nettyVersion"] = "4.1.111.Final"
 extra["log4jVersion"] = "2.23.1"
 

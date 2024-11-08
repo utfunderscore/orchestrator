@@ -28,12 +28,12 @@ object KryoCreator {
 
         kryo.register(ServerRegisterPacket::class.java)
         kryo.register(ServerGamesUpdatePacket::class.java)
-        kryo.register(C2SServerHeartbeatPacket::class.java)
+        kryo.register(C2SHeartbeatPacket::class.java)
         kryo.register(GameRequestPacket::class.java)
         kryo.register(GameReservePacket::class.java)
-        kryo.register(C2SServerAttributeUpdate::class.java)
+        kryo.register(C2SAttributeUpdate::class.java)
         kryo.register(ServerAttributeRemove::class.java)
-        kryo.register(C2SServerUnregisterPacket::class.java)
+        kryo.register(C2SUnregisterPacket::class.java)
 
         kryo.isRegistrationRequired = false
 
