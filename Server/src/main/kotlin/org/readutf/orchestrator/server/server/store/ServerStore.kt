@@ -1,7 +1,6 @@
 package org.readutf.orchestrator.server.server.store
 
 import org.readutf.orchestrator.server.server.RegisteredServer
-import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 
 interface ServerStore {
@@ -22,7 +21,7 @@ interface ServerStore {
 
     fun getAllServers(): List<RegisteredServer>
 
-    fun getServerByShortId(shortId: String): Server?
+    fun getServerByShortId(shortId: String): RegisteredServer?
 
     fun setAttribute(
         serverId: String,
@@ -35,7 +34,7 @@ interface ServerStore {
         attributeName: String,
     )
 
-    fun getServersByType(gameType: String): List<Server>
+    fun getServersByType(gameType: String): List<RegisteredServer>
 
     fun markServerForDeletion(serverId: String)
 }
