@@ -1,6 +1,6 @@
 package org.readutf.orchestrator.server.command
 
-import org.readutf.orchestrator.server.server.type.ServerTemplateManager
+import org.readutf.orchestrator.server.server.template.ServerTemplateManager
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.command.CommandActor
 import java.util.concurrent.TimeUnit
@@ -34,6 +34,21 @@ class TemplateCommand(
             templates.forEach {
                 commandActor.reply("  - ${it.templateId} (${it.dockerImage})")
             }
+        }
+    }
+
+    @Command("template setimage <id>")
+    fun setImage(
+        commandActor: CommandActor,
+        id: String,
+        image: String,
+    ) {
+        val result = templateManager.setImage(id, image)
+
+        if (result.isFailure) {
+            commandActor.error("Failed to set image: ${result.getErrorOrNull()}")
+        } else {
+            commandActor.reply("Successfully set image.")
         }
     }
 
