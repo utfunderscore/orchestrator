@@ -2,7 +2,7 @@ package org.readutf.orchestrator.wrapper.services
 
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.utils.ApiResponse
-import retrofit2.http.Body
+import org.readutf.orchestrator.wrapper.utils.JsonWrapper
 import retrofit2.http.GET
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -19,6 +19,6 @@ interface LoadBalancerService {
     @GET("/loadbalancer/lobby/{serverType}")
     suspend fun getServerFromBalancer(
         @Path("serverType") serverType: String,
-        @Body players: List<UUID>,
+        @Query("players") players: JsonWrapper<List<UUID>>,
     ): ApiResponse<Server>
 }

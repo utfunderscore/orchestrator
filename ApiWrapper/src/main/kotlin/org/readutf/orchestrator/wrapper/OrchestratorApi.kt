@@ -11,11 +11,13 @@ import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.utils.ApiResponse
 import org.readutf.orchestrator.shared.utils.Result
 import org.readutf.orchestrator.wrapper.services.DockerService
+import org.readutf.orchestrator.wrapper.services.LoadBalancerService
 import org.readutf.orchestrator.wrapper.services.ServerService
 import org.readutf.orchestrator.wrapper.socket.GameRequestSocket
 import org.readutf.orchestrator.wrapper.socket.NotificationSocket
 import org.readutf.orchestrator.wrapper.types.ContainerPort
 import org.readutf.orchestrator.wrapper.types.NetworkAddress
+import org.readutf.orchestrator.wrapper.utils.JsonWrapper
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import java.util.*
@@ -31,6 +33,7 @@ class OrchestratorApi(
 
     private val serverService by lazy { retrofit.create(ServerService::class.java) }
     private val dockerService by lazy { retrofit.create(DockerService::class.java) }
+    private val loadBalancerServer by lazy { retrofit.create(LoadBalancerService::class.java) }
 
     @Blocking
     fun requestGame(
@@ -52,6 +55,11 @@ class OrchestratorApi(
         val json = String(Base64.getDecoder().decode(dockerService.getPort(shortId)))
         return objectMapper.readValue(json, object : TypeReference<ApiResponse<List<ContainerPort>>>() {})
     }
+
+    suspend fun getServerFromBalancer(
+        serverType: String,
+        players: List<UUID>,
+    ): ApiResponse<Server> = loadBalancerServer.getServerFromBalancer(serverType, JsonWrapper(players))
 
     suspend fun getIp(shortId: String): ApiResponse<List<NetworkAddress>> = dockerService.getIp(shortId)
 

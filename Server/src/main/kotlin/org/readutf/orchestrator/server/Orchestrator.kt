@@ -20,9 +20,10 @@ import org.readutf.orchestrator.server.server.listeners.AttributeUpdateListener
 import org.readutf.orchestrator.server.server.listeners.HeartbeatListener
 import org.readutf.orchestrator.server.server.listeners.ServerRegisterListener
 import org.readutf.orchestrator.server.server.listeners.ServerUnregisterListener
+import org.readutf.orchestrator.server.server.scalable.ServerScaleManager
 import org.readutf.orchestrator.server.server.store.impl.MemoryServerStore
-import org.readutf.orchestrator.server.server.type.ServerTemplateManager
-import org.readutf.orchestrator.server.server.type.store.impl.YamlTemplateStore
+import org.readutf.orchestrator.server.server.template.ServerTemplateManager
+import org.readutf.orchestrator.server.server.template.store.impl.YamlTemplateStore
 import org.readutf.orchestrator.server.settings.Settings
 import org.readutf.orchestrator.shared.kryo.KryoCreator
 import revxrsal.commands.cli.CLILamp
@@ -49,6 +50,7 @@ class Orchestrator(
         val serverTemplateManager = ServerTemplateManager(dockerManager, YamlTemplateStore(baseDir = baseDir))
         val serverManager = ServerManager(serverStore, serverTemplateManager)
         val loadBalanceManager = LoadBalanceManager(serverManager)
+        val scaleManager = ServerScaleManager(serverTemplateManager, dockerManager)
         val endpointManager =
             EndpointManager(
                 dockerManager = dockerManager,

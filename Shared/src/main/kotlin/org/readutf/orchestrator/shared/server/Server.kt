@@ -9,7 +9,7 @@ import java.text.DecimalFormat
 open class Server(
     @JsonProperty("serverId") val serverId: String,
     @JsonProperty("address") val address: ServerAddress,
-    @JsonProperty("address") val serverType: String,
+    @JsonProperty("serverType") val serverType: String,
     @JsonProperty("heartbeat") var heartbeat: ServerHeartbeat = ServerHeartbeat(serverId, System.currentTimeMillis()),
     @JsonProperty("attributes") var attributes: MutableMap<String, TypeWrapper> = mutableMapOf(),
     @JsonProperty("registeredAt") val registeredAt: Long = System.currentTimeMillis(),
@@ -24,10 +24,11 @@ open class Server(
     fun getUptimeString(): String = TimeUtils.formatDuration(getUptime())
 
     @JsonIgnore
-    fun getShortId(): String = serverId.toString().substring(0, 8)
+    fun getShortId(): String = serverId.substring(0, 12)
 
     override fun toString(): String = "Server(serverId=$serverId, address=$address, heartbeat=$heartbeat, attributes=$attributes)"
 
+    @JsonIgnore
     fun getInfoString(): String =
         "%s (uptime: %s, address: %s, lastHeartbeat: %ss)".format(
             getShortId(),

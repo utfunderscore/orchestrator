@@ -23,5 +23,5 @@ data class Game(
 
     override fun hashCode(): Int = id.hashCode()
 
-    fun shortId() = id.toString().substring(0, 8)
+    fun shortId() = id.toString().substring(0, 12)
 }
