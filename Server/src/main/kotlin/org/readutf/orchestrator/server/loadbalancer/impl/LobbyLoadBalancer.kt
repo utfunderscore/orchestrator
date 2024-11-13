@@ -15,6 +15,7 @@ open class LobbyLoadBalancer(
         require(minimumFillCapacity in 0.0..1.0) { "Minimum fill capacity must be between 0.0 and 1.0" }
     }
 
+    @Synchronized
     fun request(players: List<UUID>): Result<Server, String> {
         val servers = serverManager.getServersByType(serverType)
 
@@ -25,6 +26,10 @@ open class LobbyLoadBalancer(
                 .sortedWith(compareBy({ it.second }, { it.first.getUptime() }))
                 .firstOrNull() ?: return Result.failure("No servers available")
 
-        return Result.success(targetServer.first)
+        val server = targetServer.first
+
+        serverManager.recalculateCapacity(server, players.size, false, null)
+
+        return Result.success(server)
     }
 }
