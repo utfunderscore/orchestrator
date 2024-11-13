@@ -1,10 +1,10 @@
-package org.readutf.orchestrator.server.server.type
+package org.readutf.orchestrator.server.server.template
 
 import com.github.dockerjava.api.model.Bind
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.server.docker.DockerManager
 import org.readutf.orchestrator.server.server.RegisteredServer
-import org.readutf.orchestrator.server.server.type.store.TemplateStore
+import org.readutf.orchestrator.server.server.template.store.TemplateStore
 import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.utils.Result
 import java.util.concurrent.CompletableFuture

@@ -1,6 +1,6 @@
-package org.readutf.orchestrator.server.server.type.store
+package org.readutf.orchestrator.server.server.template.store
 
-import org.readutf.orchestrator.server.server.type.ServerTemplate
+import org.readutf.orchestrator.server.server.template.ServerTemplate
 import org.readutf.orchestrator.shared.utils.Result
 
 interface TemplateStore {

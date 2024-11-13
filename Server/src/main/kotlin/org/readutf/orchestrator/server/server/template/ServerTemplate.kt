@@ -1,4 +1,4 @@
-package org.readutf.orchestrator.server.server.type
+package org.readutf.orchestrator.server.server.template
 
 data class ServerTemplate(
     val templateId: String,
