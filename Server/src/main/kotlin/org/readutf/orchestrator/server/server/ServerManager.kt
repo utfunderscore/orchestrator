@@ -5,9 +5,10 @@ package org.readutf.orchestrator.server.server
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.server.notification.NotificationManager
 import org.readutf.orchestrator.server.server.store.ServerStore
-import org.readutf.orchestrator.server.server.type.ServerTemplateManager
+import org.readutf.orchestrator.server.server.template.ServerTemplateManager
 import org.readutf.orchestrator.shared.notification.impl.ServerRegisterNotification
 import org.readutf.orchestrator.shared.notification.impl.ServerUnregisterNotification
+import org.readutf.orchestrator.shared.packets.S2CRecalculateCapacity
 import org.readutf.orchestrator.shared.packets.S2CServerGracefulShutdownPacket
 import org.readutf.orchestrator.shared.packets.ServerRegisterResponse
 import org.readutf.orchestrator.shared.server.Server
@@ -86,6 +87,7 @@ class ServerManager(
                     changingScale.remove(serverType)
                     Result.empty<String>()
                 }.exceptionally {
+                    changingScale.remove(serverType)
                     logger.error(it) { "Failed to scale server type $serverType" }
                     Result.failure("Failed to scale server type $serverType")
                 }
@@ -181,5 +183,22 @@ class ServerManager(
 
     fun getServerById(serverId: String): Server? = serverStore.getServerById(serverId)
 
-    fun getServersByType(serverType: String): List<Server> = serverStore.getServersByType(serverType)
+    fun getServersByType(serverType: String): List<RegisteredServer> = serverStore.getServersByType(serverType)
+
+    fun getServersByChannel(channelId: String): List<RegisteredServer> = serverStore.getServersByChannel(channelId)
+
+    fun recalculateCapacity(
+        server: RegisteredServer,
+        numberOfPlayers: Int,
+        creatingGame: Boolean,
+        gameType: String? = null,
+    ) {
+        server.channel.sendPacket(
+            S2CRecalculateCapacity(
+                numberOfPlayers = numberOfPlayers,
+                creatingGame = creatingGame,
+                gameType = gameType,
+            ),
+        )
+    }
 }
