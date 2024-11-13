@@ -18,7 +18,6 @@ class OrchestratorClient(
     val onConnect: ClientManager.() -> Unit,
     val onDisconnect: ClientManager.() -> Unit,
 ) {
-    private val lock = Any()
     private val logger = KotlinLogging.logger {}
     private var clientManager: ClientManager? = null
 
@@ -42,35 +41,41 @@ class OrchestratorClient(
                 Thread.sleep(5000)
             }
 
-            synchronized(lock) {
-                val successful =
-                    ClientManager(
-                        remoteAddress = connectionSettings.remoteAddress,
-                        remotePort = connectionSettings.remotePort,
-                        serverId = serverId,
-                        serverType = serverType,
-                        localAddress = localAddress,
-                        capacityProducer = capacityProducer,
-                        onConnect = onConnect,
-                        onDisconnect = onDisconnect,
-                    ).start().join()
+            val successful =
+                ClientManager(
+                    remoteAddress = connectionSettings.remoteAddress,
+                    remotePort = connectionSettings.remotePort,
+                    serverId = serverId,
+                    serverType = serverType,
+                    localAddress = localAddress,
+                    capacityProducer = capacityProducer,
+                    onConnect = onConnect,
+                    onDisconnect = onDisconnect,
+                ).start().join()
 
-                if (!successful) reconnectAttempts++
+            println("successful: $successful")
 
-                if (!connectionSettings.autoReconnect) {
-                    return
-                }
+            if (!successful) reconnectAttempts++
+
+            if (!connectionSettings.autoReconnect) {
+                return
             }
         }
 
         onExit.run()
     }
 
+    @Synchronized
     fun disconnect() {
-        synchronized(lock) {
-            clientManager?.disconnect()
-        }
+        clientManager?.disconnect()
     }
+
+    @Synchronized
+    fun updateCapacity() {
+        clientManager?.updateCapacity()
+    }
+
+    fun isConnected(): Boolean = clientManager != null
 }
 
 fun main() {
@@ -85,7 +90,7 @@ fun main() {
                 remoteAddress = "localhost",
                 remotePort = 2980,
                 autoReconnect = true,
-                maxReconnectAttempts = 5,
+                maxReconnectAttempts = -1,
             ),
         capacityProducer = ManualCapacityProducer(),
         onConnect = {

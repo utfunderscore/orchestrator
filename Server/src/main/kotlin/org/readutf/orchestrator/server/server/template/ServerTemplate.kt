@@ -2,7 +2,7 @@ package org.readutf.orchestrator.server.server.type
 
 data class ServerTemplate(
     val templateId: String,
-    val dockerImage: String,
+    var dockerImage: String,
     var hostName: String? = null,
     val bindings: HashSet<String> = HashSet(),
     val ports: HashSet<String> = HashSet(),

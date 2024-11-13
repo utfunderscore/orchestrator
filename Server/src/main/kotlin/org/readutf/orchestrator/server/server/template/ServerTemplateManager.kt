@@ -202,4 +202,14 @@ class ServerTemplateManager(
     fun getTemplates(): List<ServerTemplate> = existingTypes.toList()
 
     fun removeServerFuture(serverId: String) = awaitingServers.remove(serverId)
+
+    fun setImage(
+        id: String,
+        image: String,
+    ): Result<Unit, String> {
+        val template = getTemplate(id) ?: return Result.failure("Could not find template with that id")
+        template.dockerImage = image
+        templateStore.saveTemplate(template)
+        return Result.empty()
+    }
 }

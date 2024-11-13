@@ -30,19 +30,25 @@ class ClientManager(
     private val onDisconnect: ClientManager.() -> Unit,
 ) {
     private val logger = KotlinLogging.logger {}
-
-    private val packetManager = createPacketManager(remoteAddress, remotePort)
-
-    private val connectionResult = CompletableFuture<Boolean>()
+    internal val packetManager = createPacketManager(remoteAddress, remotePort)
     private var connectedSuccessfully: Boolean = false
-
     private val executor = Executors.newSingleThreadScheduledExecutor()
+    private val heartbeatTask =
+        HeartbeatTask(
+            serverId = serverId,
+            capacityProducer = capacityProducer,
+            packetConsumer = { packet -> packetManager.sendPacket(packet) },
+        )
 
     fun start(): CompletableFuture<Boolean> {
         val future = CompletableFuture<Boolean>()
 
         packetManager.editListeners {
-            it.registerListener<ChannelClosePacket<*>> { connectionResult.complete(connectedSuccessfully) }
+            it.registerListener<ChannelClosePacket<*>> {
+                println("Channel closed")
+                future.complete(connectedSuccessfully)
+            }
+
             it.registerListener(CapacityRequestListener(capacityProducer))
         }
 
@@ -56,6 +62,8 @@ class ClientManager(
         sendRegisterPacket(future)
         onConnect()
         scheduleHeartbeat()
+
+        println("future: $future")
 
         return future
     }
@@ -79,16 +87,7 @@ class ClientManager(
     }
 
     private fun scheduleHeartbeat() {
-        executor.scheduleAtFixedRate(
-            HeartbeatTask(
-                serverId = serverId,
-                capacityProducer = capacityProducer,
-                packetConsumer = { packet -> packetManager.sendPacket(packet) },
-            ),
-            0,
-            5,
-            TimeUnit.SECONDS,
-        )
+        executor.scheduleAtFixedRate(heartbeatTask, 0, 5, TimeUnit.SECONDS)
     }
 
     fun disconnect() {
@@ -101,6 +100,10 @@ class ClientManager(
         onDisconnect()
 
         packetManager.stop()
+    }
+
+    internal fun updateCapacity() {
+        heartbeatTask.run()
     }
 
     private fun createPacketManager(
