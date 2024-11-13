@@ -42,6 +42,8 @@ class EndpointManager(
             config.jsonMapper(FastJsonMapper)
             config.useVirtualThreads = settings.apiSettings.virtualThreads
             config.showJavalinBanner = false
+            config.bundledPlugins.enableDevLogging()
+
 //            config.bundledPlugins.enableDevLogging()
 
             // register endpoints
