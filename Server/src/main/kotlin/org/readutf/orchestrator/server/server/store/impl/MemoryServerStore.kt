@@ -3,7 +3,6 @@ package org.readutf.orchestrator.server.server.store.impl
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.server.server.store.ServerStore
-import org.readutf.orchestrator.shared.server.Server
 import org.readutf.orchestrator.shared.server.ServerHeartbeat
 import org.readutf.orchestrator.shared.utils.TypeWrapper
 import java.util.*
@@ -39,7 +38,10 @@ class MemoryServerStore : ServerStore {
 
     override fun getAllServers(): List<RegisteredServer> = servers.values.toList()
 
-    override fun getServerByShortId(shortId: String): Server? = servers.values.firstOrNull { it.serverId.toString().startsWith(shortId) }
+    override fun getServerByShortId(shortId: String): RegisteredServer? =
+        servers.values.firstOrNull {
+            it.serverId.toString().startsWith(shortId)
+        }
 
     override fun setAttribute(
         serverId: String,
@@ -68,7 +70,7 @@ class MemoryServerStore : ServerStore {
         serverById.attributes.remove(attributeName)
     }
 
-    override fun getServersByType(gameType: String): List<Server> =
+    override fun getServersByType(gameType: String): List<RegisteredServer> =
         servers.values.filter { server -> server.serverType.equals(gameType, true) }
 
     override fun markServerForDeletion(serverId: String) {
