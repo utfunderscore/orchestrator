@@ -1,10 +1,10 @@
-package org.readutf.orchestrator.server.server.type.store.impl
+package org.readutf.orchestrator.server.server.template.store.impl
 
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.readutf.orchestrator.server.server.type.ServerTemplate
-import org.readutf.orchestrator.server.server.type.store.TemplateStore
+import org.readutf.orchestrator.server.server.template.ServerTemplate
+import org.readutf.orchestrator.server.server.template.store.TemplateStore
 import org.readutf.orchestrator.shared.utils.Result
 import java.io.File
 
