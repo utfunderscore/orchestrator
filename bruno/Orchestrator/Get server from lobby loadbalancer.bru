@@ -5,11 +5,11 @@ meta {
 }
 
 get {
-  url: http://localhost:9393/loadbalancer/lobby/lobby
+  url: http://localhost:9393/loadbalancer/lobby/lobby?players=["81532772-7648-487b-bd00-23e2389f2925"]
   body: json
   auth: none
 }
 
-body:json {
-  ["81532772-7648-487b-bd00-23e2389f2925"]
+params:query {
+  players: ["81532772-7648-487b-bd00-23e2389f2925"]
 }
