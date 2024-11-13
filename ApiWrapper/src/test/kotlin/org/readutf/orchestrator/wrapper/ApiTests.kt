@@ -1,12 +1,9 @@
 package org.readutf.orchestrator.wrapper
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import org.readutf.orchestrator.wrapper.socket.NotificationSocket
-import java.util.concurrent.CompletableFuture
+import java.util.*
 
 /**
  * The server needs to be running before
@@ -16,19 +13,10 @@ class ApiTests {
     val orchestratorApi = OrchestratorApi("localhost", 9393)
 
     @Test
-    fun testGameRequest() {
-        val (_, server, gameId) = orchestratorApi.requestGame("test").join()
-
-        println("server: $server | game: $gameId")
-    }
-
-    @Test
-    fun testNotificationSocket() {
-        val future = CompletableFuture<Unit>()
-        NotificationSocket(uri = "ws://localhost:9393/notifications", objectMapper = ObjectMapper().registerKotlinModule()) {
-            future.complete(null)
+    fun testGetLobby() {
+        runBlocking {
+            orchestratorApi.getServerFromBalancer("lobby", listOf(UUID.randomUUID()))
         }
-        future.join()
     }
 
     @Test
