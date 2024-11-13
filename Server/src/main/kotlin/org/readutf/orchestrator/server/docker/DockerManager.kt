@@ -48,7 +48,11 @@ class DockerManager(
      * @see Result
      */
     fun getContainerByShortId(shortId: String): Result<Container, String> {
-        val containers = dockerClient.listContainersCmd().exec()
+        val containers =
+            dockerClient
+                .listContainersCmd()
+                .withShowAll(true)
+                .exec()
 
         val found = containers.filter { container -> container.id.startsWith(shortId) }
 
@@ -57,6 +61,24 @@ class DockerManager(
         }
 
         return Result.success(found.first())
+    }
+
+    fun getContainersByImageId(imageId: String): Result<List<Container>, String> {
+        val containers =
+            dockerClient
+                .listContainersCmd()
+                .withShowAll(true)
+                .exec()
+
+        println("images: " + containers.map { it.imageId }.joinToString())
+
+        val found = containers.filter { container -> container.image.startsWith(imageId) }
+
+        if (found.isEmpty()) {
+            return Result.failure("Could not find container with image id $imageId")
+        }
+
+        return Result.success(found)
     }
 
     /**
@@ -119,10 +141,22 @@ class DockerManager(
         return Result.success(containerId.id)
     }
 
-    fun deleteContainer(containerShortId: String): Result<Unit, String> {
+    fun stopContainer(containerShortId: String): Result<Unit, String> {
         catch {
             dockerClient.stopContainerCmd(containerShortId).exec()
-            dockerClient.removeContainerCmd(containerShortId).exec()
+        }
+
+        logger.debug { "Stopped container with id $containerShortId..." }
+
+        return Result.success(Unit)
+    }
+
+    fun deleteContainer(
+        containerShortId: String,
+        force: Boolean = true,
+    ): Result<Unit, String> {
+        catch {
+            dockerClient.removeContainerCmd(containerShortId).withForce(force).exec()
         }.mapError { return it }
 
         logger.debug { "Stopped and removed container with id $containerShortId..." }
@@ -138,7 +172,11 @@ class DockerManager(
      */
     fun getExistingDockerImages(): Result<List<Image>, String> {
         try {
-            val images = dockerClient.listImagesCmd().exec()
+            val images =
+                dockerClient
+                    .listImagesCmd()
+                    .withShowAll(true)
+                    .exec()
             return Result.success(images)
         } catch (e: Exception) {
             logger.error(e) { "Could not get images from docker" }
