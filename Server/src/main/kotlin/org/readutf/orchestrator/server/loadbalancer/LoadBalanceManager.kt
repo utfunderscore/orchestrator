@@ -2,18 +2,21 @@ package org.readutf.orchestrator.server.loadbalancer
 
 import org.readutf.orchestrator.server.loadbalancer.impl.LobbyLoadBalancer
 import org.readutf.orchestrator.server.server.ServerManager
+import org.readutf.orchestrator.server.server.scalable.ServerScaleManager
 import org.readutf.orchestrator.shared.utils.Result
 import org.readutf.orchestrator.shared.utils.catch
 
 class LoadBalanceManager(
     val serverManager: ServerManager,
+    val scaleManager: ServerScaleManager,
 ) {
     private val lobbyLoadBalancers =
-        mutableMapOf<String, LobbyLoadBalancer>().withDefault {
+        mutableMapOf<String, LobbyLoadBalancer>().withDefault { it ->
             LobbyLoadBalancer(
-                serverManager,
-                it,
-                0.1f,
+                serverManager = serverManager,
+                scaleManager = scaleManager,
+                serverType = it,
+                minimumFillCapacity = 0.2f,
             )
         }
 

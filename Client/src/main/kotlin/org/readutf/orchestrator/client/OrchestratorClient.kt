@@ -20,6 +20,7 @@ class OrchestratorClient(
 ) {
     private val logger = KotlinLogging.logger {}
     private var clientManager: ClientManager? = null
+    internal val shutdownHooks = mutableListOf<() -> Unit>()
 
     /**
      * Connect to the orchestrator server
@@ -43,6 +44,7 @@ class OrchestratorClient(
 
             val successful =
                 ClientManager(
+                    orchestratorClient = this,
                     remoteAddress = connectionSettings.remoteAddress,
                     remotePort = connectionSettings.remotePort,
                     serverId = serverId,
@@ -63,6 +65,11 @@ class OrchestratorClient(
         }
 
         onExit.run()
+    }
+
+    @Synchronized
+    fun addShutdownHook(hook: () -> Unit) {
+        shutdownHooks.add(hook)
     }
 
     @Synchronized

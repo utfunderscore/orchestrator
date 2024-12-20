@@ -4,6 +4,7 @@ import com.esotericsoftware.kryo.kryo5.Kryo
 import com.esotericsoftware.kryo.kryo5.Registration
 import org.readutf.orchestrator.server.Orchestrator
 import org.readutf.orchestrator.server.server.ServerManager
+import org.readutf.orchestrator.server.server.scalable.ServerScaleManager
 import org.readutf.orchestrator.shared.server.Server
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Subcommand
@@ -13,6 +14,7 @@ import revxrsal.commands.command.CommandActor
 class ServerCommand(
     private val kryo: Kryo,
     private val serverManager: ServerManager,
+    private val scaleManager: ServerScaleManager,
 ) {
     private val maxDisplayGames = 5
 
@@ -45,16 +47,10 @@ class ServerCommand(
         serverType: String,
         scale: Int,
     ) {
-        actor.reply("Scaling $serverType to $scale instances...")
         val start = System.currentTimeMillis()
-        serverManager.scaleServerType(serverType, scale).thenAccept { result ->
-            if (result.isSuccess) {
-                actor.reply("Scaled $serverType to $scale instances in ${System.currentTimeMillis() - start}ms.")
-            } else {
-                actor.error("Failed to scale $serverType to $scale instances.")
-                actor.error(result.getErrorOrNull().toString())
-            }
-        }
+        scaleManager.setScale(serverType, scale)
+
+        actor.reply("Settings $serverType scale to $scale instances...")
     }
 
     @Subcommand("info")

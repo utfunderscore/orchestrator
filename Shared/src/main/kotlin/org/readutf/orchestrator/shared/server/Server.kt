@@ -30,11 +30,12 @@ open class Server(
 
     @JsonIgnore
     fun getInfoString(): String =
-        "%s (uptime: %s, address: %s, lastHeartbeat: %ss)".format(
+        "%s (uptime: %s, address: %s, lastHeartbeat: %ss, closing: %s)".format(
             getShortId(),
             getUptimeString(),
             address,
             DecimalFormat("#.##").format((System.currentTimeMillis() - heartbeat.timestamp) / 1000.0),
+            pendingDeletion.toString(),
         )
 
     companion object {

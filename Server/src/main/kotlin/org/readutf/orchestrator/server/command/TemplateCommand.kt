@@ -3,7 +3,6 @@ package org.readutf.orchestrator.server.command
 import org.readutf.orchestrator.server.server.template.ServerTemplateManager
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.command.CommandActor
-import java.util.concurrent.TimeUnit
 
 class TemplateCommand(
     private val templateManager: ServerTemplateManager,
@@ -37,7 +36,7 @@ class TemplateCommand(
         }
     }
 
-    @Command("template setimage <id>")
+    @Command("template setimage <id> <image>")
     fun setImage(
         commandActor: CommandActor,
         id: String,
@@ -140,31 +139,6 @@ class TemplateCommand(
         } else {
             commandActor.reply("Successfully added network.")
         }
-    }
-
-    @Command("template start <id>")
-    fun startTemplate(
-        commandActor: CommandActor,
-        id: String,
-    ) {
-        val template = templateManager.getTemplate(id) ?: return commandActor.error("Template not found.")
-
-        val start = System.currentTimeMillis()
-
-        val result = templateManager.createServer(template)
-
-        commandActor.reply("Starting server...")
-
-        result
-            .orTimeout(1, TimeUnit.MINUTES)
-            .thenAccept {
-                val taken = System.currentTimeMillis() - start
-
-                commandActor.reply("Server started from template $id in ${taken}ms")
-            }.exceptionally {
-                commandActor.error("Failed to start server (Timed out): ${it.message}")
-                null
-            }
     }
 
     @Command("template addenv <id> <key> <value>")
