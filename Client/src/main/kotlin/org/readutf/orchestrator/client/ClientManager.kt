@@ -12,6 +12,7 @@ import org.readutf.orchestrator.client.heartbeat.HeartbeatTask
 import org.readutf.orchestrator.client.listeners.CapacityRequestListener
 import org.readutf.orchestrator.shared.kryo.KryoCreator
 import org.readutf.orchestrator.shared.packets.C2SUnregisterPacket
+import org.readutf.orchestrator.shared.packets.S2CServerGracefulShutdownPacket
 import org.readutf.orchestrator.shared.packets.ServerRegisterPacket
 import org.readutf.orchestrator.shared.packets.ServerRegisterResponse
 import org.readutf.orchestrator.shared.server.ServerAddress
@@ -20,6 +21,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class ClientManager(
+    private val orchestratorClient: OrchestratorClient,
     remoteAddress: String,
     remotePort: Int,
     private val serverId: String,
@@ -120,5 +122,9 @@ class ClientManager(
                     },
                 ),
             executorService = Executors.newSingleThreadExecutor(),
-        )
+        ).editListeners {
+            it.registerListener<S2CServerGracefulShutdownPacket> {
+                orchestratorClient.shutdownHooks.forEach { it() }
+            }
+        }
 }

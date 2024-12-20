@@ -49,8 +49,13 @@ class Orchestrator(
         val dockerManager = DockerManager(settings.dockerSettings)
         val serverTemplateManager = ServerTemplateManager(dockerManager, YamlTemplateStore(baseDir = baseDir))
         val serverManager = ServerManager(serverStore, serverTemplateManager)
-        val loadBalanceManager = LoadBalanceManager(serverManager)
-        val scaleManager = ServerScaleManager(serverTemplateManager, dockerManager)
+        val scaleManager =
+            ServerScaleManager(
+                templateManager = serverTemplateManager,
+                dockerManager = dockerManager,
+                serverManager = serverManager,
+            )
+        val loadBalanceManager = LoadBalanceManager(serverManager, scaleManager)
         val endpointManager =
             EndpointManager(
                 dockerManager = dockerManager,
@@ -61,7 +66,7 @@ class Orchestrator(
 
         setupPacketManager(serverManager, kryo)
 
-        commandManager.register(ServerCommand(kryo, serverManager))
+        commandManager.register(ServerCommand(kryo = kryo, serverManager = serverManager, scaleManager = scaleManager))
         commandManager.register(TemplateCommand(serverTemplateManager))
 
         Thread({

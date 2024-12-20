@@ -2,7 +2,9 @@ package org.readutf.orchestrator.server.server.template
 
 import com.github.dockerjava.api.model.Bind
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.readutf.orchestrator.server.docker.ContainerId
 import org.readutf.orchestrator.server.docker.DockerManager
+import org.readutf.orchestrator.server.server.ContainerResult
 import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.server.server.template.store.TemplateStore
 import org.readutf.orchestrator.shared.server.Server
@@ -38,26 +40,28 @@ class ServerTemplateManager(
         existingTypes.addAll(templateStore.loadTemplates())
     }
 
-    fun createServer(template: ServerTemplate): CompletableFuture<Result<Server, String>> {
+    internal fun createServer(template: ServerTemplate): ContainerResult<Server> {
         val containerId =
-            dockerManager
-                .createContainer(
-                    imageId = template.dockerImage,
-                    hostName = template.hostName,
-                    bindings = emptyList(),
-                    ports = template.ports.toList(),
-                    commands = template.commands.toList(),
-                    envVars = template.environmentVariables.toList(),
-                    network = template.network,
-                ).mapError {
-                    return CompletableFuture.completedFuture(it)
-                }
+            ContainerId(
+                dockerManager
+                    .createContainer(
+                        imageId = template.dockerImage,
+                        hostName = template.hostName,
+                        bindings = emptyList(),
+                        ports = template.ports.toList(),
+                        commands = template.commands.toList(),
+                        envVars = template.environmentVariables.toList(),
+                        network = template.network,
+                    ).onFailure {
+                        return ContainerResult.failedPreCreation(it.getError())
+                    },
+            )
 
         val future = CompletableFuture<Result<Server, String>>()
 
-        awaitingServers[containerId.substring(0, 12)] = future
+        awaitingServers[containerId.shortId] = future
 
-        return future
+        return ContainerResult.awaitingResult(containerId, future)
     }
 
     fun handleShutdown(registeredServer: RegisteredServer) {
