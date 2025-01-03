@@ -17,7 +17,7 @@ dependencies {
     api("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
 
     val hermesVersion: String by rootProject.extra
-    api("org.readutf.hermes:core:$hermesVersion")
+    api("io.github.utfunderscore.hermes:hermes.core:$hermesVersion")
 
     implementation("io.github.classgraph:classgraph:4.8.174")
 

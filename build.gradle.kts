@@ -3,10 +3,14 @@ plugins {
 }
 
 group = "org.readutf.orchestrator"
-version = "1.8.1"
+version = "1.9.0"
 
 dependencies {
     testImplementation(kotlin("test"))
+}
+
+repositories {
+    mavenCentral()
 }
 
 repositories {
@@ -17,28 +21,31 @@ repositories {
     }
 }
 
-extra["hermesVersion"] = "1.6.5"
+extra["hermesVersion"] = "1.0.1"
 extra["nettyVersion"] = "4.1.111.Final"
 extra["log4jVersion"] = "2.23.1"
 
 subprojects {
     version = rootProject.version
 
-    repositories {
-        mavenLocal()
-        maven {
-            name = "utfunderscore"
-            url = uri("https://repo.readutf.org/snapshots")
-            credentials(PasswordCredentials::class)
-            authentication {
-                create<BasicAuthentication>("basic")
-            }
+    apply(plugin = "java")
+    apply(plugin = "kotlin")
 
-            maven {
-                name = "utfunderscoreReleases"
-                url = uri("https://repo.readutf.org/releases")
-            }
-        }
+    group = rootProject.group
+    version = rootProject.version
+
+    java {
+        withSourcesJar()
+    }
+
+    tasks.test {
+        useJUnitPlatform()
+    }
+    kotlin {
+        jvmToolchain(17)
+    }
+    repositories {
+        mavenCentral()
     }
 }
 
