@@ -4,20 +4,15 @@ plugins {
     id("maven-publish")
 }
 
-group = "org.readutf.orchestrator"
-
-repositories {
-}
-
 val hermesVersion: String by project
 
 dependencies {
     testImplementation(kotlin("test"))
 
     val hermesVersion: String by rootProject.extra
-    api("org.readutf.hermes:core:$hermesVersion")
-    api("org.readutf.hermes:netty:$hermesVersion")
-    api("org.readutf.hermes:kryo:$hermesVersion")
+    api("io.github.utfunderscore.hermes:hermes.core:$hermesVersion")
+    api("io.github.utfunderscore.hermes:hermes.netty:$hermesVersion")
+    api("io.github.utfunderscore.hermes:hermes.kryo:$hermesVersion")
 
     val nettyVersion: String by rootProject.extra
     api("io.netty:netty-all:$nettyVersion")
@@ -34,33 +29,4 @@ dependencies {
 
 java {
     withSourcesJar()
-}
-
-publishing {
-    repositories {
-        maven {
-            name = "utfunderscore"
-            url = uri("https://reposilite.readutf.org/releases")
-            credentials(PasswordCredentials::class)
-            authentication {
-                create<BasicAuthentication>("basic")
-            }
-        }
-    }
-
-    publications {
-        create<MavenPublication>("maven") {
-            groupId = "org.readutf.orchestrator"
-            artifactId = "client"
-            version = rootProject.version.toString()
-
-            from(components["java"])
-        }
-    }
-}
-tasks.test {
-    useJUnitPlatform()
-}
-kotlin {
-    jvmToolchain(17)
 }

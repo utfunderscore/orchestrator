@@ -22,10 +22,10 @@ dependencies {
     implementation("io.netty:netty-all:$nettyVersion")
 
     val hermesVersion: String by rootProject.extra
-    implementation("org.readutf.hermes:core:$hermesVersion")
-    implementation("org.readutf.hermes:netty:$hermesVersion")
-    implementation("org.readutf.hermes:kryo:$hermesVersion")
-    implementation("org.readutf.hermes:fastjson:$hermesVersion")
+    implementation("io.github.utfunderscore.hermes:hermes.core:$hermesVersion")
+    implementation("io.github.utfunderscore.hermes:hermes.netty:$hermesVersion")
+    implementation("io.github.utfunderscore.hermes:hermes.kryo:$hermesVersion")
+    implementation("io.github.utfunderscore.hermes:hermes.fastJson:$hermesVersion")
 
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.52")
