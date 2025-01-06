@@ -6,7 +6,6 @@ plugins {
 }
 
 group = "org.readutf.orchestrator"
-version = "unspecified"
 
 repositories {
     mavenCentral()
@@ -50,15 +49,17 @@ tasks.shadowJar {
     archiveBaseName.set("orchestrator-client")
 }
 
-tasks.named<ShadowJar>("shadowJar") {
+tasks.getByName<ShadowJar>("shadowJar") {
     doLast {
-        outputs.files.forEach {
-            it.copyTo(file("docker").resolve(it.name), overwrite = true)
+        outputs.files.forEach { file ->
+            val output = projectDir.resolve("docker").resolve(file.name)
+            if (output.exists()) output.delete()
+            file.copyTo(output, overwrite = true)
         }
     }
 }
 
-tasks.register("runDevContainer") {
+tasks.register("buildDevContainer") {
     dependsOn("shadowJar")
 
     doLast {
@@ -67,8 +68,23 @@ tasks.register("runDevContainer") {
                 "sh",
                 "-c",
                 """
+                docker build -t orchestrator-dev-client docker
+                """.trimIndent(),
+            )
+        }
+    }
+}
+
+tasks.register("runDevContainer") {
+    dependsOn("buildDevContainer")
+
+    doLast {
+        exec {
+            commandLine(
+                "sh",
+                "-c",
+                """
                 docker ps -a --filter "ancestor=orchestrator-dev-client" --format "{{.ID}}" | xargs -r docker rm -f && \
-                docker build -t orchestrator-dev-client docker && \
                 docker run -p 25565:25565 -v /var/run/docker.sock:/var/run/docker.sock --network=orchestrator -d orchestrator-dev-client
                 """.trimIndent(),
             )
