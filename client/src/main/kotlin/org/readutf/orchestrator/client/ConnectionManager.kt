@@ -9,6 +9,7 @@ import org.readutf.hermes.listeners.annotation.PacketHandler
 import org.readutf.hermes.platform.netty.nettyClient
 import org.readutf.hermes.serializer.KryoPacketSerializer
 import org.readutf.orchestrator.client.client.ClientManager
+import org.readutf.orchestrator.client.client.capacity.CapacityHandler
 import org.readutf.orchestrator.common.packets.C2SRegisterPacket
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
@@ -18,11 +19,10 @@ class ConnectionManager(
     val hostAddress: String,
     val port: Int,
     val containerId: String,
+    val capacityHandler: CapacityHandler,
 ) {
     private val logger = KotlinLogging.logger {}
-    private val successfulConnect = false
     private val completionFuture = CompletableFuture<Boolean>()
-
     private var clientManager: ClientManager? = null
 
     /**
@@ -52,7 +52,7 @@ class ConnectionManager(
 
         val serverId = packetManager.sendPacket<UUID>(C2SRegisterPacket(containerId)).join()
 
-        this.clientManager = ClientManager(serverId, packetManager)
+        this.clientManager = ClientManager(serverId, packetManager, capacityHandler)
 
         return completionFuture.join()
     }
