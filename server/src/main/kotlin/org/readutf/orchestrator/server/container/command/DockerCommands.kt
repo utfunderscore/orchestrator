@@ -1,6 +1,7 @@
 package org.readutf.orchestrator.server.container.command
 
 import com.github.michaelbull.result.get
+import org.readutf.orchestrator.common.utils.ShortId
 import org.readutf.orchestrator.server.container.ContainerController
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Subcommand
@@ -15,7 +16,7 @@ class DockerCommands(
         actor: ConsoleActor,
         containerId: String,
     ) {
-        val result = containerController.getAddress(containerId)
+        val result = containerController.getAddress(ShortId(containerId))
         if (result.isOk) {
             actor.reply("Address: ${result.get()!!.hostAddress}")
         } else {

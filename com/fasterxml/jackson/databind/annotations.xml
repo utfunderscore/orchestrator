@@ -1,0 +1,5 @@
+<root>
+    <item name='com.fasterxml.jackson.databind.JsonNode com.fasterxml.jackson.databind.JsonNode get(java.lang.String)'>
+        <annotation name='org.jetbrains.annotations.Nullable'/>
+    </item>
+</root>

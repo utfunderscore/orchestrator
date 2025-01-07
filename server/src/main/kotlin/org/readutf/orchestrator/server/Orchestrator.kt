@@ -21,7 +21,9 @@ import org.readutf.orchestrator.server.container.command.DockerCommands
 import org.readutf.orchestrator.server.container.command.TemplateCommands
 import org.readutf.orchestrator.server.container.impl.docker.DockerController
 import org.readutf.orchestrator.server.container.impl.docker.store.DockerTemplateStore
+import org.readutf.orchestrator.server.container.scale.ScaleEndpoints
 import org.readutf.orchestrator.server.container.scale.ScaleManager
+import org.readutf.orchestrator.server.server.ServerEndpoints
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.server.listeners.ServerDisconnectListener
 import org.readutf.orchestrator.server.server.listeners.ServerHeartbeatListener
@@ -39,12 +41,14 @@ class Orchestrator(
     private val dockerClient = createDockerClient("unix:///var/run/docker.sock")
     private val dockerController = DockerController(dockerClient, dockerTemplateStore)
     private val serverManager = ServerManager(dockerController)
+    private val serverEndpoints = ServerEndpoints(serverManager)
     private val scaleManager = ScaleManager(serverManager, dockerController)
+    private val scaleEndpoints = ScaleEndpoints(scaleManager)
 
     private val logger = KotlinLogging.logger {}
 
     init {
-        val javalin = setupJavalin(dockerController)
+        val javalin = setupJavalin(dockerController, scaleEndpoints)
         logger.info { "Web api started at $hostAddress:9191" }
         val hermes = setupHermes(hostAddress, serverManager)
         logger.info { "Hermes started at $hostAddress:2323" }
@@ -88,7 +92,10 @@ class Orchestrator(
         return nettyServer
     }
 
-    private fun setupJavalin(containerController: ContainerController<*>): Javalin {
+    private fun setupJavalin(
+        containerController: ContainerController<*>,
+        scaleEndpoints: ScaleEndpoints,
+    ): Javalin {
         val javalin =
             Javalin.create { config ->
                 config.useVirtualThreads = true
@@ -96,6 +103,10 @@ class Orchestrator(
             }
 
         containerController.registerEndpoints(javalin)
+
+        javalin.post("/scale/{id}", scaleEndpoints::scaleServer)
+
+        javalin.get("/servers/", serverEndpoints::listServers)
 
         javalin.start(hostAddress, 9191)
 

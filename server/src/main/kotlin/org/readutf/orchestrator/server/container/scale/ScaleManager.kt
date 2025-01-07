@@ -37,17 +37,21 @@ class ScaleManager(
         return Ok(Unit)
     }
 
+    fun getScale(templateId: String): Int = targetScales.getOrPut(templateId) { 0 }
+
     private fun scaleServer(templateId: String) {
         val targetScale = targetScales.getOrPut(templateId) { 0 }
         val pendingCreation = containerController.getPendingContainers(templateId, serverManager.getServers().map { it.containerId })
         val activeServers = serverManager.getActiveServersByTemplate(templateId)
+        logger.info { "Active Servers: $activeServers" }
 
         val currentScale = pendingCreation.count() + activeServers.count()
 
-        val neededServers = currentScale - targetScale
+        val neededServers = targetScale - currentScale
+        logger.info { "Needed servers: $neededServers" }
 
         if (neededServers == 0) {
-            logger.debug { "Target scale already met" }
+            logger.info { "Target scale already met" }
             return
         }
 

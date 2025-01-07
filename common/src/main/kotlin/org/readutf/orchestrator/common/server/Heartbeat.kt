@@ -2,5 +2,5 @@ package org.readutf.orchestrator.common.server
 
 data class Heartbeat(
     var lastHeartbeat: Long,
-    var capacity: Float,
+    var capacity: Double,
 )

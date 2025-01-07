@@ -6,7 +6,6 @@ import org.readutf.orchestrator.common.utils.result
 import org.readutf.orchestrator.server.container.impl.docker.store.DockerTemplateStore
 
 class DockerEndpoints(
-    private val dockerController: DockerController,
     private val dockerTemplateStore: DockerTemplateStore,
 ) {
     fun createTemplate(context: Context) {
