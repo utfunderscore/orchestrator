@@ -1,0 +1,84 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+plugins {
+    kotlin("jvm")
+    id("com.github.johnrengelman.shadow") version "7.1.2"
+}
+
+group = "org.readutf.orchestrator"
+version = "unspecified"
+
+repositories {
+    mavenCentral()
+}
+
+val hermesVersion: String by rootProject.extra
+
+dependencies {
+    testImplementation(kotlin("test"))
+
+    implementation("org.slf4j:slf4j-api:2.0.0-alpha1")
+    implementation("io.github.oshai:kotlin-logging-jvm:7.0.0")
+    implementation("io.github.utfunderscore.hermes:hermes.core:$hermesVersion")
+    implementation("io.github.utfunderscore.hermes:hermes.netty:$hermesVersion")
+    implementation("io.github.utfunderscore.hermes:hermes.kryo:$hermesVersion")
+    implementation("com.esotericsoftware:kryo:5.6.2")
+    implementation("org.jetbrains:annotations:26.0.1")
+    implementation("io.netty:netty-all:4.2.0.RC1")
+    implementation(project(":common"))
+
+    implementation("org.apache.logging.log4j:log4j-api:2.20.0")
+    implementation("org.apache.logging.log4j:log4j-core:2.20.0")
+    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0")
+}
+
+tasks.jar {
+    manifest {
+        attributes["Main-Class"] = "org.readutf.orchestrator.client.TestClientKt"
+    }
+}
+
+tasks.register("copyArchive") {
+    doLast {
+        val archive = file("$buildDir/libs/orchestrator-client-all.jar")
+        val destination = file("$projectDir/build/docker/demo/orchestrator-client-all.jar")
+        archive.copyTo(destination, true)
+    }
+}
+
+tasks.shadowJar {
+    archiveBaseName.set("orchestrator-client")
+}
+
+tasks.named<ShadowJar>("shadowJar") {
+    doLast {
+        outputs.files.forEach {
+            it.copyTo(file("docker").resolve(it.name), overwrite = true)
+        }
+    }
+}
+
+tasks.register("runDevContainer") {
+    dependsOn("shadowJar")
+
+    doLast {
+        exec {
+            commandLine(
+                "sh",
+                "-c",
+                """
+                docker ps -a --filter "ancestor=orchestrator-dev-client" --format "{{.ID}}" | xargs -r docker rm -f && \
+                docker build -t orchestrator-dev-client docker && \
+                docker run -p 25565:25565 -v /var/run/docker.sock:/var/run/docker.sock --network=orchestrator -d orchestrator-dev-client
+                """.trimIndent(),
+            )
+        }
+    }
+}
+
+tasks.test {
+    useJUnitPlatform()
+}
+kotlin {
+    jvmToolchain(17)
+}

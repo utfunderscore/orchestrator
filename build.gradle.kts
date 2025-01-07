@@ -1,9 +1,11 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
+
 plugins {
-    kotlin("jvm") version "2.0.0"
+    kotlin("jvm") version "2.0.21"
 }
 
-group = "org.readutf.orchestrator"
-version = "1.9.0"
+group = "io.github.utfunderscore"
+version = "2.0.0"
 
 dependencies {
     testImplementation(kotlin("test"))
@@ -13,39 +15,32 @@ repositories {
     mavenCentral()
 }
 
-repositories {
-    mavenLocal()
-    maven {
-        name = "utfunderscoreReleases"
-        url = uri("https://repo.readutf.org/releases")
-    }
-}
-
-extra["hermesVersion"] = "1.0.1"
-extra["nettyVersion"] = "4.1.111.Final"
-extra["log4jVersion"] = "2.23.1"
+extra["hermesVersion"] = "1.0.2"
 
 subprojects {
+
+    group = rootProject.group
     version = rootProject.version
 
     apply(plugin = "java")
     apply(plugin = "kotlin")
 
-    group = rootProject.group
-    version = rootProject.version
-
-    java {
-        withSourcesJar()
+    repositories {
+        mavenCentral()
     }
 
-    tasks.test {
-        useJUnitPlatform()
-    }
     kotlin {
         jvmToolchain(17)
     }
-    repositories {
-        mavenCentral()
+
+    tasks.withType<JavaCompile> {
+        options.compilerArgs.add("-parameters")
+    }
+
+    tasks.withType<KotlinJvmCompile> {
+        compilerOptions {
+            javaParameters = true
+        }
     }
 }
 

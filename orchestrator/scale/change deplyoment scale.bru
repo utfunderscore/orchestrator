@@ -1,0 +1,15 @@
+meta {
+  name: change deplyoment scale
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:9191/scale/dev-client?scale=1
+  body: none
+  auth: none
+}
+
+params:query {
+  scale: 1
+}

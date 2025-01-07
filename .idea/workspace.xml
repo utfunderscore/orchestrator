@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="bff3ba0f-afd7-4b3c-9fe9-4b3c7d446d00" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/build.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/docker/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/docker/orchestrator-client-all.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/main/kotlin/org/readutf/orchestrator/client/ConnectionManager.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/main/kotlin/org/readutf/orchestrator/client/TestClient.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/main/kotlin/org/readutf/orchestrator/client/client/ClientManager.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/main/kotlin/org/readutf/orchestrator/client/client/HeartbeatTask.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/client/src/main/resources/log4j2.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/build.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/packets/C2SHeartbeatPacket.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/packets/C2SRegisterPacket.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/packets/KryoBuilder.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/packets/S2CScheduleShutdown.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/packets/SC2RegisterSuccessPacket.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/server/Heartbeat.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/server/Server.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/utils/DisplayNameGenerator.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/utils/Extensions.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/common/src/main/resources/log4j2.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/docker-templates.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/orchestrator/bruno.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/orchestrator/docker/create template.bru" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/orchestrator/docker/get template.bru" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/orchestrator/docker/list templates.bru" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/build.gradle.kts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/docker/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/docker/server-1.0.0-all.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/Orchestrator.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/ServerStarter.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/ContainerController.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/ContainerManager.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/ContainerTemplate.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/command/DockerCommands.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/command/TemplateCommands.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/DockerController.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/DockerEndpoints.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/DockerManager.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/DockerTemplate.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/store/DockerTemplateStore.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/scale/ScaleManager.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/server/RegisteredServer.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/server/ServerManager.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/server/listeners/ServerDisconnectListener.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/server/listeners/ServerHeartbeatListener.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/server/listeners/ServerRegisterListener.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/resources/log4j2.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+    <projectState path="$PROJECT_DIR$/server">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="orchestrator" type="f1a62948:ProjectNode" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Kotlin Interface" />
+        <option value="Kotlin Object" />
+        <option value="Kotlin Data Class" />
+        <option value="Class" />
+        <option value="Kotlin Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "git@github.com:utfunderscore/orchestrator.git",
+    "accountId": "b60ea85a-30a2-4c67-b270-3d0ff950d943"
+  }
+}]]></component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.github.utfunderscore.hermes/hermes.core/1.0.2/7503deb8dd282d1cc4f9b39836339b3f73c4996/hermes.core-1.0.2-sources.jar!/org/readutf/hermes/PacketManager.kt" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
+  <component name="ProjectId" id="2r7kEauB7NTt8vUXwWbxfJfpNIm" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Docker.docker/Dockerfile.executor": "Run",
+    "Docker.libs/Dockerfile.executor": "Run",
+    "Gradle.Build orchestrator.executor": "Run",
+    "Gradle.Building Gradle Dependencies.executor": "Run",
+    "Gradle.Download Sources.executor": "Run",
+    "Gradle.orchestrator [build].executor": "Run",
+    "Gradle.orchestrator [client:copyArchive].executor": "Run",
+    "Gradle.orchestrator [client:runDevContainer].executor": "Run",
+    "Gradle.orchestrator [client:shadowJar].executor": "Run",
+    "Gradle.orchestrator [copyArchive].executor": "Run",
+    "Gradle.orchestrator [copyToDemoDocker].executor": "Run",
+    "Gradle.orchestrator [runDevContainer].executor": "Run",
+    "Gradle.orchestrator [server:runDevContainer].executor": "Run",
+    "Gradle.orchestrator [server:shadowJar].executor": "Run",
+    "Gradle.orchestrator [shadowJar].executor": "Run",
+    "JUnit.org.readutf.orchestrator.server.server.listeners in orchestrator.server.main.executor": "Debug",
+    "Kotlin.OrchestratorClientKt.executor": "Run",
+    "Kotlin.ServerStarterKt (1).executor": "Run",
+    "Kotlin.ServerStarterKt.executor": "Run",
+    "Kotlin.TestClientKt.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "2.0",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/home/connor/git/orchestrator/client/docker",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.keymap",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/client/docker" />
+      <recent name="$PROJECT_DIR$/client/src/main/resources" />
+      <recent name="$PROJECT_DIR$/server/build/libs" />
+      <recent name="$PROJECT_DIR$/server/build/docker" />
+      <recent name="$PROJECT_DIR$/client/build/docker/demo" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/server/docker" />
+      <recent name="$PROJECT_DIR$/server" />
+      <recent name="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server" />
+    </key>
+    <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
+      <recent name="org.readutf.orchestrator.client.client" />
+    </key>
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="gradle build" />
+      <command value="gradle client:copyArchive" />
+      <command value="gradle server:shadowJar" />
+      <command value="gradle client:shadowJar" />
+      <command value="gradle client:runDevContainer" />
+      <command value="gradle server:runDevContainer" />
+    </option>
+  </component>
+  <component name="RunManager" selected="Gradle.orchestrator [server:runDevContainer]">
+    <configuration name="orchestrator [client:runDevContainer]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="client:runDevContainer" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="orchestrator [client:shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="client:shadowJar" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="orchestrator [runDevContainer]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="runDevContainer" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="orchestrator [server:runDevContainer]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="server:runDevContainer" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration name="orchestrator [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="shadowJar" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="orchestrator" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="orchestrator" />
+      <option name="filePath" />
+      <method v="2" />
+    </configuration>
+    <configuration default="true" type="docker-deploy" factoryName="dockerfile" temporary="true">
+      <deployment type="dockerfile">
+        <settings />
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.orchestrator [runDevContainer]" />
+        <item itemvalue="Gradle.orchestrator [client:runDevContainer]" />
+        <item itemvalue="Gradle.orchestrator [client:shadowJar]" />
+        <item itemvalue="Gradle.orchestrator [server:runDevContainer]" />
+        <item itemvalue="Gradle.orchestrator [shadowJar]" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.22562.218" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-IU-243.22562.218" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="bff3ba0f-afd7-4b3c-9fe9-4b3c7d446d00" name="Changes" comment="" />
+      <created>1735917389500</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1735917389500</updated>
+      <workItem from="1735917390546" duration="869000" />
+      <workItem from="1735918265514" duration="15175000" />
+      <workItem from="1735947103121" duration="4288000" />
+      <workItem from="1735997420404" duration="1273000" />
+      <workItem from="1736004944930" duration="596000" />
+      <workItem from="1736005576449" duration="11578000" />
+      <workItem from="1736026459299" duration="2348000" />
+      <workItem from="1736029489063" duration="5814000" />
+      <workItem from="1736083107247" duration="10817000" />
+      <workItem from="1736101130934" duration="7439000" />
+      <workItem from="1736117071506" duration="3199000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>
