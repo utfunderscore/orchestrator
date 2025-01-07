@@ -2,6 +2,7 @@ package org.readutf.orchestrator.server.container
 
 import io.javalin.Javalin
 import org.readutf.orchestrator.common.utils.SResult
+import org.readutf.orchestrator.common.utils.ShortId
 import java.net.InetAddress
 import java.util.concurrent.CompletableFuture
 
@@ -24,9 +25,9 @@ interface ContainerController<T : ContainerTemplate> {
      * Get the address of the container
      * @param containerId The id of the container
      */
-    fun getAddress(containerId: String): SResult<InetAddress>
+    fun getAddress(containerId: ShortId): SResult<InetAddress>
 
-    fun getContainerTemplate(containerId: String): SResult<ContainerTemplate>
+    fun getContainerTemplate(containerId: ShortId): SResult<ContainerTemplate>
 
     /**
      * List all existing templates
@@ -40,8 +41,8 @@ interface ContainerController<T : ContainerTemplate> {
      */
     fun getPendingContainers(
         templateId: String,
-        activeServerIds: Collection<String>,
-    ): Collection<String>
+        activeServerIds: Collection<ShortId>,
+    ): Collection<ShortId>
 
     fun getTemplate(templateId: String): SResult<T>
 }

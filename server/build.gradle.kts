@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import java.util.Properties
 
 plugins {
     kotlin("jvm")
@@ -43,8 +44,17 @@ tasks.jar {
     }
 }
 
+tasks.getByName<ShadowJar>("shadowJar") {
+    doLast {
+        outputs.files.forEach { file ->
+            val output = projectDir.resolve("docker").resolve(file.name)
+            if (output.exists()) output.delete()
+            file.copyTo(output, overwrite = true)
+        }
+    }
+}
 tasks.register("runDevContainer") {
-    dependsOn("shadowJar")
+    dependsOn("shadowJar", "createProperties")
     doLast {
         exec {
             commandLine(
@@ -53,17 +63,22 @@ tasks.register("runDevContainer") {
                 """
                 docker ps -a --filter "ancestor=orchestrator-dev-server" --format "{{.ID}}" | xargs -r docker rm -f && \
                 docker build -t orchestrator-dev-server docker && \
-                docker run -p 2323:2323 -p 9191:9191 -v /var/run/docker.sock:/var/run/docker.sock -v orchestrator:/orchestrator -it --hostname=orchestrator --network=orchestrator -d orchestrator-dev-server
+                docker run -p 2323:2323 -p 9191:9191 -v /var/run/docker.sock:/var/run/docker.sock -it --hostname=orchestrator --network=orchestrator -d orchestrator-dev-server
                 """.trimIndent(),
             )
         }
     }
 }
 
-tasks.named<ShadowJar>("shadowJar") {
+tasks.register("createProperties") {
     doLast {
-        outputs.files.forEach {
-            it.copyTo(file("docker").resolve(it.name), overwrite = true)
+        val propertiesFile = file("$buildDir/resources/main/version.properties")
+        propertiesFile.parentFile.mkdirs()
+        propertiesFile.writer().use { writer ->
+            val properties = Properties()
+            properties["version"] = project.version.toString()
+            properties["buildTime"] = System.currentTimeMillis().toString()
+            properties.store(writer, null)
         }
     }
 }

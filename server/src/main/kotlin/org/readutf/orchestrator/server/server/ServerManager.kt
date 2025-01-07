@@ -2,6 +2,7 @@ package org.readutf.orchestrator.server.server
 
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.andThen
+import com.github.michaelbull.result.onFailure
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.common.packets.S2CScheduleShutdown
@@ -9,6 +10,7 @@ import org.readutf.orchestrator.common.server.Heartbeat
 import org.readutf.orchestrator.common.server.Server
 import org.readutf.orchestrator.common.utils.DisplayNameGenerator
 import org.readutf.orchestrator.common.utils.SResult
+import org.readutf.orchestrator.common.utils.ShortId
 import org.readutf.orchestrator.server.container.ContainerController
 import java.util.UUID
 
@@ -27,14 +29,17 @@ class ServerManager(
 
         val serverId = UUID.randomUUID()
 
-        val server = Server(serverId, DisplayNameGenerator.generateDisplayName(), containerId)
+        val shortId = ShortId(containerId)
+        val server = Server(serverId, DisplayNameGenerator.generateDisplayName(), shortId)
 
         return containerController
-            .getContainerTemplate(containerId)
+            .getContainerTemplate(shortId)
             .andThen { container ->
                 servers[serverId] = RegisteredServer.fromServer(server, channel, container)
                 channelToServer[channel.channelId] = serverId
                 Ok(server)
+            }.onFailure { failure ->
+                logger.info { "Failed to register server: $failure" }
             }
     }
 
@@ -54,7 +59,7 @@ class ServerManager(
             logger.info { "Received heartbeat from server that isn't registered" }
             return
         }
-        logger.debug { "Heartbeat received for $serverId" }
+        logger.info { "Heartbeat received for $serverId" }
 
         server.lastHeartbeat = heartbeat
     }
