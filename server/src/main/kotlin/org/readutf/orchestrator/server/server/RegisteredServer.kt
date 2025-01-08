@@ -42,7 +42,7 @@ class RegisteredServer(
                 serverId = server.serverId,
                 displayName = server.displayName,
                 containerId = server.containerId,
-                lastHeartbeat = Heartbeat(System.currentTimeMillis(), 0f),
+                lastHeartbeat = Heartbeat(System.currentTimeMillis(), 0.0),
                 channel = channel,
                 template = template,
             )
