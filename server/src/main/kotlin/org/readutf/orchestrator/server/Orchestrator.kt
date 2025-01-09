@@ -17,20 +17,18 @@ import org.readutf.hermes.platform.netty.nettyServer
 import org.readutf.hermes.serializer.KryoPacketSerializer
 import org.readutf.orchestrator.common.packets.KryoBuilder
 import org.readutf.orchestrator.server.container.ContainerController
-import org.readutf.orchestrator.server.container.command.DockerCommands
-import org.readutf.orchestrator.server.container.command.TemplateCommands
 import org.readutf.orchestrator.server.container.impl.docker.DockerController
 import org.readutf.orchestrator.server.container.impl.docker.store.DockerTemplateStore
 import org.readutf.orchestrator.server.container.scale.ScaleEndpoints
 import org.readutf.orchestrator.server.container.scale.ScaleManager
+import org.readutf.orchestrator.server.loadbalancer.LoadBalancerManager
 import org.readutf.orchestrator.server.server.ServerEndpoints
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.server.listeners.ServerDisconnectListener
 import org.readutf.orchestrator.server.server.listeners.ServerHeartbeatListener
 import org.readutf.orchestrator.server.server.listeners.ServerRegisterListener
-import revxrsal.commands.Lamp
-import revxrsal.commands.cli.CLILamp
-import revxrsal.commands.cli.ConsoleActor
+import org.readutf.orchestrator.server.serverfinder.ServerFinderEndpoint
+import org.readutf.orchestrator.server.serverfinder.ServerFinderManager
 import java.io.File
 import java.util.concurrent.Executors
 
@@ -39,11 +37,15 @@ class Orchestrator(
 ) {
     private val dockerTemplateStore = DockerTemplateStore(File("docker-templates.json"))
     private val dockerClient = createDockerClient("unix:///var/run/docker.sock")
-    private val dockerController = DockerController(dockerClient, dockerTemplateStore)
+    private val dockerController: ContainerController<*> = DockerController(dockerClient, dockerTemplateStore)
     private val serverManager = ServerManager(dockerController)
-    private val serverEndpoints = ServerEndpoints(serverManager)
     private val scaleManager = ScaleManager(serverManager, dockerController)
+    private val loadBalancerManager = LoadBalancerManager(serverManager, scaleManager)
+    private val serverFinderManager = ServerFinderManager(loadBalancerManager, serverManager)
+
+    private val serverEndpoints = ServerEndpoints(serverManager)
     private val scaleEndpoints = ScaleEndpoints(scaleManager)
+    private val serverFinderEndpoint = ServerFinderEndpoint(serverFinderManager, dockerController)
 
     private val logger = KotlinLogging.logger {}
 
@@ -52,8 +54,6 @@ class Orchestrator(
         logger.info { "Web api started at $hostAddress:9191" }
         val hermes = setupHermes(hostAddress, serverManager)
         logger.info { "Hermes started at $hostAddress:2323" }
-        val lamp = startCommandManager(dockerController)
-        logger.info { "Command manager started" }
 
         Runtime.getRuntime().addShutdownHook(
             Thread {
@@ -62,8 +62,6 @@ class Orchestrator(
             },
         )
     }
-
-    val lamp = startCommandManager(dockerController)
 
     private fun setupHermes(
         hostAddress: String,
@@ -100,14 +98,14 @@ class Orchestrator(
             Javalin.create { config ->
                 config.useVirtualThreads = true
                 config.http.asyncTimeout = 10_000
+                config.bundledPlugins.enableDevLogging()
             }
 
         containerController.registerEndpoints(javalin)
 
         javalin.post("/scale/{id}", scaleEndpoints::scaleServer)
-
         javalin.get("/servers/", serverEndpoints::listServers)
-
+        javalin.ws("/serverfinder/{type}", serverFinderEndpoint.ServerFinderSocket())
         javalin.start(hostAddress, 9191)
 
         return javalin
@@ -130,22 +128,6 @@ class Orchestrator(
             )
 
         return client
-    }
-
-    private fun startCommandManager(containerController: ContainerController<*>): Lamp<ConsoleActor>? {
-        val lamp =
-            CLILamp
-                .builder<ConsoleActor>()
-                .build()
-
-        lamp.register(DockerCommands(containerController))
-        lamp.register(TemplateCommands(containerController, scaleManager))
-
-        Thread({
-            lamp.accept(CLILamp.pollStdin())
-        }, "Lamp-Cli-Thread").start()
-
-        return lamp
     }
 
     companion object {

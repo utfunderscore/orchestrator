@@ -6,11 +6,16 @@
       <GradleProjectSettings>
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleHome" value="/usr/share/java/gradle" />
+        <option name="gradleJvm" value="23" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/api" />
             <option value="$PROJECT_DIR$/client" />
             <option value="$PROJECT_DIR$/common" />
+            <option value="$PROJECT_DIR$/mc-edge-node" />
+            <option value="$PROJECT_DIR$/mc-proxy" />
+            <option value="$PROJECT_DIR$/minestom" />
             <option value="$PROJECT_DIR$/server" />
           </set>
         </option>

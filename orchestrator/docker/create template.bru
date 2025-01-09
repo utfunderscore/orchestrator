@@ -11,5 +11,5 @@ post {
 }
 
 body:json {
-  {"id":"dev-client","dockerImage":"orchestrator-dev-client:latest", "network":"orchestrator"}
+  {"id":"proxy","dockerImage":"orchestrator-proxy:latest", "network":"orchestrator", "ports": ["0:25565"]}
 }

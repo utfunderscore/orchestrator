@@ -6,13 +6,13 @@ import com.github.dockerjava.api.model.HostConfig
 import com.github.michaelbull.result.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.javalin.Javalin
+import org.readutf.orchestrator.common.server.ServerAddress
 import org.readutf.orchestrator.common.utils.LongId
 import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.common.utils.ShortId
 import org.readutf.orchestrator.server.container.ContainerController
 import org.readutf.orchestrator.server.container.ContainerTemplate
 import org.readutf.orchestrator.server.container.impl.docker.store.DockerTemplateStore
-import java.net.InetAddress
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -54,8 +54,8 @@ class DockerController(
         val hostConfig =
             HostConfig
                 .newHostConfig()
-                .withBinds(containerTemplate.getBindings())
-                .withPortBindings(containerTemplate.getPorts())
+                .withBinds(containerTemplate.getDockerBinds())
+                .withPortBindings(containerTemplate.getDockerPorts())
 
         if (containerTemplate.network != null) {
             hostConfig.withNetworkMode(containerTemplate.network)
@@ -97,15 +97,14 @@ class DockerController(
         }
     }
 
-    override fun getAddress(containerId: ShortId): SResult<InetAddress> =
+    override fun getAddress(containerId: ShortId): SResult<ServerAddress> =
         runCatching {
             val inspect =
                 dockerClient
                     .inspectContainerCmd(containerId.shortId)
                     .exec()
 
-            val ip = inspect.networkSettings.ipAddress
-            InetAddress.getByName(ip)
+            ServerAddress(inspect.networkSettings.ipAddress, 0)
         }.mapError { it.toString() }
 
     override fun getContainerTemplate(containerId: ShortId): SResult<ContainerTemplate> =

@@ -17,6 +17,7 @@ object KryoBuilder {
 
         kryo.register(C2SRegisterPacket::class.java)
         kryo.register(C2SHeartbeatPacket::class.java)
+        kryo.register(S2CScheduleShutdown::class.java)
         kryo.register(ResponsePacket::class.java)
         kryo.register(Server::class.java)
         kryo.register(Heartbeat::class.java)

@@ -43,15 +43,15 @@ class ScaleManager(
         val targetScale = targetScales.getOrPut(templateId) { 0 }
         val pendingCreation = containerController.getPendingContainers(templateId, serverManager.getServers().map { it.containerId })
         val activeServers = serverManager.getActiveServersByTemplate(templateId)
-        logger.info { "Active Servers: $activeServers" }
+        logger.debug { "Active Servers: $activeServers" }
 
         val currentScale = pendingCreation.count() + activeServers.count()
 
         val neededServers = targetScale - currentScale
-        logger.info { "Needed servers: $neededServers" }
+        logger.debug { "Needed servers: $neededServers" }
 
         if (neededServers == 0) {
-            logger.info { "Target scale already met" }
+            logger.debug { "Target scale already met" }
             return
         }
 
@@ -69,7 +69,7 @@ class ScaleManager(
             val serversToRemove = -neededServers
 
             if (activeServers.size < serversToRemove) {
-                logger.info { "Cannot scale down yet, servers are still being created" }
+                logger.debug { "Cannot scale down yet, servers are still being created" }
                 return
             }
 

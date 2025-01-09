@@ -3,6 +3,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 plugins {
     kotlin("jvm")
     id("com.github.johnrengelman.shadow") version "7.1.2"
+    `java-library`
 }
 
 group = "org.readutf.orchestrator"
@@ -16,15 +17,15 @@ val hermesVersion: String by rootProject.extra
 dependencies {
     testImplementation(kotlin("test"))
 
-    implementation("org.slf4j:slf4j-api:2.0.0-alpha1")
-    implementation("io.github.oshai:kotlin-logging-jvm:7.0.0")
-    implementation("io.github.utfunderscore.hermes:hermes.core:$hermesVersion")
-    implementation("io.github.utfunderscore.hermes:hermes.netty:$hermesVersion")
-    implementation("io.github.utfunderscore.hermes:hermes.kryo:$hermesVersion")
-    implementation("com.esotericsoftware:kryo:5.6.2")
-    implementation("org.jetbrains:annotations:26.0.1")
-    implementation("io.netty:netty-all:4.2.0.RC1")
-    implementation(project(":common"))
+    api("org.slf4j:slf4j-api:2.0.0-alpha1")
+    api("io.github.oshai:kotlin-logging-jvm:7.0.0")
+    api("io.github.utfunderscore.hermes:hermes.core:$hermesVersion")
+    api("io.github.utfunderscore.hermes:hermes.netty:$hermesVersion")
+    api("io.github.utfunderscore.hermes:hermes.kryo:$hermesVersion")
+    api("com.esotericsoftware:kryo:5.6.2")
+    api("org.jetbrains:annotations:26.0.1")
+    api("io.netty:netty-all:4.2.0.RC1")
+    api(project(":common"))
 
     implementation("org.apache.logging.log4j:log4j-api:2.20.0")
     implementation("org.apache.logging.log4j:log4j-core:2.20.0")
@@ -37,16 +38,16 @@ tasks.jar {
     }
 }
 
+tasks.shadowJar {
+    archiveBaseName.set("orchestrator-client")
+}
+
 tasks.register("copyArchive") {
     doLast {
         val archive = file("$buildDir/libs/orchestrator-client-all.jar")
         val destination = file("$projectDir/build/docker/demo/orchestrator-client-all.jar")
         archive.copyTo(destination, true)
     }
-}
-
-tasks.shadowJar {
-    archiveBaseName.set("orchestrator-client")
 }
 
 tasks.getByName<ShadowJar>("shadowJar") {
