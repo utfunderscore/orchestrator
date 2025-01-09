@@ -10,8 +10,8 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class ClientManager(
-    val serverId: UUID,
-    val packetManager: PacketManager<NettyClientPlatform>,
+    private val serverId: UUID,
+    private val packetManager: PacketManager<NettyClientPlatform>,
     private val capacityHandler: CapacityHandler,
 ) {
     private val heartbeatExecutor = Executors.newSingleThreadScheduledExecutor()

@@ -10,6 +10,8 @@ import org.readutf.hermes.platform.netty.nettyClient
 import org.readutf.hermes.serializer.KryoPacketSerializer
 import org.readutf.orchestrator.client.client.ClientManager
 import org.readutf.orchestrator.client.client.capacity.CapacityHandler
+import org.readutf.orchestrator.client.client.shutdown.SafeShutdownHandler
+import org.readutf.orchestrator.client.client.shutdown.SafeShutdownListener
 import org.readutf.orchestrator.common.packets.C2SRegisterPacket
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
@@ -24,12 +26,13 @@ class ConnectionManager(
     private val logger = KotlinLogging.logger {}
     private val completionFuture = CompletableFuture<Boolean>()
     private var clientManager: ClientManager? = null
+    private var packetManager: PacketManager<*>? = null
 
     /**
      * Thread will block until the connection is lost
      * @return true if the connection was successful
      */
-    fun connectBlocking(): Boolean {
+    fun connectBlocking(connectHandle: (ConnectionManager) -> Unit): Boolean {
         logger.info { "Connecting to server..." }
 
         val packetManager =
@@ -50,9 +53,15 @@ class ConnectionManager(
             it.registerAll(this)
         }
 
+        this.packetManager = packetManager
+
         val serverId = packetManager.sendPacket<UUID>(C2SRegisterPacket(containerId)).join()
 
+        logger.info { "Registered with id $serverId" }
+
         this.clientManager = ClientManager(serverId, packetManager, capacityHandler)
+
+        connectHandle(this)
 
         return completionFuture.join()
     }
@@ -68,5 +77,11 @@ class ConnectionManager(
     @PacketHandler
     fun onDisconnect(channelClosePacket: ChannelClosePacket<*>) {
         disconnect()
+    }
+
+    fun registerSafeShutdownListener(safeShutdownHandler: SafeShutdownHandler) {
+        packetManager?.editListeners {
+            it.registerListener(SafeShutdownListener(safeShutdownHandler))
+        }
     }
 }

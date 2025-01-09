@@ -1,8 +1,7 @@
 package org.readutf.orchestrator.server.server
 
+import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
-import com.github.michaelbull.result.andThen
-import com.github.michaelbull.result.onFailure
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.common.packets.S2CScheduleShutdown
@@ -11,6 +10,7 @@ import org.readutf.orchestrator.common.server.Server
 import org.readutf.orchestrator.common.utils.DisplayNameGenerator
 import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.common.utils.ShortId
+import org.readutf.orchestrator.common.utils.handleFailure
 import org.readutf.orchestrator.server.container.ContainerController
 import java.util.UUID
 
@@ -32,15 +32,21 @@ class ServerManager(
         val shortId = ShortId(containerId)
         val server = Server(serverId, DisplayNameGenerator.generateDisplayName(), shortId)
 
-        return containerController
-            .getContainerTemplate(shortId)
-            .andThen { container ->
-                servers[serverId] = RegisteredServer.fromServer(server, channel, container)
-                channelToServer[channel.channelId] = serverId
-                Ok(server)
-            }.onFailure { failure ->
-                logger.info { "Failed to register server: $failure" }
+        val template =
+            containerController.getContainerTemplate(shortId).handleFailure {
+                logger.info { "Failed to get container template for: $it" }
+                return Err(it)
             }
+
+        val serverAddress =
+            containerController.getAddress(shortId).handleFailure {
+                logger.info { "Failed to get server address for: $it" }
+                return Err(it)
+            }
+
+        servers[serverId] = RegisteredServer.fromServer(server, channel, template, serverAddress)
+        channelToServer[channel.channelId] = serverId
+        return Ok(server)
     }
 
     fun unregisteringServer(serverId: UUID) {
@@ -59,7 +65,7 @@ class ServerManager(
             logger.info { "Received heartbeat from server that isn't registered" }
             return
         }
-        logger.info { "Heartbeat received for $serverId" }
+        logger.debug { "Heartbeat received for $serverId" }
 
         server.lastHeartbeat = heartbeat
     }
@@ -69,6 +75,7 @@ class ServerManager(
     fun scheduleShutdown(server: RegisteredServer) {
         server.shuttingDown = true
         server.channel.sendPacket(S2CScheduleShutdown)
+        logger.info { "Scheduled shutdown for ${server.serverId}" }
     }
 
     fun getServers(): Collection<RegisteredServer> = servers.values

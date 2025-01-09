@@ -16,10 +16,10 @@ data class DockerTemplate(
     val commands: HashSet<String> = HashSet(),
 ) : ContainerTemplate(id) {
     @JsonIgnore
-    fun getBindings(): List<Bind> = bindings.map { Bind.parse(it) }
+    fun getDockerBinds(): List<Bind> = bindings.map { Bind.parse(it) }
 
     @JsonIgnore
-    fun getPorts(): List<PortBinding> = ports.map { PortBinding.parse(it) }
+    fun getDockerPorts(): List<PortBinding> = ports.map { PortBinding.parse(it) }
 
     @JsonIgnore
     override fun getShortDescription(): String = "$templateId [type: docker, image: $dockerImage]"

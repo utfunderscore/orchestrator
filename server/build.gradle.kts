@@ -33,6 +33,10 @@ dependencies {
     implementation("io.netty:netty-all:4.2.0.RC1")
     implementation("com.esotericsoftware:kryo:5.6.2")
 
+    implementation("org.jetbrains.exposed:exposed:0.17.14")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.57.0")
+    implementation("com.impossibl.pgjdbc-ng:pgjdbc-ng-all:0.8.5")
+
     implementation("org.apache.logging.log4j:log4j-api:2.20.0")
     implementation("org.apache.logging.log4j:log4j-core:2.20.0")
     implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0")
@@ -63,7 +67,7 @@ tasks.register("runDevContainer") {
                 """
                 docker ps -a --filter "ancestor=orchestrator-dev-server" --format "{{.ID}}" | xargs -r docker rm -f && \
                 docker build -t orchestrator-dev-server docker && \
-                docker run -p 2323:2323 -p 9191:9191 -v /var/run/docker.sock:/var/run/docker.sock -it --hostname=orchestrator --network=orchestrator -d orchestrator-dev-server
+                docker run --name aOrchestrator -p 2323:2323 -p 9191:9191 -v /var/run/docker.sock:/var/run/docker.sock -it --hostname=orchestrator --network=orchestrator -d orchestrator-dev-server
                 """.trimIndent(),
             )
         }

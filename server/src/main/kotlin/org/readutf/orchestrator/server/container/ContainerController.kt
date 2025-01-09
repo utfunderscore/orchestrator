@@ -1,12 +1,9 @@
 package org.readutf.orchestrator.server.container
 
 import io.javalin.Javalin
+import org.readutf.orchestrator.common.server.ServerAddress
 import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.common.utils.ShortId
-import java.net.InetAddress
-import java.util.concurrent.CompletableFuture
-
-typealias ContainerResult<T> = SResult<CompletableFuture<SResult<T>>>
 
 interface ContainerController<T : ContainerTemplate> {
     /**
@@ -25,7 +22,7 @@ interface ContainerController<T : ContainerTemplate> {
      * Get the address of the container
      * @param containerId The id of the container
      */
-    fun getAddress(containerId: ShortId): SResult<InetAddress>
+    fun getAddress(containerId: ShortId): SResult<ServerAddress>
 
     fun getContainerTemplate(containerId: ShortId): SResult<ContainerTemplate>
 
