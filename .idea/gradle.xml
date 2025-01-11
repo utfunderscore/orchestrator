@@ -15,7 +15,6 @@
             <option value="$PROJECT_DIR$/common" />
             <option value="$PROJECT_DIR$/mc-edge-node" />
             <option value="$PROJECT_DIR$/mc-proxy" />
-            <option value="$PROJECT_DIR$/minestom" />
             <option value="$PROJECT_DIR$/server" />
           </set>
         </option>

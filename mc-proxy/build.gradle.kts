@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     id("com.gradleup.shadow") version "9.0.0-beta4"
-    kotlin("jvm")
+    kotlin("jvm") version "2.1.0"
     kotlin("kapt")
 }
 

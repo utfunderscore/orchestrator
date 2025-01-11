@@ -1,6 +1,6 @@
 plugins {
     `java-library`
-    kotlin("jvm")
+    kotlin("jvm") version "2.1.0"
 }
 
 group = "org.readutf.orchestrator"

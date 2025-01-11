@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
-    kotlin("jvm") version "2.0.21"
+    kotlin("jvm") version "2.1.0"
 }
 
 group = "io.github.utfunderscore"
@@ -13,6 +13,7 @@ dependencies {
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 extra["hermesVersion"] = "1.0.2"
@@ -24,10 +25,6 @@ subprojects {
 
     apply(plugin = "java")
     apply(plugin = "kotlin")
-
-    repositories {
-        mavenCentral()
-    }
 
     kotlin {
         jvmToolchain(17)
