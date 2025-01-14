@@ -15,7 +15,7 @@ object DisplayNameGenerator {
 
         var attempts = 0
         while (true) {
-            val name = "${ADJECTIVES[firstIndex]} ${ADJECTIVES[secondIndex]} ${NOUNS[thirdIndex]}"
+            val name = "${ADJECTIVES[firstIndex]}-${ADJECTIVES[secondIndex]}-${NOUNS[thirdIndex]}"
             if (!generatedNames.contains(name)) return name
             attempts++
 

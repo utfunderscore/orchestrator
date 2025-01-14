@@ -20,6 +20,7 @@ class ServerManager(
     private val logger = KotlinLogging.logger {}
     private val servers = mutableMapOf<UUID, RegisteredServer>()
     private val channelToServer = mutableMapOf<String, UUID>()
+    private val serverCreateListeners = mutableListOf<(Server) -> Unit>()
 
     fun registerServer(
         containerId: String,
@@ -28,9 +29,7 @@ class ServerManager(
         logger.info { "Registering server with containerId: $containerId $channel" }
 
         val serverId = UUID.randomUUID()
-
         val shortId = ShortId(containerId)
-        val server = Server(serverId, DisplayNameGenerator.generateDisplayName(), shortId)
 
         val template =
             containerController.getContainerTemplate(shortId).handleFailure {
@@ -44,7 +43,8 @@ class ServerManager(
                 return Err(it)
             }
 
-        servers[serverId] = RegisteredServer.fromServer(server, channel, template, serverAddress)
+        val server = Server(serverId, DisplayNameGenerator.generateDisplayName(), shortId, serverAddress)
+        servers[serverId] = RegisteredServer.fromServer(server, channel, template)
         channelToServer[channel.channelId] = serverId
         return Ok(server)
     }

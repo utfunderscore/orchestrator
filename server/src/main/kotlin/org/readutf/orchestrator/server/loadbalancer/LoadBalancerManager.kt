@@ -1,7 +1,9 @@
 package org.readutf.orchestrator.server.loadbalancer
 
+import com.github.michaelbull.result.onFailure
 import org.readutf.orchestrator.server.container.scale.ScaleManager
-import org.readutf.orchestrator.server.loadbalancer.default.AdaptiveLoadBalancer
+import org.readutf.orchestrator.server.loadbalancer.impl.AdaptiveLoadBalancer
+import org.readutf.orchestrator.server.loadbalancer.impl.FixedCountLoadBalancer
 import org.readutf.orchestrator.server.server.ServerManager
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -15,6 +17,9 @@ class LoadBalancerManager(
 
     init {
         executor.scheduleAtFixedRate(this::tick, 0, 1, TimeUnit.SECONDS)
+
+        // TODO: Load from config, or use a service to register load balancers
+        loadBalancers["edge-node"] = FixedCountLoadBalancer(1)
     }
 
     fun getLoadBalancer(serverType: String) = loadBalancers.getOrPut(serverType) { generateDefault(serverType) }
@@ -32,10 +37,13 @@ class LoadBalancerManager(
 
     fun tick() {
         val servers = serverManager.getServers()
+
         for ((type, loadBalancer) in loadBalancers) {
             val target = loadBalancer.loadBalance(servers)
 
-            scaleManager.scaleDeployment(type, target)
+            scaleManager.scaleDeployment(type, target).onFailure {
+                println("Failed to scale deployment $type: $it")
+            }
         }
     }
 }

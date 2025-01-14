@@ -61,7 +61,13 @@ class ConnectionManager(
 
         this.clientManager = ClientManager(serverId, packetManager, capacityHandler)
 
-        connectHandle(this)
+        println("asdfgfg")
+
+        try {
+            connectHandle(this)
+        } catch (e: Exception) {
+            logger.error(e) { "Error occurred calling connection start handle" }
+        }
 
         return completionFuture.join()
     }
@@ -69,9 +75,14 @@ class ConnectionManager(
     private fun disconnect() {
         logger.info { "Disconnected from orchestrator" }
 
-        clientManager?.disconnect()
+        try {
+            clientManager?.disconnect()
 
-        completionFuture.complete(true)
+            logger.info { "Disconnected from server" }
+            completionFuture.complete(true)
+        } catch (e: Exception) {
+            logger.error(e) { }
+        }
     }
 
     @PacketHandler

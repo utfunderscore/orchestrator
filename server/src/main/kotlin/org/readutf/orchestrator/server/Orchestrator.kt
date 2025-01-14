@@ -11,6 +11,7 @@ import com.github.dockerjava.core.DockerClientImpl
 import com.github.dockerjava.zerodep.ZerodepDockerHttpClient
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.javalin.Javalin
+import org.jetbrains.exposed.sql.Database
 import org.readutf.hermes.PacketManager
 import org.readutf.hermes.platform.netty.NettyServerPlatform
 import org.readutf.hermes.platform.netty.nettyServer
@@ -19,6 +20,7 @@ import org.readutf.orchestrator.common.packets.KryoBuilder
 import org.readutf.orchestrator.server.container.ContainerController
 import org.readutf.orchestrator.server.container.impl.docker.DockerController
 import org.readutf.orchestrator.server.container.impl.docker.store.DockerTemplateStore
+import org.readutf.orchestrator.server.container.impl.docker.store.exposed.ExposedTemplateStore
 import org.readutf.orchestrator.server.container.scale.ScaleEndpoints
 import org.readutf.orchestrator.server.container.scale.ScaleManager
 import org.readutf.orchestrator.server.loadbalancer.LoadBalancerManager
@@ -29,13 +31,20 @@ import org.readutf.orchestrator.server.server.listeners.ServerHeartbeatListener
 import org.readutf.orchestrator.server.server.listeners.ServerRegisterListener
 import org.readutf.orchestrator.server.serverfinder.ServerFinderEndpoint
 import org.readutf.orchestrator.server.serverfinder.ServerFinderManager
-import java.io.File
 import java.util.concurrent.Executors
 
 class Orchestrator(
     private val hostAddress: String,
 ) {
-    private val dockerTemplateStore = DockerTemplateStore(File("docker-templates.json"))
+    private val dockerTemplateStore: DockerTemplateStore =
+        ExposedTemplateStore(
+            Database.connect(
+                "jdbc:postgresql://postgres:5432/orchestrator",
+                driver = "org.postgresql.Driver",
+                user = "orchestrator",
+                password = "orchestrator",
+            ),
+        )
     private val dockerClient = createDockerClient("unix:///var/run/docker.sock")
     private val dockerController: ContainerController<*> = DockerController(dockerClient, dockerTemplateStore)
     private val serverManager = ServerManager(dockerController)
@@ -99,6 +108,7 @@ class Orchestrator(
                 config.useVirtualThreads = true
                 config.http.asyncTimeout = 10_000
                 config.bundledPlugins.enableDevLogging()
+                config.showJavalinBanner = false
             }
 
         containerController.registerEndpoints(javalin)

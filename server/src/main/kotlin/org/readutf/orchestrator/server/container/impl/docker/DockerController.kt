@@ -6,15 +6,17 @@ import com.github.dockerjava.api.model.HostConfig
 import com.github.michaelbull.result.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.javalin.Javalin
-import org.readutf.orchestrator.common.server.ServerAddress
+import org.readutf.orchestrator.common.server.NetworkSettings
 import org.readutf.orchestrator.common.utils.LongId
 import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.common.utils.ShortId
 import org.readutf.orchestrator.server.container.ContainerController
 import org.readutf.orchestrator.server.container.ContainerTemplate
 import org.readutf.orchestrator.server.container.impl.docker.store.DockerTemplateStore
+import org.readutf.orchestrator.server.utils.UUIDGeneratorV1
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 
 class DockerController(
     private val dockerClient: DockerClient,
@@ -22,6 +24,8 @@ class DockerController(
 ) : ContainerController<DockerTemplate> {
     private val logger = KotlinLogging.logger {}
 
+    private val containerCounter = AtomicInteger(0)
+    private val uuidGenerator = UUIDGeneratorV1()
     private val dockerEndpoints = DockerEndpoints(dockerTemplateStore)
 
     // Server Type -> Pending Containers
@@ -51,6 +55,9 @@ class DockerController(
         if (containerTemplate.hostName != null) {
             createCommand.withHostName(containerTemplate.hostName)
         }
+
+        createCommand.withName("$templateId-${uuidGenerator.generate().toString().replace("-", "")}")
+
         val hostConfig =
             HostConfig
                 .newHostConfig()
@@ -71,11 +78,15 @@ class DockerController(
             containerTracker[id.toShortId()] = containerTemplate.id
             pendingContainers.getOrPut(templateId) { HashMap() }[id.toShortId()] = System.currentTimeMillis() + 15_000
 
+            val inspect = dockerClient.inspectContainerCmd(createResult.id).exec()
+
             return@runCatching createResult
         }.andThen { createResult ->
             runCatching {
                 val containerId = createResult.id
+
                 dockerClient.startContainerCmd(containerId).exec()
+
                 return@runCatching containerId
             }
         }.mapError { it.toString() }
@@ -97,14 +108,23 @@ class DockerController(
         }
     }
 
-    override fun getAddress(containerId: ShortId): SResult<ServerAddress> =
+    override fun getAddress(containerId: ShortId): SResult<NetworkSettings> =
         runCatching {
             val inspect =
                 dockerClient
                     .inspectContainerCmd(containerId.shortId)
                     .exec()
 
-            ServerAddress(inspect.networkSettings.ipAddress, 0)
+            val ports =
+                inspect.networkSettings.ports.bindings.values
+                    .map { bindings -> bindings.map { it.hostPortSpec.toInt() } }
+                    .flatten()
+                    .distinct()
+
+            NetworkSettings(
+                exposedPorts = ports,
+                internalHost = inspect.config.hostName ?: "localhost",
+            )
         }.mapError { it.toString() }
 
     override fun getContainerTemplate(containerId: ShortId): SResult<ContainerTemplate> =
@@ -112,7 +132,7 @@ class DockerController(
             dockerTemplateStore.getTemplate(it)
         } ?: Err("Could not find container with id $containerId")
 
-    override fun getTemplates(): List<DockerTemplate> = dockerTemplateStore.getTemplates()
+    override fun getTemplates(): List<String> = dockerTemplateStore.getAllTemplates(0, 10)
 
     @Synchronized
     override fun getPendingContainers(

@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore
 import org.readutf.hermes.Packet
 import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.common.server.Heartbeat
+import org.readutf.orchestrator.common.server.NetworkSettings
 import org.readutf.orchestrator.common.server.Server
-import org.readutf.orchestrator.common.server.ServerAddress
 import org.readutf.orchestrator.common.utils.ShortId
 import org.readutf.orchestrator.server.container.ContainerTemplate
 import java.util.UUID
@@ -15,7 +15,7 @@ class RegisteredServer(
     serverId: UUID,
     displayName: String,
     containerId: ShortId,
-    serverAddress: ServerAddress,
+    networkSettings: NetworkSettings,
     @field:JsonIgnore var shuttingDown: Boolean = false,
     @field:JsonIgnore val template: ContainerTemplate,
     @field:JsonIgnore var lastHeartbeat: Heartbeat,
@@ -24,6 +24,7 @@ class RegisteredServer(
         serverId = serverId,
         displayName = displayName,
         containerId = containerId,
+        networkSettings = networkSettings,
     ) {
     @JsonIgnore
     fun getCapacity() = lastHeartbeat.capacity
@@ -39,13 +40,12 @@ class RegisteredServer(
             server: Server,
             channel: HermesChannel,
             template: ContainerTemplate,
-            address: ServerAddress,
         ): RegisteredServer =
             RegisteredServer(
                 serverId = server.serverId,
                 displayName = server.displayName,
                 containerId = server.containerId,
-                serverAddress = address,
+                networkSettings = server.networkSettings,
                 lastHeartbeat = Heartbeat(System.currentTimeMillis(), 0.0),
                 channel = channel,
                 template = template,

@@ -19,7 +19,32 @@ data class DockerTemplate(
     fun getDockerBinds(): List<Bind> = bindings.map { Bind.parse(it) }
 
     @JsonIgnore
-    fun getDockerPorts(): List<PortBinding> = ports.map { PortBinding.parse(it) }
+    fun getDockerPorts(): List<PortBinding> {
+        return ports.map {
+            val split = it.split(":")
+            when (split.size) {
+                1 -> {
+                    return@map PortBinding.parse(it)
+                }
+                2 -> {
+//                    println(split)
+//                    if (split[0] == "0") {
+//                        println("Using randomized port")
+//                        val random = (10000..65535).random()
+//                        return@map PortBinding.parse("$random:${split[1]}")
+//                    }
+                    return@map PortBinding.parse("${split[0]}:${split[1]}")
+                }
+                else -> {
+//                    if (split[1] == "0") {
+//                        val random = (10000..65535).random()
+//                        return@map PortBinding.parse("${split[0]}:$random:${split[1]}")
+//                    }
+                    return@map PortBinding.parse("${split[0]}:${split[1]}:${split[2]}")
+                }
+            }
+        }
+    }
 
     @JsonIgnore
     override fun getShortDescription(): String = "$templateId [type: docker, image: $dockerImage]"

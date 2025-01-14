@@ -21,7 +21,8 @@ class DockerEndpoints(
 
     fun listTemplates(context: Context) {
         context.result(
-            runCatching { dockerTemplateStore.getTemplates() },
+            runCatching { dockerTemplateStore.getAllTemplates(0, 10) }
+                .mapError { "Failed to get templates" },
         )
     }
 

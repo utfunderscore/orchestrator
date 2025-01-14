@@ -56,6 +56,10 @@ class ClientConnection(
         }
     }
 
+    fun close() {
+        socketChannel.close()
+    }
+
     private fun handlePacket(clientPacket: ClientPacket) {
         for (listener in listeners) {
             if (listener.first.isInstance(clientPacket)) {

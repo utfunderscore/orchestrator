@@ -33,9 +33,9 @@ dependencies {
     implementation("io.netty:netty-all:4.2.0.RC1")
     implementation("com.esotericsoftware:kryo:5.6.2")
 
-    implementation("org.jetbrains.exposed:exposed:0.17.14")
+    implementation("org.jetbrains.exposed:exposed-core:0.57.0")
     implementation("org.jetbrains.exposed:exposed-jdbc:0.57.0")
-    implementation("com.impossibl.pgjdbc-ng:pgjdbc-ng-all:0.8.5")
+    implementation("org.postgresql:postgresql:42.7.1")
 
     implementation("org.apache.logging.log4j:log4j-api:2.20.0")
     implementation("org.apache.logging.log4j:log4j-core:2.20.0")

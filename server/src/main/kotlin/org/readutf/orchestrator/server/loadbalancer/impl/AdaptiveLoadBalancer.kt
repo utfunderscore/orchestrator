@@ -1,4 +1,4 @@
-package org.readutf.orchestrator.server.loadbalancer.default
+package org.readutf.orchestrator.server.loadbalancer.impl
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.server.loadbalancer.LoadBalancer

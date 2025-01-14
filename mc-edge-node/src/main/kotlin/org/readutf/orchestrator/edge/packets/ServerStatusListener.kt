@@ -21,7 +21,7 @@ class ServerStatusListener : PacketListener<StatusRequestPacket> {
                         protocol = MinecraftServer.PROTOCOL_VERSION,
                     ),
                 players = Players(max = 0, online = 0),
-                description = Description("Limbo"),
+                description = Description("Proxy Balancer v1.0.5"),
                 enforcesSecureChat = false,
                 previewsChat = false,
             ),

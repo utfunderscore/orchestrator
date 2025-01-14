@@ -1,12 +1,16 @@
+package org.readutf.orchesetrator.proxy
+
 import com.google.inject.Inject
+import com.velocitypowered.api.event.Subscribe
+import com.velocitypowered.api.event.proxy.ProxyInitializeEvent
 import com.velocitypowered.api.plugin.Plugin
 import com.velocitypowered.api.proxy.ProxyServer
 import io.github.oshai.kotlinlogging.KotlinLogging
+import org.readutf.orchesetrator.proxy.safeshutdown.SafeShutdown
 import org.readutf.orchestrator.client.ConnectionManager
 import org.readutf.orchestrator.client.OrchestratorClient
 import org.readutf.orchestrator.client.capacity.DefaultCapacityHandler
 import org.readutf.orchestrator.client.platform.DockerPlatform
-import safeshutdown.SafeShutdown
 
 @Plugin(id = "orchestrator", name = "Orchestrator Proxy", authors = ["utfunderscore"])
 class OrchestratorProxy
@@ -20,10 +24,12 @@ class OrchestratorProxy
         private val safeShutdown = SafeShutdown(proxyServer)
 
         init {
+
+            logger.info { "TEST!@#" }
+
             val orchestratorClient =
                 OrchestratorClient(
                     hostAddress = hostAddress,
-                    maxReconnectAttempts = Int.MAX_VALUE,
                     platform = DockerPlatform(),
                     capacityHandler =
                         DefaultCapacityHandler {
@@ -44,5 +50,15 @@ class OrchestratorProxy
 
         fun onConnect(connectionManager: ConnectionManager) {
             connectionManager.registerSafeShutdownListener(safeShutdown)
+        }
+
+        @Subscribe
+        fun onInitialize(initialized: ProxyInitializeEvent) {
+            proxyServer.eventManager.register(this, safeShutdown)
+
+            proxyServer.eventManager.register(
+                this,
+                TemporaryDisconnect(),
+            )
         }
     }

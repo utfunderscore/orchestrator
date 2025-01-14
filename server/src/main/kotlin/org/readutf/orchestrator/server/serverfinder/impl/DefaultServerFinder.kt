@@ -47,7 +47,7 @@ class DefaultServerFinder(
 
     private fun findBestServer(): Result<Server, String> =
         serverManager
-            .getServers()
+            .getActiveServersByTemplate(serverType) // Get all servers of the type
             .minByOrNull { it.getCapacity() }
             ?.let { Ok(it) } ?: Err("Could not find server")
 
@@ -57,7 +57,7 @@ class DefaultServerFinder(
         val future = CompletableFuture<SResult<Server>>()
         val taskId = taskIdTracker.getAndIncrement()
         val task = BestServerTask(taskId, future)
-        taskIds[taskId] = newServerExecutor.scheduleAtFixedRate(task, 1, 1, java.util.concurrent.TimeUnit.SECONDS)
+        taskIds[taskId] = newServerExecutor.scheduleAtFixedRate(task, 1, 20, java.util.concurrent.TimeUnit.MILLISECONDS)
         return future
     }
 

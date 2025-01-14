@@ -104,7 +104,7 @@ compression-level = -1
 
 # How fast (in milliseconds) are clients allowed to connect after the last connection? By
 # default, this is three seconds. Disable this by setting this to 0.
-login-ratelimit = 3000
+login-ratelimit = 0
 
 # Specify a custom timeout for connection timeouts here. The default is five seconds.
 connection-timeout = 5000
@@ -117,7 +117,7 @@ read-timeout = 30000
 haproxy-protocol = false
 
 # Enables TCP fast open support on the proxy. Requires the proxy to run on Linux.
-tcp-fast-open = false
+tcp-fast-open = true
 
 # Enables BungeeCord plugin messaging channel support on Velocity.
 bungee-plugin-message-channel = true
@@ -143,7 +143,7 @@ log-player-connections = true
 
 # Allows players transferred from other hosts via the
 # Transfer packet (Minecraft 1.20.5) to be received.
-accepts-transfers = false
+accepts-transfers = true
 
 [query]
 # Whether to enable responding to GameSpy 4 query responses or not.

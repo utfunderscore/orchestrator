@@ -20,8 +20,8 @@ class ScaleManager(
 
     init {
         executorServices.scheduleAtFixedRate({
-            for (template in containerController.getTemplates()) {
-                scaleServer(template.templateId)
+            for (templateId in containerController.getTemplates()) {
+                scaleServer(templateId)
             }
         }, 0, 1, TimeUnit.SECONDS)
     }
@@ -60,7 +60,7 @@ class ScaleManager(
 
             for (i in 0 until neededServers) {
                 containerController.create(templateId).onFailure {
-                    logger.warn { "Failed to create container" }
+                    logger.warn { "Failed to create container $it" }
                     return
                 }
             }

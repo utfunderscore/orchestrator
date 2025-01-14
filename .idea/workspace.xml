@@ -4,30 +4,57 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="bff3ba0f-afd7-4b3c-9fe9-4b3c7d446d00" name="Changes" comment="fix: Proxy implementation, more endpoints, removed commands, load balancing works correctly and server finder implemented">
-      <change afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/EdgeNode.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/finder/TransferAddress.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/finder/TransferFinder.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/finder/impl/StaticFinder.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/network/ClientConnection.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/network/ConnectionManager.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/network/listener/PacketListener.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/packets/ClientAcknowledgeListener.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/packets/ServerStatusListener.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/status/StatusRequestResponse.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mc-edge-node/src/main/resources/log4j2.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/mc-proxy/docker/velocity.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/kotlinc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" afterDir="false" />
+    <list default="true" id="bff3ba0f-afd7-4b3c-9fe9-4b3c7d446d00" name="Changes" comment="feature: edge-node base completed, forwarding works">
+      <change afterPath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/server/NetworkSettings.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mc-edge-node/docker/Dockerfile" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/finder/impl/OrchestratorFinder.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mc-proxy/docker/forwarding.secret" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mc-proxy/src/main/kotlin/org/readutf/orchesetrator/proxy/TemporaryDisconnect.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/store/exposed/ExposedTemplateStore.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/store/flatfile/FlatfileDockerTemplateStore.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/loadbalancer/impl/FixedCountLoadBalancer.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/utils/UUIDGeneratorV1.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/api/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/client/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/client/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/common/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mc-proxy/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/mc-proxy/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/kotlin/org/readutf/orchestrator/proxy/Orchestrator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/kotlin/org/readutf/orchestrator/proxy/OrchestratorApi.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/src/main/kotlin/org/readutf/orchestrator/proxy/api/ServerFinderService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/api/src/main/kotlin/org/readutf/orchestrator/proxy/api/ServerFinderService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/kotlin/org/readutf/orchestrator/client/ConnectionManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/kotlin/org/readutf/orchestrator/client/ConnectionManager.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/kotlin/org/readutf/orchestrator/client/OrchestratorClient.kt" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/kotlin/org/readutf/orchestrator/client/OrchestratorClient.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/main/kotlin/org/readutf/orchestrator/client/client/HeartbeatTask.kt" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/main/kotlin/org/readutf/orchestrator/client/client/HeartbeatTask.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/api/ApiResponse.kt" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/api/ApiResponse.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/server/Server.kt" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/server/Server.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/server/ServerAddress.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/utils/DisplayNameGenerator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/common/src/main/kotlin/org/readutf/orchestrator/common/utils/DisplayNameGenerator.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/EdgeNode.kt" beforeDir="false" afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/EdgeNode.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/finder/TransferFinder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/finder/TransferFinder.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/finder/impl/StaticFinder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/finder/impl/StaticFinder.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/network/ClientConnection.kt" beforeDir="false" afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/network/ClientConnection.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/network/ConnectionManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/network/ConnectionManager.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/packets/ClientAcknowledgeListener.kt" beforeDir="false" afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/packets/ClientAcknowledgeListener.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/packets/ServerStatusListener.kt" beforeDir="false" afterPath="$PROJECT_DIR$/mc-edge-node/src/main/kotlin/org/readutf/orchestrator/edge/packets/ServerStatusListener.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mc-proxy/docker/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/mc-proxy/docker/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mc-proxy/docker/velocity.toml" beforeDir="false" afterPath="$PROJECT_DIR$/mc-proxy/docker/velocity.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mc-proxy/src/main/kotlin/OrchestratorProxy.kt" beforeDir="false" afterPath="$PROJECT_DIR$/mc-proxy/src/main/kotlin/org/readutf/orchesetrator/proxy/OrchestratorProxy.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mc-proxy/src/main/kotlin/safeshutdown/SafeShutdown.kt" beforeDir="false" afterPath="$PROJECT_DIR$/mc-proxy/src/main/kotlin/org/readutf/orchesetrator/proxy/safeshutdown/SafeShutdown.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orchestrator/docker/create template.bru" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/orchestrator/docker/get template.bru" beforeDir="false" afterPath="$PROJECT_DIR$/orchestrator/docker/get template.bru" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/orchestrator/docker/list templates.bru" beforeDir="false" afterPath="$PROJECT_DIR$/orchestrator/docker/list templates.bru" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/server/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/Orchestrator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/Orchestrator.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/Test.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/ContainerController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/ContainerController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/DockerController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/DockerController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/DockerEndpoints.kt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/DockerEndpoints.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/DockerTemplate.kt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/DockerTemplate.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/store/DockerTemplateStore.kt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/store/DockerTemplateStore.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/store/exposed/ExposedSchema.kt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/impl/docker/store/exposed/TemplateSchema.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/scale/ScaleManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/container/scale/ScaleManager.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/loadbalancer/LoadBalancerManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/loadbalancer/LoadBalancerManager.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/loadbalancer/default/AdaptiveLoadBalancer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/loadbalancer/impl/AdaptiveLoadBalancer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/server/RegisteredServer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/server/RegisteredServer.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/server/ServerManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/server/ServerManager.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/serverfinder/ServerFinderEndpoint.kt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/serverfinder/ServerFinderEndpoint.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/serverfinder/impl/DefaultServerFinder.kt" beforeDir="false" afterPath="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server/serverfinder/impl/DefaultServerFinder.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -102,10 +129,11 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.github.utfunderscore.hermes/hermes.core/1.0.2/7503deb8dd282d1cc4f9b39836339b3f73c4996/hermes.core-1.0.2-sources.jar!/org/readutf/hermes/PacketManager.kt" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.exposed/exposed-core/0.57.0/893f530af169b6bc2c1d5356c88835694a33cdd6/exposed-core-0.57.0-sources.jar!/org/jetbrains/exposed/sql/Queries.kt" root0="SKIP_INSPECTION" />
+    <setting file="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.jetbrains.exposed/exposed-core/0.57.0/f2df6d6f2b021ac1bacff9ff69a4cd02afa4f847/exposed-core-0.57.0.jar!/org/jetbrains/exposed/sql/QueriesKt.class" root0="SKIP_INSPECTION" />
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="CurrentFile" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
@@ -128,6 +156,7 @@
     &quot;Gradle.orchestrator [client:shadowJar].executor&quot;: &quot;Run&quot;,
     &quot;Gradle.orchestrator [copyArchive].executor&quot;: &quot;Run&quot;,
     &quot;Gradle.orchestrator [copyToDemoDocker].executor&quot;: &quot;Run&quot;,
+    &quot;Gradle.orchestrator [mc-edge-node:buildDevContainer].executor&quot;: &quot;Run&quot;,
     &quot;Gradle.orchestrator [mc-edge-node:build].executor&quot;: &quot;Run&quot;,
     &quot;Gradle.orchestrator [mc-edge-node:shadowJar].executor&quot;: &quot;Run&quot;,
     &quot;Gradle.orchestrator [mc-proxy:buildDevContainer].executor&quot;: &quot;Run&quot;,
@@ -148,7 +177,7 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/connor/git/orchestrator/mc-edge-node/src/main/resources&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/connor/git/orchestrator/mc-edge-node/docker&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -157,29 +186,35 @@
     &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;editing.templates&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;inlay.hints&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   },
   &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
+    ],
     &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;JSON&quot;,
       &quot;kotlin&quot;
     ]
   }
 }</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/mc-edge-node/docker" />
       <recent name="$PROJECT_DIR$/mc-edge-node/src/main/resources" />
       <recent name="$PROJECT_DIR$/client/docker" />
       <recent name="$PROJECT_DIR$/client/src/main/resources" />
       <recent name="$PROJECT_DIR$/server/build/libs" />
-      <recent name="$PROJECT_DIR$/server/build/docker" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/mc-proxy/src/main/kotlin/org/readutf/orchesetrator/proxy" />
       <recent name="$PROJECT_DIR$/server/docker" />
       <recent name="$PROJECT_DIR$/server" />
       <recent name="$PROJECT_DIR$/server/src/main/kotlin/org/readutf/orchestrator/server" />
     </key>
     <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
+      <recent name="org.readutf.orchestrator.server.container.impl.docker.store.flatfile" />
       <recent name="org.readutf.orchestrator.client" />
       <recent name="org.readutf.orchestrator.client.client" />
     </key>
@@ -188,32 +223,20 @@
     <option name="myCommands">
       <command value="gradle build" />
       <command value="gradle client:copyArchive" />
-      <command value="gradle server:shadowJar" />
       <command value="gradle client:runDevContainer" />
       <command value="gradle mc-proxy:shadowJar" />
       <command value="gradle client:shadowJar" />
-      <command value="gradle server:runDevContainer" />
-      <command value="gradle mc-proxy:buildDevContainer" />
       <command value="gradle mc-edge-node:build --debug" />
       <command value="gradle mc-edge-node:build" />
       <command value="gradle mc-edge-node:shadowJar" />
+      <command value="gradle server:shadowJar" />
+      <command value="gradle mc-proxy:buildDevContainer" />
+      <command value="gradle server:runDevContainer" />
+      <command value="gradle mc-edge-node:buildDevContainer" />
     </option>
   </component>
-  <component name="RunManager" selected="Gradle.orchestrator [mc-edge-node:shadowJar]">
-    <configuration name="LimboTemplate" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="test.LimboTemplate" />
-      <module name="orchestrator.mc-edge-node.main" />
-      <extension name="coverage">
-        <pattern>
-          <option name="PATTERN" value="test.*" />
-          <option name="ENABLED" value="true" />
-        </pattern>
-      </extension>
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="orchestrator [mc-edge-node:build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+  <component name="RunManager" selected="Gradle.orchestrator [mc-edge-node:buildDevContainer]">
+    <configuration name="orchestrator [mc-edge-node:buildDevContainer]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -224,7 +247,7 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="mc-edge-node:build" />
+            <option value="mc-edge-node:buildDevContainer" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -235,7 +258,7 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="orchestrator [mc-edge-node:shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="orchestrator [mc-proxy:buildDevContainer]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
@@ -246,7 +269,7 @@
         </option>
         <option name="taskNames">
           <list>
-            <option value="mc-edge-node:shadowJar" />
+            <option value="mc-proxy:buildDevContainer" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -279,12 +302,27 @@
       <RunAsTest>false</RunAsTest>
       <method v="2" />
     </configuration>
-    <configuration name="EdgeNodeKt" type="JetRunConfigurationType" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="org.readutf.orchestrator.edge.EdgeNodeKt" />
-      <module name="orchestrator.mc-edge-node.main" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
+    <configuration name="orchestrator [server:shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="server:shadowJar" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <RunAsTest>false</RunAsTest>
+      <method v="2" />
     </configuration>
     <configuration default="true" type="JetRunConfigurationType">
       <module name="orchestrator.minestom.main" />
@@ -303,13 +341,30 @@
       </deployment>
       <method v="2" />
     </configuration>
+    <configuration name="docker/Dockerfile" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Docker">
+      <deployment type="dockerfile">
+        <settings>
+          <option name="containerName" value="" />
+          <option name="portBindings">
+            <list>
+              <DockerPortBindingImpl>
+                <option name="containerPort" value="25565" />
+                <option name="hostPort" value="25565" />
+              </DockerPortBindingImpl>
+            </list>
+          </option>
+          <option name="sourceFilePath" value="mc-edge-node/docker/Dockerfile" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.orchestrator [mc-edge-node:shadowJar]" />
-        <item itemvalue="Kotlin.EdgeNodeKt" />
-        <item itemvalue="Application.LimboTemplate" />
-        <item itemvalue="Gradle.orchestrator [mc-edge-node:build]" />
         <item itemvalue="Gradle.orchestrator [server:runDevContainer]" />
+        <item itemvalue="Gradle.orchestrator [mc-proxy:buildDevContainer]" />
+        <item itemvalue="Gradle.orchestrator [server:shadowJar]" />
+        <item itemvalue="Docker.docker/Dockerfile" />
+        <item itemvalue="Gradle.orchestrator [mc-edge-node:buildDevContainer]" />
       </list>
     </recent_temporary>
   </component>
@@ -362,7 +417,15 @@
       <workItem from="1736607351241" duration="2579000" />
       <workItem from="1736611489748" duration="337000" />
       <workItem from="1736618484843" duration="6217000" />
-      <workItem from="1736632986011" duration="1794000" />
+      <workItem from="1736632986011" duration="9176000" />
+      <workItem from="1736689948305" duration="10373000" />
+      <workItem from="1736702465606" duration="2007000" />
+      <workItem from="1736704517936" duration="195000" />
+      <workItem from="1736704717162" duration="5259000" />
+      <workItem from="1736721757472" duration="7580000" />
+      <workItem from="1736771288294" duration="5090000" />
+      <workItem from="1736791273526" duration="326000" />
+      <workItem from="1736878056570" duration="2521000" />
     </task>
     <task id="LOCAL-00001" summary="fix: Proxy implementation, more endpoints, removed commands, load balancing works correctly and server finder implemented">
       <option name="closed" value="true" />
@@ -372,7 +435,15 @@
       <option name="project" value="LOCAL" />
       <updated>1736551076513</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="feature: edge-node base completed, forwarding works">
+      <option name="closed" value="true" />
+      <created>1736634847777</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1736634847777</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -380,7 +451,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="fix: Proxy implementation, more endpoints, removed commands, load balancing works correctly and server finder implemented" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: Proxy implementation, more endpoints, removed commands, load balancing works correctly and server finder implemented" />
+    <MESSAGE value="feature: edge-node base completed, forwarding works" />
+    <option name="LAST_COMMIT_MESSAGE" value="feature: edge-node base completed, forwarding works" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

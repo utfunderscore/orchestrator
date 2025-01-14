@@ -1,5 +1,7 @@
 package org.readutf.orchestrator.edge.packets
 
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.minestom.server.network.packet.client.login.ClientLoginAcknowledgedPacket
 import net.minestom.server.network.packet.server.common.TransferPacket
@@ -16,10 +18,15 @@ class ClientAcknowledgeListener(
         packet: ClientLoginAcknowledgedPacket,
         clientConnection: ClientConnection,
     ) {
-        val address = transferFinder.findTransferAddress()
         val username = clientConnection.username ?: "Unknown"
-
-        logger.info { "Transferring $username to ${address.hostname}:${address.port}" }
-        clientConnection.networkContext.write(TransferPacket(address.hostname, address.port))
+        transferFinder
+            .findTransferAddress()
+            .onSuccess { address ->
+                logger.info { "Transferring $username to ${address.hostname}:${address.port}" }
+                clientConnection.networkContext.write(TransferPacket(address.hostname, address.port))
+            }.onFailure {
+                logger.error { "Failed to find transfer address for $username: $it" }
+                clientConnection.close()
+            }
     }
 }

@@ -1,16 +1,23 @@
 package org.readutf.orchestrator.common.api
 
-class ApiResponse<T>(
-    private val success: Boolean,
-    private val result: T?,
+data class ApiResponse<T>(
+    val success: Boolean,
+    val result: T?,
+    val failureMessage: String? = null,
 ) {
-    fun isSuccessful(): Boolean = success
-
-    fun getResult(): T? = result
-
     companion object {
-        fun <T> success(result: T): ApiResponse<T> = ApiResponse(true, result)
+        fun <T> success(result: T): ApiResponse<T> =
+            ApiResponse(
+                success = true,
+                result = result,
+                failureMessage = null,
+            )
 
-        fun <T> error(): ApiResponse<T> = ApiResponse(false, null)
+        fun <T> error(failureReason: String): ApiResponse<T> =
+            ApiResponse(
+                success = false,
+                result = null,
+                failureMessage = failureReason,
+            )
     }
 }

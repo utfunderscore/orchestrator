@@ -40,7 +40,6 @@ class ConnectionManager(
     }
 
     fun stop() {
-        stopLock.lock()
         try {
             stopCondition.signal()
         } finally {

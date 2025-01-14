@@ -1,4 +1,4 @@
-package safeshutdown
+package org.readutf.orchesetrator.proxy.safeshutdown
 
 import com.velocitypowered.api.event.Subscribe
 import com.velocitypowered.api.event.connection.DisconnectEvent

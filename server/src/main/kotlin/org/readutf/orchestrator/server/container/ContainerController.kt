@@ -1,7 +1,7 @@
 package org.readutf.orchestrator.server.container
 
 import io.javalin.Javalin
-import org.readutf.orchestrator.common.server.ServerAddress
+import org.readutf.orchestrator.common.server.NetworkSettings
 import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.common.utils.ShortId
 
@@ -22,7 +22,7 @@ interface ContainerController<T : ContainerTemplate> {
      * Get the address of the container
      * @param containerId The id of the container
      */
-    fun getAddress(containerId: ShortId): SResult<ServerAddress>
+    fun getAddress(containerId: ShortId): SResult<NetworkSettings>
 
     fun getContainerTemplate(containerId: ShortId): SResult<ContainerTemplate>
 
@@ -30,7 +30,7 @@ interface ContainerController<T : ContainerTemplate> {
      * List all existing templates
      * @return List of templates
      */
-    fun getTemplates(): List<T>
+    fun getTemplates(): List<String>
 
     /**
      * When a container is created, it may take time to be registered as an active server,
