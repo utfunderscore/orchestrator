@@ -16,7 +16,6 @@ import org.readutf.orchestrator.server.container.impl.docker.store.DockerTemplat
 import org.readutf.orchestrator.server.utils.UUIDGeneratorV1
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import java.util.concurrent.atomic.AtomicInteger
 
 class DockerController(
     private val dockerClient: DockerClient,
@@ -24,7 +23,6 @@ class DockerController(
 ) : ContainerController<DockerTemplate> {
     private val logger = KotlinLogging.logger {}
 
-    private val containerCounter = AtomicInteger(0)
     private val uuidGenerator = UUIDGeneratorV1()
     private val dockerEndpoints = DockerEndpoints(dockerTemplateStore)
 
@@ -78,16 +76,14 @@ class DockerController(
             containerTracker[id.toShortId()] = containerTemplate.id
             pendingContainers.getOrPut(templateId) { HashMap() }[id.toShortId()] = System.currentTimeMillis() + 15_000
 
-            val inspect = dockerClient.inspectContainerCmd(createResult.id).exec()
-
             return@runCatching createResult
         }.andThen { createResult ->
-            runCatching {
-                val containerId = createResult.id
-
-                dockerClient.startContainerCmd(containerId).exec()
-
-                return@runCatching containerId
+            try {
+                dockerClient.startContainerCmd(createResult.id).exec()
+                Ok(createResult.id)
+            } catch (e: Exception) {
+                dockerClient.removeContainerCmd(createResult.id).exec()
+                Err(e)
             }
         }.mapError { it.toString() }
     }
@@ -108,29 +104,27 @@ class DockerController(
         }
     }
 
-    override fun getAddress(containerId: ShortId): SResult<NetworkSettings> =
-        runCatching {
-            val inspect =
-                dockerClient
-                    .inspectContainerCmd(containerId.shortId)
-                    .exec()
+    override fun getAddress(containerId: ShortId): SResult<NetworkSettings> = runCatching {
+        val inspect =
+            dockerClient
+                .inspectContainerCmd(containerId.shortId)
+                .exec()
 
-            val ports =
-                inspect.networkSettings.ports.bindings.values
-                    .map { bindings -> bindings.map { it.hostPortSpec.toInt() } }
-                    .flatten()
-                    .distinct()
+        val ports =
+            inspect.networkSettings.ports.bindings.values
+                .map { bindings -> bindings.map { it.hostPortSpec.toInt() } }
+                .flatten()
+                .distinct()
 
-            NetworkSettings(
-                exposedPorts = ports,
-                internalHost = inspect.config.hostName ?: "localhost",
-            )
-        }.mapError { it.toString() }
+        NetworkSettings(
+            exposedPorts = ports,
+            internalHost = inspect.config.hostName ?: "localhost",
+        )
+    }.mapError { it.toString() }
 
-    override fun getContainerTemplate(containerId: ShortId): SResult<ContainerTemplate> =
-        containerTracker[containerId]?.let {
-            dockerTemplateStore.getTemplate(it)
-        } ?: Err("Could not find container with id $containerId")
+    override fun getContainerTemplate(containerId: ShortId): SResult<ContainerTemplate> = containerTracker[containerId]?.let {
+        dockerTemplateStore.getTemplate(it)
+    } ?: Err("Could not find container with id $containerId")
 
     override fun getTemplates(): List<String> = dockerTemplateStore.getAllTemplates(0, 10)
 
@@ -146,7 +140,6 @@ class DockerController(
         return pending.filter { it.value > System.currentTimeMillis() }.keys
     }
 
-    override fun getTemplate(templateId: String): SResult<DockerTemplate> =
-        dockerTemplateStore
-            .getTemplate(templateId)
+    override fun getTemplate(templateId: String): SResult<DockerTemplate> = dockerTemplateStore
+        .getTemplate(templateId)
 }
