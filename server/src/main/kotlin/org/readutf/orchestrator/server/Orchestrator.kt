@@ -36,6 +36,8 @@ import java.util.concurrent.Executors
 class Orchestrator(
     private val hostAddress: String,
 ) {
+    private val logger = KotlinLogging.logger {}
+
     private val dockerTemplateStore: DockerTemplateStore =
         ExposedTemplateStore(
             Database.connect(
@@ -45,7 +47,8 @@ class Orchestrator(
                 password = "orchestrator",
             ),
         )
-    private val dockerClient = createDockerClient("unix:///var/run/docker.sock")
+
+    private val dockerClient = createDockerClient(System.getenv("DOCKER_HOST") ?: "unix:///var/run/docker.sock")
     private val dockerController: ContainerController<*> = DockerController(dockerClient, dockerTemplateStore)
     private val serverManager = ServerManager(dockerController)
     private val scaleManager = ScaleManager(serverManager, dockerController)
@@ -55,8 +58,6 @@ class Orchestrator(
     private val serverEndpoints = ServerEndpoints(serverManager)
     private val scaleEndpoints = ScaleEndpoints(scaleManager)
     private val serverFinderEndpoint = ServerFinderEndpoint(serverFinderManager, dockerController)
-
-    private val logger = KotlinLogging.logger {}
 
     init {
         val javalin = setupJavalin(dockerController, scaleEndpoints)
