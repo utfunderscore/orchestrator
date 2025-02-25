@@ -40,9 +40,9 @@ class EdgeNode {
                 hostAddress = hostAddress,
                 platform = DockerPlatform(),
                 capacityHandler =
-                    DefaultCapacityHandler {
-                        return@DefaultCapacityHandler 0.5
-                    },
+                DefaultCapacityHandler {
+                    return@DefaultCapacityHandler 0.5
+                },
             )
 
         orchestratorClient.shutdownHook = {
