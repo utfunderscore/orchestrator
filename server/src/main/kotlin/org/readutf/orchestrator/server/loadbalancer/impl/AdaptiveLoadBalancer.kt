@@ -18,8 +18,6 @@ class AdaptiveLoadBalancer(
     // Expiry time is value
     private val pendingRequests = ArrayDeque<Long>()
 
-    private var lastCapacity = 0.0
-
     override fun loadBalance(servers: Collection<RegisteredServer>): Int {
         val totalCapacity = servers.sumOf { it.getCapacity() } + virtualCapacity + getPendingRequests().size * 0.001
 
@@ -28,8 +26,6 @@ class AdaptiveLoadBalancer(
         val target = minServers.coerceAtLeast(maxServers.coerceAtMost(capacityToServers(totalCapacity)))
 
         logger.debug { "Scaling to $target" }
-
-        lastCapacity = totalCapacity
 
         return target
     }
