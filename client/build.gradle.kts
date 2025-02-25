@@ -6,8 +6,6 @@ plugins {
     `java-library`
 }
 
-group = "org.readutf.orchestrator"
-
 repositories {
     mavenCentral()
 }

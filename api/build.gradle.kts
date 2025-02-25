@@ -2,9 +2,6 @@ plugins {
     kotlin("jvm") version "2.1.0"
 }
 
-group = "io.github.utfunderscore"
-version = "2.0.0"
-
 repositories {
     mavenCentral()
 }

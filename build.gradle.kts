@@ -2,9 +2,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 
 plugins {
     kotlin("jvm") version "2.1.0"
+    `maven-publish`
 }
 
-group = "io.github.utfunderscore"
+group = "org.readutf.orchestrator"
 version = "2.0.0"
 
 dependencies {
@@ -23,8 +24,8 @@ subprojects {
     group = rootProject.group
     version = rootProject.version
 
-    apply(plugin = "java")
     apply(plugin = "kotlin")
+    apply(plugin = "maven-publish")
 
     kotlin {
         jvmToolchain(17)
@@ -32,6 +33,18 @@ subprojects {
 
     tasks.withType<JavaCompile> {
         options.compilerArgs.add("-parameters")
+    }
+
+    publishing {
+        publications {
+            create<MavenPublication>("mavenJava") {
+                groupId = rootProject.group.toString()
+                version = rootProject.version.toString()
+                artifactId = project.name
+
+                from(components["java"])
+            }
+        }
     }
 
     tasks.withType<KotlinJvmCompile> {

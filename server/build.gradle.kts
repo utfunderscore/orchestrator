@@ -61,15 +61,18 @@ tasks.register("runDevContainer") {
     dependsOn("shadowJar", "createProperties")
     doLast {
         exec {
-            commandLine(
+            val result = commandLine(
                 "sh",
                 "-c",
                 """
-                docker ps -a --filter "ancestor=orchestrator-dev-server" --format "{{.ID}}" | xargs -r docker rm -f && \
                 docker build -t orchestrator-dev-server docker && \
-                docker run --name aOrchestrator -p 2323:2323 -p 9191:9191 -v /var/run/docker.sock:/var/run/docker.sock -it --hostname=orchestrator --network=orchestrator -d orchestrator-dev-server
+                docker compose -f docker/docker-compose.yml stop && \
+                docker compose -f docker/docker-compose.yml rm -f && \
+                docker compose -f docker/docker-compose.yml up -d
                 """.trimIndent(),
             )
+
+            println(result)
         }
     }
 }

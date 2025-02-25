@@ -1,0 +1,32 @@
+services:
+  db:
+    image: postgres:14.17-alpine3.21
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: orchestrator
+      POSTGRES_PASSWORD: orchestrator
+      POSTGRES_DB: orchestrator
+    hostname: postgres
+    networks:
+      - orchestrator
+    volumes:
+      - orchestrator-db:/var/lib/postgresql/data
+  orchestrator:
+    image: orchestrator-dev-server:latest
+    restart: unless-stopped
+    hostname: orchestrator
+    networks:
+      - orchestrator
+    ports:
+      - "2980:2980"
+      - "9393:9393"
+    depends_on:
+      - db
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+volumes:
+  orchestrator-db:
+networks:
+  orchestrator:
+    external: true
+
