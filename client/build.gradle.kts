@@ -1,8 +1,5 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     kotlin("jvm") version "2.1.0"
-    id("com.github.johnrengelman.shadow") version "7.1.2"
     `java-library`
 }
 
@@ -36,10 +33,6 @@ tasks.jar {
     }
 }
 
-tasks.shadowJar {
-    archiveBaseName.set("orchestrator-client")
-}
-
 tasks.register("copyArchive") {
     doLast {
         val archive = file("$buildDir/libs/orchestrator-client-all.jar")
@@ -47,17 +40,6 @@ tasks.register("copyArchive") {
         archive.copyTo(destination, true)
     }
 }
-
-tasks.getByName<ShadowJar>("shadowJar") {
-    doLast {
-        outputs.files.forEach { file ->
-            val output = projectDir.resolve("docker").resolve(file.name)
-            if (output.exists()) output.delete()
-            file.copyTo(output, overwrite = true)
-        }
-    }
-}
-
 tasks.register("buildDevContainer") {
     dependsOn("shadowJar")
 
