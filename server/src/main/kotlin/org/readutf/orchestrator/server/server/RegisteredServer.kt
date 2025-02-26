@@ -1,6 +1,8 @@
 package org.readutf.orchestrator.server.server
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.databind.JsonNode
+import com.github.michaelbull.result.Result
 import org.readutf.hermes.Packet
 import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.common.server.Heartbeat
@@ -16,16 +18,18 @@ class RegisteredServer(
     displayName: String,
     containerId: ShortId,
     networkSettings: NetworkSettings,
+    attributes: MutableMap<String, JsonNode> = mutableMapOf(),
     @field:JsonIgnore var shuttingDown: Boolean = false,
     @field:JsonIgnore val template: ContainerTemplate,
     @field:JsonIgnore var lastHeartbeat: Heartbeat,
     @field:JsonIgnore val channel: HermesChannel,
 ) : Server(
-        serverId = serverId,
-        displayName = displayName,
-        containerId = containerId,
-        networkSettings = networkSettings,
-    ) {
+    serverId = serverId,
+    displayName = displayName,
+    containerId = containerId,
+    networkSettings = networkSettings,
+    attributes = attributes,
+) {
     @JsonIgnore
     fun getCapacity() = lastHeartbeat.capacity
 
@@ -33,22 +37,21 @@ class RegisteredServer(
         channel.sendPacket(packet)
     }
 
-    inline fun <reified T> sendPacketFuture(packet: Packet): CompletableFuture<T> = channel.sendPacketFuture<T>(packet)
+    inline fun <reified T> sendPacketFuture(packet: Packet): CompletableFuture<Result<T, String>> = channel.sendPacketFuture<T>(packet)
 
     companion object {
         fun fromServer(
             server: Server,
             channel: HermesChannel,
             template: ContainerTemplate,
-        ): RegisteredServer =
-            RegisteredServer(
-                serverId = server.serverId,
-                displayName = server.displayName,
-                containerId = server.containerId,
-                networkSettings = server.networkSettings,
-                lastHeartbeat = Heartbeat(System.currentTimeMillis(), 0.0),
-                channel = channel,
-                template = template,
-            )
+        ): RegisteredServer = RegisteredServer(
+            serverId = server.serverId,
+            displayName = server.displayName,
+            containerId = server.containerId,
+            networkSettings = server.networkSettings,
+            lastHeartbeat = Heartbeat(System.currentTimeMillis(), 0.0),
+            channel = channel,
+            template = template,
+        )
     }
 }

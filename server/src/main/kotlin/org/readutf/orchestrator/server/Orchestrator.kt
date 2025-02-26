@@ -29,6 +29,7 @@ import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.server.listeners.ServerDisconnectListener
 import org.readutf.orchestrator.server.server.listeners.ServerHeartbeatListener
 import org.readutf.orchestrator.server.server.listeners.ServerRegisterListener
+import org.readutf.orchestrator.server.server.listeners.UpdateAttributesListener
 import org.readutf.orchestrator.server.serverfinder.ServerFinderEndpoint
 import org.readutf.orchestrator.server.serverfinder.ServerFinderManager
 import java.util.concurrent.Executors
@@ -95,6 +96,7 @@ class Orchestrator(
             it.registerListener(ServerRegisterListener(serverManager))
             it.registerListener(ServerHeartbeatListener(serverManager))
             it.registerListener(ServerDisconnectListener(serverManager))
+            it.registerListener(UpdateAttributesListener(serverManager))
         }
 
         return nettyServer

@@ -68,6 +68,8 @@ class DockerController(
 
         createCommand.withHostConfig(hostConfig)
 
+        createCommand.hostConfig?.withAutoRemove(true)
+
         return runCatching {
             logger.info { createCommand }
             val createResult = createCommand.exec()

@@ -18,9 +18,9 @@ dependencies {
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.15.0")
 
-    compileOnly("io.github.utfunderscore.hermes:hermes.core:$hermesVersion")
-    compileOnly("io.github.utfunderscore.hermes:hermes.netty:$hermesVersion")
-    compileOnly("io.github.utfunderscore.hermes:hermes.kryo:$hermesVersion")
+    compileOnly("org.readutf.hermes:core:$hermesVersion")
+    compileOnly("org.readutf.hermes:netty:$hermesVersion")
+    compileOnly("org.readutf.hermes:kryo:$hermesVersion")
     compileOnly("com.esotericsoftware:kryo:5.6.2")
 
     compileOnly("com.fasterxml.jackson.core:jackson-databind:2.18.2")

@@ -1,5 +1,6 @@
 package org.readutf.orchestrator.server.server
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -25,6 +26,7 @@ class ServerManager(
     fun registerServer(
         containerId: String,
         channel: HermesChannel,
+        attributes: Map<String, JsonNode>,
     ): SResult<Server> {
         logger.info { "Registering server with containerId: $containerId $channel" }
 
@@ -43,7 +45,7 @@ class ServerManager(
                 return Err(it)
             }
 
-        val server = Server(serverId, DisplayNameGenerator.generateDisplayName(), shortId, serverAddress)
+        val server = Server(serverId, DisplayNameGenerator.generateDisplayName(), shortId, serverAddress, mutableMapOf())
         servers[serverId] = RegisteredServer.fromServer(server, channel, template)
         channelToServer[channel.channelId] = serverId
         return Ok(server)
@@ -70,6 +72,17 @@ class ServerManager(
         server.lastHeartbeat = heartbeat
     }
 
+    fun updateAttribute(serverId: UUID, key: String, jsonNode: JsonNode) {
+        val server = servers[serverId]
+        if (server == null) {
+            logger.info { "Received attribute update from server that isn't registered" }
+            return
+        }
+        logger.debug { "Attribute update received for $serverId" }
+
+        server.attributes[key] = jsonNode
+    }
+
     fun getServerById(serverId: UUID): RegisteredServer? = servers[serverId]
 
     fun scheduleShutdown(server: RegisteredServer) {
@@ -83,11 +96,10 @@ class ServerManager(
     /**
      * Get all servers created from a template that is not shuttingDown
      */
-    fun getActiveServersByTemplate(templateId: String): Collection<RegisteredServer> =
-        servers.values
-            .filter {
-                it.template.templateId.equals(templateId, true)
-            }.filter { !it.shuttingDown }
+    fun getActiveServersByTemplate(templateId: String): Collection<RegisteredServer> = servers.values
+        .filter {
+            it.template.templateId.equals(templateId, true)
+        }.filter { !it.shuttingDown }
 
     fun getServerByChannel(channel: HermesChannel): RegisteredServer? {
         val serverId = channelToServer[channel.channelId]

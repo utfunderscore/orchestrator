@@ -12,11 +12,12 @@ val hermesVersion: String by rootProject.extra
 dependencies {
     testImplementation(kotlin("test"))
 
-    api("org.slf4j:slf4j-api:2.0.0-alpha1")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
     api("io.github.oshai:kotlin-logging-jvm:7.0.0")
-    api("io.github.utfunderscore.hermes:hermes.core:$hermesVersion")
-    api("io.github.utfunderscore.hermes:hermes.netty:$hermesVersion")
-    api("io.github.utfunderscore.hermes:hermes.kryo:$hermesVersion")
+    api("org.slf4j:slf4j-api:2.0.0-alpha1")
+    api("org.readutf.hermes:core:$hermesVersion")
+    api("org.readutf.hermes:netty:$hermesVersion")
+    api("org.readutf.hermes:kryo:$hermesVersion")
     api("com.esotericsoftware:kryo:5.6.2")
     api("org.jetbrains:annotations:26.0.1")
     api("io.netty:netty-all:4.2.0.RC1")

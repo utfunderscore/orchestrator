@@ -1,49 +1,46 @@
 package org.readutf.orchestrator.client
 
-import com.esotericsoftware.kryo.Kryo
-import com.esotericsoftware.kryo.util.Pool
+import com.github.michaelbull.result.getOrElse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.hermes.PacketManager
 import org.readutf.hermes.channel.ChannelClosePacket
-import org.readutf.hermes.listeners.annotation.PacketHandler
 import org.readutf.hermes.platform.netty.nettyClient
 import org.readutf.hermes.serializer.KryoPacketSerializer
 import org.readutf.orchestrator.client.client.ClientManager
-import org.readutf.orchestrator.client.client.capacity.CapacityHandler
-import org.readutf.orchestrator.client.client.shutdown.SafeShutdownHandler
-import org.readutf.orchestrator.client.client.shutdown.SafeShutdownListener
+import org.readutf.orchestrator.client.platform.ContainerPlatform
 import org.readutf.orchestrator.common.packets.C2SRegisterPacket
+import org.readutf.orchestrator.common.packets.KryoBuilder
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 class ConnectionManager(
-    val kryoPool: Pool<Kryo>,
-    val hostAddress: String,
-    val port: Int,
-    val containerId: String,
-    val capacityHandler: CapacityHandler,
+    private val orchestratorHost: String,
+    private val platform: ContainerPlatform,
 ) {
+    private val kryoPool = KryoBuilder.KryoPool()
     private val logger = KotlinLogging.logger {}
     private val completionFuture = CompletableFuture<Boolean>()
     private var clientManager: ClientManager? = null
     private var packetManager: PacketManager<*>? = null
+    private var configure: ClientManager.() -> Unit = {}
 
     /**
      * Thread will block until the connection is lost
      * @return true if the connection was successful
      */
-    fun connectBlocking(connectHandle: (ConnectionManager) -> Unit): Boolean {
+    fun connectBlocking(): Boolean {
         logger.info { "Connecting to server..." }
 
         val packetManager =
             PacketManager.nettyClient(
-                hostName = hostAddress,
-                port,
+                hostName = orchestratorHost,
+                port = 2323,
                 serializer = KryoPacketSerializer(kryoPool),
             )
         try {
             packetManager.start()
         } catch (e: Exception) {
+            logger.error(e) { "Failed to start packet manager" }
             return false
         }
 
@@ -55,21 +52,27 @@ class ConnectionManager(
 
         this.packetManager = packetManager
 
-        val serverId = packetManager.sendPacket<UUID>(C2SRegisterPacket(containerId)).join()
+        val serverId = packetManager.sendPacket<UUID>(C2SRegisterPacket(platform.getContainerId(), emptyMap())).join().getOrElse {
+            return false
+        }
+
+        packetManager.editListeners {
+            it.registerListener<ChannelClosePacket<*>> { packet ->
+                logger.info { "Connection lost..." }
+                disconnect()
+            }
+        }
 
         logger.info { "Registered with id $serverId" }
 
-        this.clientManager = ClientManager(serverId, packetManager, capacityHandler)
-
-        println("asdfgfg")
-
-        try {
-            connectHandle(this)
-        } catch (e: Exception) {
-            logger.error(e) { "Error occurred calling connection start handle" }
-        }
+        this.clientManager = ClientManager(serverId, packetManager).also(configure)
 
         return completionFuture.join()
+    }
+
+    fun configure(context: ClientManager.() -> Unit): ConnectionManager {
+        configure = context
+        return this
     }
 
     private fun disconnect() {
@@ -82,17 +85,6 @@ class ConnectionManager(
             completionFuture.complete(true)
         } catch (e: Exception) {
             logger.error(e) { }
-        }
-    }
-
-    @PacketHandler
-    fun onDisconnect(channelClosePacket: ChannelClosePacket<*>) {
-        disconnect()
-    }
-
-    fun registerSafeShutdownListener(safeShutdownHandler: SafeShutdownHandler) {
-        packetManager?.editListeners {
-            it.registerListener(SafeShutdownListener(safeShutdownHandler))
         }
     }
 }

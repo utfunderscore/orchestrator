@@ -19,9 +19,9 @@ dependencies {
     implementation("org.slf4j:slf4j-api:2.0.16")
 
     implementation("io.javalin:javalin:6.4.0")
-    implementation("io.github.utfunderscore.hermes:hermes.core:$hermesVersion")
-    implementation("io.github.utfunderscore.hermes:hermes.netty:$hermesVersion")
-    implementation("io.github.utfunderscore.hermes:hermes.kryo:$hermesVersion")
+    implementation("org.readutf.hermes:core:$hermesVersion")
+    implementation("org.readutf.hermes:netty:$hermesVersion")
+    implementation("org.readutf.hermes:kryo:$hermesVersion")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2")
     implementation(project(":common"))
@@ -36,9 +36,9 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:0.57.0")
     implementation("org.postgresql:postgresql:42.7.1")
 
-    implementation("org.apache.logging.log4j:log4j-api:2.20.0")
-    implementation("org.apache.logging.log4j:log4j-core:2.20.0")
-    implementation("org.apache.logging.log4j:log4j-slf4j2-impl:2.20.0")
+    implementation("org.tinylog:tinylog-api:2.7.0")
+    implementation("org.tinylog:tinylog-impl:2.7.0")
+    implementation("org.tinylog:slf4j-tinylog:2.7.0")
 }
 
 tasks.jar {

@@ -20,7 +20,7 @@ repositories {
     mavenLocal()
 }
 
-extra["hermesVersion"] = "1.0.2"
+extra["hermesVersion"] = "1.1.0"
 
 subprojects {
 

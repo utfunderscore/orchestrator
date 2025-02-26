@@ -45,11 +45,10 @@ class DefaultServerFinder(
         }, executor)
     }
 
-    private fun findBestServer(): Result<Server, String> =
-        serverManager
-            .getActiveServersByTemplate(serverType) // Get all servers of the type
-            .minByOrNull { it.getCapacity() }
-            ?.let { Ok(it) } ?: Err("Could not find server")
+    private fun findBestServer(): Result<Server, String> = serverManager
+        .getActiveServersByTemplate(serverType) // Get all servers of the type
+        .minByOrNull { it.getCapacity() }
+        ?.let { Ok(it) } ?: Err("Could not find server")
 
     private fun awaitBestServer(loadBalancer: LoadBalancer): CompletableFuture<SResult<Server>> {
         loadBalancer.addAwaitingRequest()

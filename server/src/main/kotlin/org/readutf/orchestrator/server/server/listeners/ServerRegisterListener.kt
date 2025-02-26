@@ -14,8 +14,7 @@ class ServerRegisterListener(
         packet: C2SRegisterPacket,
         channel: HermesChannel,
     ): UUID? {
-        val server = serverManager.registerServer(packet.containerId, channel)
-
+        val server = serverManager.registerServer(packet.containerId, channel, packet.attributes)
         return server.get()?.serverId
     }
 }

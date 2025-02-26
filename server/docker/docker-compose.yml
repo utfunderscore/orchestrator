@@ -18,8 +18,8 @@ services:
     networks:
       - orchestrator
     ports:
-      - "2980:2980"
-      - "9393:9393"
+      - "2323:2323"
+      - "9191:9191"
     depends_on:
       - db
     volumes:

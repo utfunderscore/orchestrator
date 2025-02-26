@@ -16,9 +16,12 @@ class ScaleManager(
 ) {
     private val logger = KotlinLogging.logger {}
     private val targetScales = mutableMapOf<String, Int>()
+    private val lastScaledTimes = mutableMapOf<String, Long>()
     private val executorServices = Executors.newSingleThreadScheduledExecutor()
 
     init {
+        logger.info { "Starting scale manager..." }
+
         executorServices.scheduleAtFixedRate({
             for (templateId in containerController.getTemplates()) {
                 scaleServer(templateId)
@@ -40,6 +43,12 @@ class ScaleManager(
     fun getScale(templateId: String): Int = targetScales.getOrPut(templateId) { 0 }
 
     private fun scaleServer(templateId: String) {
+        // Skip scaling if it was scaled in the last 15 seconds
+        if (System.currentTimeMillis() - lastScaledTimes.getOrPut(templateId) { 0 } < 15_000) {
+            logger.debug { "Skipping scaling for $templateId" }
+            return
+        }
+
         val targetScale = targetScales.getOrPut(templateId) { 0 }
         val pendingCreation = containerController.getPendingContainers(templateId, serverManager.getServers().map { it.containerId })
         val activeServers = serverManager.getActiveServersByTemplate(templateId)
@@ -55,8 +64,11 @@ class ScaleManager(
             return
         }
 
+        lastScaledTimes[templateId] = System.currentTimeMillis()
+
         if (neededServers > 0) {
             // Scaling deployment up
+            logger.debug { "Scaling deployment up" }
 
             for (i in 0 until neededServers) {
                 containerController.create(templateId).onFailure {
