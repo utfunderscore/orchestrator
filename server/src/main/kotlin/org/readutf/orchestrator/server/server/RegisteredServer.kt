@@ -3,6 +3,7 @@ package org.readutf.orchestrator.server.server
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.mapError
 import org.readutf.hermes.Packet
 import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.common.server.Heartbeat
@@ -37,7 +38,10 @@ class RegisteredServer(
         channel.sendPacket(packet)
     }
 
-    inline fun <reified T> sendPacketFuture(packet: Packet): CompletableFuture<Result<T, String>> = channel.sendPacketFuture<T>(packet)
+    inline fun <reified T> sendPacketFuture(packet: Packet): CompletableFuture<Result<T, Throwable>> = channel.sendPacketFuture<T>(packet)
+        .thenApply { result ->
+            result.mapError { err -> Throwable(err) }
+        }
 
     companion object {
         fun fromServer(

@@ -3,12 +3,17 @@ package org.readutf.orchestrator.server.container.impl.docker
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.model.Container
 import com.github.dockerjava.api.model.HostConfig
-import com.github.michaelbull.result.*
+import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.andThen
+import com.github.michaelbull.result.get
+import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.runCatching
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.javalin.Javalin
 import org.readutf.orchestrator.common.server.NetworkSettings
 import org.readutf.orchestrator.common.utils.LongId
-import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.common.utils.ShortId
 import org.readutf.orchestrator.server.container.ContainerController
 import org.readutf.orchestrator.server.container.ContainerTemplate
@@ -40,14 +45,12 @@ class DockerController(
         javalin.get("/docker/templates/{id}", dockerEndpoints::getTemplate)
     }
 
-    override fun create(templateId: String): SResult<String> {
+    override fun create(templateId: String): Result<String, Throwable> {
         logger.info { "Creating container from template '$templateId'" }
-        val containerTemplateResult = getTemplate(templateId)
-        if (containerTemplateResult.isErr) {
+        val containerTemplate = getTemplate(templateId).getOrElse {
             logger.error { " - Could not find template" }
-            return Err(containerTemplateResult.error)
+            return Err(it)
         }
-        val containerTemplate = containerTemplateResult.get()!!
 
         val createCommand = dockerClient.createContainerCmd(containerTemplate.dockerImage)
         if (containerTemplate.hostName != null) {
@@ -87,7 +90,7 @@ class DockerController(
                 dockerClient.removeContainerCmd(createResult.id).exec()
                 Err(e)
             }
-        }.mapError { it.toString() }
+        }
     }
 
     fun cleanup() {
@@ -106,7 +109,7 @@ class DockerController(
         }
     }
 
-    override fun getAddress(containerId: ShortId): SResult<NetworkSettings> = runCatching {
+    override fun getAddress(containerId: ShortId): Result<NetworkSettings, Throwable> = runCatching {
         val inspect =
             dockerClient
                 .inspectContainerCmd(containerId.shortId)
@@ -122,11 +125,11 @@ class DockerController(
             exposedPorts = ports,
             internalHost = inspect.config.hostName ?: "localhost",
         )
-    }.mapError { it.toString() }
+    }
 
-    override fun getContainerTemplate(containerId: ShortId): SResult<ContainerTemplate> = containerTracker[containerId]?.let {
+    override fun getContainerTemplate(containerId: ShortId): Result<ContainerTemplate, Throwable> = containerTracker[containerId]?.let {
         dockerTemplateStore.getTemplate(it)
-    } ?: Err("Could not find container with id $containerId")
+    } ?: Err(Exception("Could not find container with id $containerId"))
 
     override fun getTemplates(): List<String> = dockerTemplateStore.getAllTemplates(0, 10)
 
@@ -142,6 +145,6 @@ class DockerController(
         return pending.filter { it.value > System.currentTimeMillis() }.keys
     }
 
-    override fun getTemplate(templateId: String): SResult<DockerTemplate> = dockerTemplateStore
+    override fun getTemplate(templateId: String): Result<DockerTemplate, Throwable> = dockerTemplateStore
         .getTemplate(templateId)
 }

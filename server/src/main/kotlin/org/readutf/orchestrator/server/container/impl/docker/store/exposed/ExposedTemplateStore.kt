@@ -3,11 +3,11 @@
 package org.readutf.orchestrator.server.container.impl.docker.store.exposed
 
 import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.server.container.impl.docker.DockerTemplate
 import org.readutf.orchestrator.server.container.impl.docker.store.DockerTemplateStore
 import org.readutf.orchestrator.server.container.impl.docker.store.exposed.DockerTemplateSchema.BindingsSchema
@@ -31,7 +31,7 @@ class ExposedTemplateStore(
         }
     }
 
-    override fun saveTemplate(template: DockerTemplate): SResult<Unit> {
+    override fun saveTemplate(template: DockerTemplate): Result<Unit, Throwable> {
         logger.info { "Saving template: $template" }
 
         transaction(database) {
@@ -67,29 +67,28 @@ class ExposedTemplateStore(
         return Ok(Unit)
     }
 
-    override fun getTemplate(templateId: String): SResult<DockerTemplate> =
-        transaction(database) {
-            val row: ResultRow = TemplateSchema.selectAll().where(TemplateSchema.id eq templateId).first()
-            val ports = PortsSchema.selectAll().where { PortsSchema.id eq templateId }.map { it[PortsSchema.portBind] }
-            val envVars = EnvVarsSchema.selectAll().where { EnvVarsSchema.id eq templateId }.map { it[EnvVarsSchema.envVars] }
-            val commands = CommandsSchema.selectAll().where { CommandsSchema.id eq templateId }.map { it[CommandsSchema.command] }
-            val bindings = BindingsSchema.selectAll().where { BindingsSchema.id eq templateId }.map { it[BindingsSchema.binding] }
+    override fun getTemplate(templateId: String): Result<DockerTemplate, Throwable> = transaction(database) {
+        val row: ResultRow = TemplateSchema.selectAll().where(TemplateSchema.id eq templateId).first()
+        val ports = PortsSchema.selectAll().where { PortsSchema.id eq templateId }.map { it[PortsSchema.portBind] }
+        val envVars = EnvVarsSchema.selectAll().where { EnvVarsSchema.id eq templateId }.map { it[EnvVarsSchema.envVars] }
+        val commands = CommandsSchema.selectAll().where { CommandsSchema.id eq templateId }.map { it[CommandsSchema.command] }
+        val bindings = BindingsSchema.selectAll().where { BindingsSchema.id eq templateId }.map { it[BindingsSchema.binding] }
 
-            Ok(
-                DockerTemplate(
-                    id = templateId,
-                    dockerImage = row[TemplateSchema.dockerImage],
-                    hostName = row[TemplateSchema.hostName],
-                    bindings = bindings.toHashSet(),
-                    network = row[TemplateSchema.network],
-                    ports = ports.toHashSet(),
-                    environmentVariables = envVars.toHashSet(),
-                    commands = commands.toHashSet(),
-                ),
-            )
-        }
+        Ok(
+            DockerTemplate(
+                id = templateId,
+                dockerImage = row[TemplateSchema.dockerImage],
+                hostName = row[TemplateSchema.hostName],
+                bindings = bindings.toHashSet(),
+                network = row[TemplateSchema.network],
+                ports = ports.toHashSet(),
+                environmentVariables = envVars.toHashSet(),
+                commands = commands.toHashSet(),
+            ),
+        )
+    }
 
-    override fun deleteTemplate(templateId: String): SResult<Unit> {
+    override fun deleteTemplate(templateId: String): Result<Unit, Throwable> {
         transaction(database) {
             TemplateSchema.deleteWhere { id eq templateId }
             PortsSchema.deleteWhere { id eq templateId }
@@ -103,12 +102,11 @@ class ExposedTemplateStore(
     override fun getAllTemplates(
         offset: Long,
         limit: Int,
-    ): List<String> =
-        transaction(database) {
-            TemplateSchema
-                .select(TemplateSchema.id)
-                .limit(limit)
-                .offset(offset)
-                .map { it[TemplateSchema.id] }
-        }
+    ): List<String> = transaction(database) {
+        TemplateSchema
+            .select(TemplateSchema.id)
+            .limit(limit)
+            .offset(offset)
+            .map { it[TemplateSchema.id] }
+    }
 }

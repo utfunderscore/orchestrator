@@ -3,6 +3,7 @@ package org.readutf.orchestrator.server.features.games
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.onSuccess
 import org.readutf.orchestrator.common.game.Game
@@ -10,7 +11,6 @@ import org.readutf.orchestrator.common.game.GameFinderType
 import org.readutf.orchestrator.common.game.GameServerSettings
 import org.readutf.orchestrator.common.packets.S2CGameRequestPacket
 import org.readutf.orchestrator.common.server.Server
-import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.server.server.ServerManager
 import java.util.UUID
@@ -24,7 +24,7 @@ class GameManager(
 
     private val requestExecutor = Executors.newFixedThreadPool(4)
 
-    fun findGameServer(gameId: String): CompletableFuture<SResult<Game>> {
+    fun findGameServer(gameId: String): CompletableFuture<Result<Game, Throwable>> {
         val gameServers = serverManager.getServers()
             .sortedByDescending { it.getCapacity() }
 
@@ -59,11 +59,11 @@ class GameManager(
                 }
             }
 
-            Err("No servers found")
+            Err(Exception("No servers found"))
         }, requestExecutor)
     }
 
-    private fun findAvailableGame(server: RegisteredServer): CompletableFuture<SResult<Game>> {
+    private fun findAvailableGame(server: RegisteredServer): CompletableFuture<Result<Game, Throwable>> {
         TODO()
     }
 
@@ -71,7 +71,7 @@ class GameManager(
         server: RegisteredServer,
         gameType: String,
         players: List<UUID>,
-    ): CompletableFuture<SResult<Game>> {
+    ): CompletableFuture<Result<Game, Throwable>> {
         val packet = S2CGameRequestPacket(gameType, players)
 
         return server.sendPacketFuture<UUID>(packet).thenApply { gameIdResult ->

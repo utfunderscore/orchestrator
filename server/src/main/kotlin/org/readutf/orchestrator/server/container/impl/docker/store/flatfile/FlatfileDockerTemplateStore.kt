@@ -2,7 +2,6 @@ package org.readutf.orchestrator.server.container.impl.docker.store.flatfile
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.michaelbull.result.*
-import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.server.Orchestrator
 import org.readutf.orchestrator.server.container.impl.docker.DockerTemplate
 import org.readutf.orchestrator.server.container.impl.docker.store.DockerTemplateStore
@@ -25,13 +24,13 @@ class FlatfileDockerTemplateStore(
         templates.putAll(Orchestrator.objectMapper.readValue<Map<String, DockerTemplate>>(FileInputStream(dbFile)))
     }
 
-    override fun saveTemplate(template: DockerTemplate): SResult<Unit> {
+    override fun saveTemplate(template: DockerTemplate): Result<Unit, Throwable> {
         templates[template.templateId] = template
 
         return saveFile()
     }
 
-    override fun deleteTemplate(templateId: String): Result<Unit, String> {
+    override fun deleteTemplate(templateId: String): Result<Unit, Throwable> {
         templates.remove(templateId)
 
         return saveFile()
@@ -42,15 +41,11 @@ class FlatfileDockerTemplateStore(
         limit: Int,
     ): List<String> = templates.keys.toList()
 
-    override fun getTemplate(templateId: String): SResult<DockerTemplate> =
-        templates[templateId]?.let {
-            Ok(it)
-        } ?: Err("Could not find template with that name")
+    override fun getTemplate(templateId: String): Result<DockerTemplate, Throwable> = templates[templateId]?.let {
+        Ok(it)
+    } ?: Err(Exception("Could not find template with that name"))
 
-    private fun saveFile(): Result<Unit, String> =
-        runCatching {
-            Orchestrator.objectMapper.writeValue(FileOutputStream(dbFile), templates)
-        }.mapError {
-            it.toString()
-        }
+    private fun saveFile(): Result<Unit, Throwable> = runCatching {
+        Orchestrator.objectMapper.writeValue(FileOutputStream(dbFile), templates)
+    }
 }

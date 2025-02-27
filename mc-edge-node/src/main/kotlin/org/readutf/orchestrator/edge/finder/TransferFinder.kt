@@ -1,7 +1,7 @@
 package org.readutf.orchestrator.edge.finder
 
-import org.readutf.orchestrator.common.utils.SResult
+import com.github.michaelbull.result.Result
 
 interface TransferFinder {
-    fun findTransferAddress(): SResult<TransferAddress>
+    fun findTransferAddress(): Result<TransferAddress, Throwable>
 }

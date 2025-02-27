@@ -3,15 +3,15 @@ package org.readutf.orchestrator.server.server
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.getOrElse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.common.packets.S2CScheduleShutdown
 import org.readutf.orchestrator.common.server.Heartbeat
 import org.readutf.orchestrator.common.server.Server
 import org.readutf.orchestrator.common.utils.DisplayNameGenerator
-import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.common.utils.ShortId
-import org.readutf.orchestrator.common.utils.handleFailure
 import org.readutf.orchestrator.server.container.ContainerController
 import java.util.UUID
 
@@ -27,20 +27,20 @@ class ServerManager(
         containerId: String,
         channel: HermesChannel,
         attributes: Map<String, JsonNode>,
-    ): SResult<Server> {
+    ): Result<Server, Throwable> {
         logger.info { "Registering server with containerId: $containerId $channel" }
 
         val serverId = UUID.randomUUID()
         val shortId = ShortId(containerId)
 
         val template =
-            containerController.getContainerTemplate(shortId).handleFailure {
+            containerController.getContainerTemplate(shortId).getOrElse {
                 logger.info { "Failed to get container template for: $it" }
                 return Err(it)
             }
 
         val serverAddress =
-            containerController.getAddress(shortId).handleFailure {
+            containerController.getAddress(shortId).getOrElse {
                 logger.info { "Failed to get server address for: $it" }
                 return Err(it)
             }

@@ -1,6 +1,5 @@
 package org.readutf.orchestrator.server.serverfinder
 
-import com.github.michaelbull.result.get
 import com.github.michaelbull.result.getOrElse
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess

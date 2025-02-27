@@ -2,9 +2,9 @@ package org.readutf.orchestrator.server.container.scale
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.onFailure
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.server.container.ContainerController
 import org.readutf.orchestrator.server.server.ServerManager
 import java.util.concurrent.Executors
@@ -32,8 +32,8 @@ class ScaleManager(
     fun scaleDeployment(
         templateId: String,
         scale: Int,
-    ): SResult<Unit> {
-        if (scale < 0) return Err("Scale cannot be less than 0")
+    ): Result<Unit, Throwable> {
+        if (scale < 0) return Err(Exception("Scale cannot be less than 0"))
 
         targetScales[templateId] = scale
 

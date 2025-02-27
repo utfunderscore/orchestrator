@@ -27,13 +27,13 @@ class DockerEndpoints(
     }
 
     fun getTemplate(context: Context) {
-        val template: Result<DockerTemplate?, String> =
+        val template: Result<DockerTemplate, Throwable> =
             runCatching {
                 context.pathParam("id")
             }.mapError {
-                "Missing 'id' path parameter"
-            }.andThen { id ->
-                dockerTemplateStore.getTemplate(id)
+                Exception("Missing 'id' path parameter")
+            }.flatMap { templateId ->
+                dockerTemplateStore.getTemplate(templateId)
             }
 
         return context.result(template)

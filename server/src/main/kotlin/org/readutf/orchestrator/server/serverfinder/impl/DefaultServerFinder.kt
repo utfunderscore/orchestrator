@@ -4,9 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.onFailure
+import com.github.michaelbull.result.onSuccess
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.common.server.Server
-import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.server.loadbalancer.LoadBalancer
 import org.readutf.orchestrator.server.loadbalancer.LoadBalancerManager
 import org.readutf.orchestrator.server.server.ServerManager
@@ -30,30 +31,30 @@ class DefaultServerFinder(
     private val newServerExecutor: ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
     private val taskIds = mutableMapOf<Int, ScheduledFuture<*>>()
 
-    override fun findServer(args: JsonNode): CompletableFuture<SResult<Server>> {
+    override fun findServer(args: JsonNode): CompletableFuture<Result<Server, Throwable>> {
         val loadBalancer = loadBalancerManager.getLoadBalancer(serverType)
 
         return CompletableFuture.supplyAsync({
-            val server = findBestServer()
+            val serverResult = findBestServer()
 
-            if (server.isOk) {
+            serverResult.onSuccess { server ->
                 logger.info { "Pre-existing server found" }
-                return@supplyAsync server
+                return@supplyAsync Ok(server)
             }
 
             return@supplyAsync awaitBestServer(loadBalancer).join()
         }, executor)
     }
 
-    private fun findBestServer(): Result<Server, String> = serverManager
+    private fun findBestServer(): Result<Server, Throwable> = serverManager
         .getActiveServersByTemplate(serverType) // Get all servers of the type
         .minByOrNull { it.getCapacity() }
-        ?.let { Ok(it) } ?: Err("Could not find server")
+        ?.let { Ok(it) } ?: Err(Exception("Could not find server"))
 
-    private fun awaitBestServer(loadBalancer: LoadBalancer): CompletableFuture<SResult<Server>> {
+    private fun awaitBestServer(loadBalancer: LoadBalancer): CompletableFuture<Result<Server, Throwable>> {
         loadBalancer.addAwaitingRequest()
 
-        val future = CompletableFuture<SResult<Server>>()
+        val future = CompletableFuture<Result<Server, Throwable>>()
         val taskId = taskIdTracker.getAndIncrement()
         val task = BestServerTask(taskId, future)
         taskIds[taskId] = newServerExecutor.scheduleAtFixedRate(task, 1, 20, java.util.concurrent.TimeUnit.MILLISECONDS)
@@ -62,21 +63,22 @@ class DefaultServerFinder(
 
     inner class BestServerTask(
         private val taskId: Int,
-        private val future: CompletableFuture<SResult<Server>>,
+        private val future: CompletableFuture<Result<Server, Throwable>>,
     ) : Runnable {
         private var start = System.currentTimeMillis()
 
         override fun run() {
-            val server = findBestServer()
-            if (server.isOk) {
+            val serverResult = findBestServer()
+
+            serverResult.onSuccess { server ->
                 taskIds.remove(taskId)?.cancel(false)
-                future.complete(server)
+                future.complete(Ok(server))
                 logger.info { "Server found after ${System.currentTimeMillis() - start}ms" }
-                return
-            }
-            if (System.currentTimeMillis() - start > 10_000) {
-                taskIds.remove(taskId)?.cancel(false)
-                future.complete(Err("Could not find server"))
+            }.onFailure { ex ->
+                if (System.currentTimeMillis() - start > 10_000) {
+                    taskIds.remove(taskId)?.cancel(false)
+                    future.complete(Err(ex))
+                }
             }
         }
     }

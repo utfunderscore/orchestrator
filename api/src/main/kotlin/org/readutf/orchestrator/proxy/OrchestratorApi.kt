@@ -1,8 +1,8 @@
 package org.readutf.orchestrator.proxy
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.michaelbull.result.Result
 import org.readutf.orchestrator.common.server.Server
-import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.proxy.api.ServerFinderService
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
@@ -15,8 +15,8 @@ class OrchestratorApi(
         serverType: String,
         connectionTimeout: Long = 2_000,
         findServerTimeout: Long = 10_000,
-    ): CompletableFuture<SResult<Server>> {
-        val future = CompletableFuture<SResult<Server>>()
+    ): CompletableFuture<Result<Server, Throwable>> {
+        val future = CompletableFuture<Result<Server, Throwable>>()
         ServerFinderService(
             "ws://$hostname:$port/serverfinder/$serverType",
             future,

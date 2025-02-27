@@ -7,14 +7,13 @@ import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import org.readutf.orchestrator.common.api.ApiResponse
 import org.readutf.orchestrator.common.server.Server
-import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.proxy.OrchestratorApi
 import java.net.URI
 import java.util.concurrent.CompletableFuture
 
 class ServerFinderService(
     uri: String,
-    private val serverFuture: CompletableFuture<SResult<Server>>,
+    private val serverFuture: CompletableFuture<Result<Server, Throwable>>,
 ) : WebSocketClient(URI(uri)) {
     private val logger = KotlinLogging.logger {}
 
@@ -24,7 +23,7 @@ class ServerFinderService(
     override fun onMessage(message: String) {
         logger.info { "Received message: $message" }
 
-        val result: Result<Server, String> =
+        val result: Result<Server, Throwable> =
             runCatching {
                 // Safely convert the message to a Server object
                 OrchestratorApi.objectMapper.readValue(
@@ -33,7 +32,7 @@ class ServerFinderService(
                 )
             }.mapError {
                 // Map any exceptions to a failure message
-                it.message ?: "Unknown error"
+                Exception(it.message ?: "Unknown error")
             }.flatMap {
                 // Convert the ApiResponse to a Result
                 apiResponseToResult(it)
@@ -42,12 +41,12 @@ class ServerFinderService(
         serverFuture.complete(result)
     }
 
-    private fun apiResponseToResult(apiResponse: ApiResponse<Server>): SResult<Server> {
+    private fun apiResponseToResult(apiResponse: ApiResponse<Server>): Result<Server, Throwable> {
         val result = apiResponse.result
         return if (result != null) {
             Ok(result)
         } else {
-            Err(apiResponse.failureMessage ?: "Unknown error")
+            Err(Exception(apiResponse.failureMessage ?: "Unknown error"))
         }
     }
 
@@ -57,7 +56,7 @@ class ServerFinderService(
         remote: Boolean,
     ) {
         if (serverFuture.isDone) return
-        serverFuture.complete(Err("Connection closed with no response"))
+        serverFuture.complete(Err(Exception("Connection closed with no response")))
     }
 
     override fun onError(ex: Exception?) {
@@ -67,6 +66,6 @@ class ServerFinderService(
 
         if (serverFuture.isDone) return
         logger.error(ex) { "Connection closed with no response" }
-        serverFuture.complete(Err("Connection closed with no response"))
+        serverFuture.complete(Err(Exception("Connection closed with no response")))
     }
 }

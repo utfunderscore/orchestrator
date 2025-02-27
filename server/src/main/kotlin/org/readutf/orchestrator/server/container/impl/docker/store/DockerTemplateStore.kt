@@ -1,14 +1,14 @@
 package org.readutf.orchestrator.server.container.impl.docker.store
 
-import org.readutf.orchestrator.common.utils.SResult
+import com.github.michaelbull.result.Result
 import org.readutf.orchestrator.server.container.impl.docker.DockerTemplate
 
 interface DockerTemplateStore {
-    fun saveTemplate(template: DockerTemplate): SResult<Unit>
+    fun saveTemplate(template: DockerTemplate): Result<Unit, Throwable>
 
-    fun getTemplate(templateId: String): SResult<DockerTemplate>
+    fun getTemplate(templateId: String): Result<DockerTemplate, Throwable>
 
-    fun deleteTemplate(templateId: String): SResult<Unit>
+    fun deleteTemplate(templateId: String): Result<Unit, Throwable>
 
     fun getAllTemplates(
         offset: Long,

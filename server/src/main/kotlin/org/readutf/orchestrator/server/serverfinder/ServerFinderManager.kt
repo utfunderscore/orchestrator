@@ -1,8 +1,8 @@
 package org.readutf.orchestrator.server.serverfinder
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.github.michaelbull.result.Result
 import org.readutf.orchestrator.common.server.Server
-import org.readutf.orchestrator.common.utils.SResult
 import org.readutf.orchestrator.server.loadbalancer.LoadBalancerManager
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.serverfinder.impl.DefaultServerFinder
@@ -17,15 +17,14 @@ class ServerFinderManager(
     fun findServer(
         serverType: String,
         jsonNode: JsonNode,
-    ): CompletableFuture<SResult<Server>> {
+    ): CompletableFuture<Result<Server, Throwable>> {
         val finder = serverFinders.getOrPut(serverType) { createDefaultFinder(serverType) }
         return finder.findServer(jsonNode)
     }
 
-    private fun createDefaultFinder(serverType: String): DefaultServerFinder =
-        DefaultServerFinder(
-            serverType = serverType,
-            loadBalancerManager = loadBalancerManager,
-            serverManager = serverManager,
-        )
+    private fun createDefaultFinder(serverType: String): DefaultServerFinder = DefaultServerFinder(
+        serverType = serverType,
+        loadBalancerManager = loadBalancerManager,
+        serverManager = serverManager,
+    )
 }

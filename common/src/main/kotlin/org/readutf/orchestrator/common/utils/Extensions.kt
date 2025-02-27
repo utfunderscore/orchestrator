@@ -9,8 +9,6 @@ import com.github.michaelbull.result.getError
 import com.github.michaelbull.result.runCatching
 import io.javalin.http.Context
 
-typealias SResult<T> = Result<T, String>
-
 fun <A, B> Context.result(result: Result<A, B>) {
     if (result.isErr) {
         status(500)
@@ -23,16 +21,6 @@ fun <A, B> Context.result(result: Result<A, B>) {
         result.value?.let { json(it) }
     }
 }
-
-inline fun <V, E> Result<V, E>.handleFailure(handler: (E) -> Unit): V {
-    if (isErr) {
-        handler(error)
-        error("Handler should return")
-    } else {
-        return value
-    }
-}
-
 inline fun <reified T> JsonNode?.convert(objectMapper: ObjectMapper): Result<T, Throwable> {
     if (this == null) return Err(NullPointerException())
     return runCatching {
