@@ -37,7 +37,6 @@ class EdgeNode {
             orchestratorHost = hostAddress,
             platform = DockerPlatform(),
         ).configure {
-            safeShutdownHandler(safeShutdownHandler)
             capacityHandler { 0.5 }
             shutdownHook {
                 logger.info { "Shutdown signal received, shutting down..." }
