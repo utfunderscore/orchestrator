@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "org.readutf.orchestrator"
-version = "2.0.1"
+version = "2.0.2"
 
 dependencies {
     testImplementation(kotlin("test"))

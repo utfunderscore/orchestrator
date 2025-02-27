@@ -6,7 +6,7 @@ import org.readutf.hermes.listeners.TypedListener
 import org.readutf.orchestrator.client.client.ClientManager
 import org.readutf.orchestrator.common.packets.S2CScheduleShutdown
 
-class SafeShutdownListener(
+internal class SafeShutdownListener(
     private var clientManager: ClientManager,
 ) : TypedListener<S2CScheduleShutdown, HermesChannel, Unit> {
     private val logger = KotlinLogging.logger { }

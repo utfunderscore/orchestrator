@@ -2,7 +2,7 @@ package org.readutf.orchestrator.client.client
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 
-class HeartbeatTask(
+internal class HeartbeatTask(
     private val clientManager: ClientManager,
 ) : Runnable {
     private val logger = KotlinLogging.logger {}

@@ -4,6 +4,5 @@ import java.util.UUID
 
 data class Game(
     val id: UUID,
-    val serverId: UUID,
     val active: Boolean,
 )

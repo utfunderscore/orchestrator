@@ -13,7 +13,7 @@ import org.readutf.orchestrator.common.packets.KryoBuilder
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
-class ConnectionManager(
+public class ConnectionManager(
     private val orchestratorHost: String,
     private val platform: ContainerPlatform,
 ) {
@@ -28,7 +28,7 @@ class ConnectionManager(
      * Thread will block until the connection is lost
      * @return true if the connection was successful
      */
-    fun connectBlocking(): Boolean {
+    public fun connectBlocking(): Boolean {
         logger.info { "Connecting to server..." }
 
         val packetManager =
@@ -70,7 +70,7 @@ class ConnectionManager(
         return completionFuture.join()
     }
 
-    fun configure(context: ClientManager.() -> Unit): ConnectionManager {
+    public fun configure(context: ClientManager.() -> Unit): ConnectionManager {
         configure = context
         return this
     }

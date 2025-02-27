@@ -1,5 +1,5 @@
 package org.readutf.orchestrator.client.client.capacity
 
-fun interface CapacityHandler {
-    fun getCapacity(): Double
+public fun interface CapacityHandler {
+    public fun getCapacity(): Double
 }

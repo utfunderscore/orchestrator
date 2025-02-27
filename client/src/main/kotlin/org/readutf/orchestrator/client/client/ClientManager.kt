@@ -6,6 +6,7 @@ import org.readutf.hermes.platform.netty.NettyClientPlatform
 import org.readutf.orchestrator.client.client.capacity.CapacityHandler
 import org.readutf.orchestrator.client.client.game.ActiveGamesProvider
 import org.readutf.orchestrator.client.client.game.ActiveGamesTask
+import org.readutf.orchestrator.client.client.game.GameRequestHandler
 import org.readutf.orchestrator.client.client.listeners.SafeShutdownListener
 import org.readutf.orchestrator.client.client.shutdown.SafeShutdownHandler
 import org.readutf.orchestrator.common.game.Game
@@ -15,18 +16,19 @@ import org.readutf.orchestrator.common.packets.C2SHeartbeatPacket
 import org.readutf.orchestrator.common.packets.C2SUpdateAttribute
 import org.readutf.orchestrator.common.server.Heartbeat
 import java.util.UUID
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-class ClientManager(
+public class ClientManager(
     private val serverId: UUID,
     private val packetManager: PacketManager<NettyClientPlatform>,
 ) {
     private val taskExecutor = Executors.newSingleThreadScheduledExecutor()
     private val objectMapper = ObjectMapper()
-    var capacityHandler: CapacityHandler = CapacityHandler { 0.0 }
-    var safeShutdownHandler: SafeShutdownHandler = SafeShutdownHandler { }
-    var shutdownHook: () -> Unit = { }
+    private var capacityHandler: CapacityHandler = CapacityHandler { 0.0 }
+    internal var safeShutdownHandler: SafeShutdownHandler = SafeShutdownHandler { }
+    internal var shutdownHook: () -> Unit = { }
 
     init {
         taskExecutor.scheduleAtFixedRate(HeartbeatTask(this), 0, 1, TimeUnit.SECONDS)
@@ -36,29 +38,44 @@ class ClientManager(
         }
     }
 
-    fun capacityHandler(capacityHandler: CapacityHandler) {
+    public fun capacityHandler(capacityHandler: CapacityHandler) {
         this.capacityHandler = capacityHandler
     }
 
-    fun shutdownHook(shutdownHook: () -> Unit) {
+    public fun shutdownHook(shutdownHook: () -> Unit) {
         this.shutdownHook = shutdownHook
     }
 
-    fun safeShutdownHandler(safeShutdownHandler: SafeShutdownHandler) {
+    public fun safeShutdownHandler(safeShutdownHandler: SafeShutdownHandler) {
         this.safeShutdownHandler = safeShutdownHandler
     }
 
-    fun enableGameSupplier(supportedGames: List<String>, finderTypes: List<GameFinderType>, activeGamesProvider: () -> List<Game>) {
-        enableGameSupplier(supportedGames, finderTypes, ActiveGamesProvider(activeGamesProvider))
+    public fun enableGameServer(
+        supportedGames: List<String>,
+        finderTypes: List<GameFinderType>,
+        activeGamesProvider: () -> List<Game>,
+        gameRequestHandler: () -> CompletableFuture<UUID>,
+    ) {
+        enableGameServer(
+            supportedGames,
+            finderTypes,
+            ActiveGamesProvider(activeGamesProvider),
+            GameRequestHandler(gameRequestHandler),
+        )
     }
 
-    fun enableGameSupplier(supportedGames: List<String>, finderTypes: List<GameFinderType>, activeGamesProvider: ActiveGamesProvider) {
+    public fun enableGameServer(
+        supportedGames: List<String>,
+        finderTypes: List<GameFinderType>,
+        activeGamesProvider: ActiveGamesProvider,
+        gameRequestHandler: GameRequestHandler,
+    ) {
         taskExecutor.scheduleAtFixedRate(ActiveGamesTask(this, activeGamesProvider), 0, 1, TimeUnit.SECONDS)
         updateAttribute("gameSettings", GameServerSettings(supportedGames, finderTypes))
     }
 
     @Synchronized
-    fun updateAttribute(key: String, value: Any) {
+    public fun updateAttribute(key: String, value: Any) {
         packetManager.sendPacket(
             C2SUpdateAttribute(
                 serverId,
@@ -69,7 +86,7 @@ class ClientManager(
     }
 
     @Synchronized
-    fun sendHeartbeat() {
+    internal fun sendHeartbeat() {
         packetManager.sendPacket(
             C2SHeartbeatPacket(
                 serverId,
@@ -81,7 +98,7 @@ class ClientManager(
         )
     }
 
-    fun disconnect() {
+    public fun disconnect() {
         taskExecutor.shutdown()
         shutdownHook()
     }

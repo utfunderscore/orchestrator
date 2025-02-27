@@ -2,7 +2,7 @@ package org.readutf.orchestrator.client.client.game
 
 import org.readutf.orchestrator.client.client.ClientManager
 
-class ActiveGamesTask(
+public class ActiveGamesTask(
     private val clientManager: ClientManager,
     private val activeGamesProvider: ActiveGamesProvider,
 ) : Runnable {
