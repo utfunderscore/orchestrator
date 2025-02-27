@@ -1,4 +1,4 @@
-package org.readutf.orchestrator.client.client.listeners
+package org.readutf.orchestrator.client.client.shutdown
 
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.hermes.channel.HermesChannel
