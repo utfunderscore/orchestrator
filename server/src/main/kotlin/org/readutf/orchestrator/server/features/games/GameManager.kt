@@ -75,7 +75,7 @@ class GameManager(
         val packet = S2CGameRequestPacket(gameType, players)
 
         return server.sendPacketFuture<UUID>(packet).thenApply { gameIdResult ->
-            gameIdResult.map { gameId -> Game(gameId, server.serverId, true) }
+            gameIdResult.map { gameId -> Game(gameId, true) }
         }
     }
 
