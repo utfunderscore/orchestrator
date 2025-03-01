@@ -9,7 +9,7 @@ plugins {
 }
 
 group = "org.readutf.orchestrator"
-version = "2.0.6"
+version = "2.0.12"
 
 dependencies {
     testImplementation(kotlin("test"))
@@ -20,7 +20,7 @@ repositories {
     mavenLocal()
 }
 
-extra["hermesVersion"] = "1.1.0"
+extra["hermesVersion"] = "1.1.10"
 
 subprojects {
 
@@ -32,6 +32,14 @@ subprojects {
 
     kotlin {
         jvmToolchain(17)
+    }
+
+    repositories {
+        mavenCentral()
+        maven {
+            name = "utfRepoReleases"
+            url = uri("https://mvn.utf.lol/releases")
+        }
     }
 
     tasks.withType<JavaCompile> {

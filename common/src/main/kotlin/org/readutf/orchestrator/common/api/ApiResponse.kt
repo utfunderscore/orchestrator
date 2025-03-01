@@ -6,18 +6,16 @@ data class ApiResponse<T>(
     val failureMessage: String? = null,
 ) {
     companion object {
-        fun <T> success(result: T): ApiResponse<T> =
-            ApiResponse(
-                success = true,
-                result = result,
-                failureMessage = null,
-            )
+        fun <T> success(result: T): ApiResponse<T> = ApiResponse(
+            success = true,
+            result = result,
+            failureMessage = null,
+        )
 
-        fun <T> error(failureReason: String): ApiResponse<T> =
-            ApiResponse(
-                success = false,
-                result = null,
-                failureMessage = failureReason,
-            )
+        fun error(failureReason: String): ApiResponse<Nothing> = ApiResponse(
+            success = false,
+            result = null,
+            failureMessage = failureReason,
+        )
     }
 }

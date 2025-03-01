@@ -23,6 +23,8 @@ import org.readutf.orchestrator.server.container.impl.docker.store.DockerTemplat
 import org.readutf.orchestrator.server.container.impl.docker.store.exposed.ExposedTemplateStore
 import org.readutf.orchestrator.server.container.scale.ScaleEndpoints
 import org.readutf.orchestrator.server.container.scale.ScaleManager
+import org.readutf.orchestrator.server.features.games.GameManager
+import org.readutf.orchestrator.server.features.games.api.GameFinderEndpoint
 import org.readutf.orchestrator.server.loadbalancer.LoadBalancerManager
 import org.readutf.orchestrator.server.server.ServerEndpoints
 import org.readutf.orchestrator.server.server.ServerManager
@@ -32,6 +34,7 @@ import org.readutf.orchestrator.server.server.listeners.ServerRegisterListener
 import org.readutf.orchestrator.server.server.listeners.UpdateAttributesListener
 import org.readutf.orchestrator.server.serverfinder.ServerFinderEndpoint
 import org.readutf.orchestrator.server.serverfinder.ServerFinderManager
+import org.readutf.orchestrator.server.utils.ws
 import java.util.concurrent.Executors
 
 class Orchestrator(
@@ -59,6 +62,7 @@ class Orchestrator(
     private val serverEndpoints = ServerEndpoints(serverManager)
     private val scaleEndpoints = ScaleEndpoints(scaleManager)
     private val serverFinderEndpoint = ServerFinderEndpoint(serverFinderManager, dockerController)
+    private val gameManager = GameManager(serverManager, objectMapper)
 
     init {
         val javalin = setupJavalin(dockerController, scaleEndpoints)
@@ -110,8 +114,9 @@ class Orchestrator(
             Javalin.create { config ->
                 config.useVirtualThreads = true
                 config.http.asyncTimeout = 10_000
-                config.bundledPlugins.enableDevLogging()
                 config.showJavalinBanner = false
+            }.after { ctx ->
+                logger.info { "[${ctx.method()}] ${ctx.fullUrl()} - ${ctx.statusCode()}" }
             }
 
         containerController.registerEndpoints(javalin)
@@ -119,6 +124,7 @@ class Orchestrator(
         javalin.post("/scale/{id}", scaleEndpoints::scaleServer)
         javalin.get("/servers/", serverEndpoints::listServers)
         javalin.ws("/serverfinder/{type}", serverFinderEndpoint.ServerFinderSocket())
+        javalin.ws("/gamefinder/{type}/", GameFinderEndpoint(gameManager))
         javalin.start(hostAddress, 9191)
 
         return javalin

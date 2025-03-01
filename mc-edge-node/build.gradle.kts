@@ -32,6 +32,7 @@ dependencies {
 
 tasks.getByName<ShadowJar>("shadowJar") {
     dependsOn("createProperties")
+    archiveFileName.set("edgenode.jar")
     doLast {
         outputs.files.forEach { file ->
             val output = projectDir.resolve("docker").resolve(file.name)

@@ -7,4 +7,4 @@ import java.util.UUID
 class C2SHeartbeatPacket(
     val serverId: UUID,
     val heartbeat: Heartbeat,
-) : Packet()
+) : Packet<Unit>()

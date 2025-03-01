@@ -78,7 +78,7 @@ class ServerManager(
             logger.info { "Received attribute update from server that isn't registered" }
             return
         }
-        logger.debug { "Attribute update received for $serverId" }
+        logger.debug { "Attribute update received for $key" }
 
         server.attributes[key] = jsonNode
     }
@@ -88,7 +88,7 @@ class ServerManager(
     fun scheduleShutdown(server: RegisteredServer) {
         server.shuttingDown = true
         server.channel.sendPacket(S2CScheduleShutdown)
-        logger.info { "Scheduled shutdown for ${server.serverId}" }
+        logger.info { "Scheduled shutdown for ${server.id}" }
     }
 
     fun getServers(): Collection<RegisteredServer> = servers.values

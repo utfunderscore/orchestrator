@@ -6,6 +6,7 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.map
 import com.github.michaelbull.result.onSuccess
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.common.game.Game
 import org.readutf.orchestrator.common.game.GameFinderType
 import org.readutf.orchestrator.common.game.GameServerSettings
@@ -22,9 +23,11 @@ class GameManager(
     private val objectMapper: ObjectMapper,
 ) {
 
+    private val logger = KotlinLogging.logger { }
+
     private val requestExecutor = Executors.newFixedThreadPool(4)
 
-    fun findGameServer(gameId: String): CompletableFuture<Result<Game, Throwable>> {
+    fun findGameServer(gameType: String, players: List<UUID>): CompletableFuture<Result<GameServer, Throwable>> {
         val gameServers = serverManager.getServers()
             .sortedByDescending { it.getCapacity() }
 
@@ -35,11 +38,11 @@ class GameManager(
              */
             gameServers.forEach { server ->
                 val gameSettings = getGameSettings(server) ?: return@forEach
-                if (gameSettings.supportedGames.none { it.equals(gameId, true) }) return@forEach
+                if (gameSettings.supportedGames.none { it.equals(gameType, true) }) return@forEach
 
                 if (gameSettings.finderTypes.contains(GameFinderType.POOLED)) {
                     findAvailableGame(server).join().onSuccess { game ->
-                        return@supplyAsync Ok(game)
+                        return@supplyAsync Ok(GameServer(server, game))
                     }
                 }
             }
@@ -49,13 +52,21 @@ class GameManager(
              * If a server is found, request a game
              */
             gameServers.forEach { server ->
-                val gameSettings = getGameSettings(server) ?: return@forEach
-                if (gameSettings.supportedGames.none { it.equals(gameId, true) }) return@forEach
+                val gameSettings = getGameSettings(server) ?: let {
+                    logger.info { "No game settings found for ${server.displayName}" }
+                    return@forEach
+                }
+                if (gameSettings.supportedGames.none { it.equals(gameType, true) }) {
+                    logger.info { "Game type $gameType not supported by ${server.displayName}" }
+                    return@forEach
+                }
 
                 if (gameSettings.finderTypes.contains(GameFinderType.CREATE_ON_REQUEST)) {
-                    requestGame(server, "", emptyList()).join().onSuccess { gameId ->
-                        return@supplyAsync Ok(gameId)
+                    requestGame(server, gameType, players).join().onSuccess { gameId ->
+                        return@supplyAsync Ok(GameServer(server, gameId))
                     }
+                } else {
+                    logger.info { "Server ${server.displayName} does not support CREATE_ON_REQUEST" }
                 }
             }
 
@@ -72,6 +83,8 @@ class GameManager(
         gameType: String,
         players: List<UUID>,
     ): CompletableFuture<Result<Game, Throwable>> {
+        logger.info { "Sending game request to ${server.displayName}" }
+
         val packet = S2CGameRequestPacket(gameType, players)
 
         return server.sendPacketFuture<UUID>(packet).thenApply { gameIdResult ->

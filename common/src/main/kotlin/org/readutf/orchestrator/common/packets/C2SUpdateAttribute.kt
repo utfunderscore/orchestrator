@@ -7,4 +7,4 @@ class C2SUpdateAttribute(
     val serverId: UUID,
     val key: String,
     val data: ByteArray,
-) : Packet()
+) : Packet<Unit>()

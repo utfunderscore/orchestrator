@@ -6,4 +6,4 @@ import java.util.UUID
 data class S2CGameRequestPacket(
     val gameType: String,
     val players: List<UUID>,
-) : Packet()
+) : Packet<UUID>()

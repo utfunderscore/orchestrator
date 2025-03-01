@@ -4,4 +4,4 @@ import org.readutf.hermes.Packet
 
 class S2CGameReservePacket(
     val gameId: String,
-) : Packet()
+) : Packet<Boolean>()

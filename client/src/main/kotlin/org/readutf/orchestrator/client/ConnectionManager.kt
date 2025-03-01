@@ -46,10 +46,6 @@ public class ConnectionManager(
 
         logger.info { "Connected to orchestrator" }
 
-        packetManager.editListeners {
-            it.registerAll(this)
-        }
-
         this.packetManager = packetManager
 
         val serverId = packetManager.sendPacket<UUID>(C2SRegisterPacket(platform.getContainerId(), emptyMap())).join().getOrElse {

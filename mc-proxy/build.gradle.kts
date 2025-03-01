@@ -33,6 +33,7 @@ tasks.register("copyArchive") {
 }
 
 tasks.getByName<ShadowJar>("shadowJar") {
+    archiveFileName.set("proxy.jar")
     doLast {
         outputs.files.forEach { file ->
             val output = projectDir.resolve("docker").resolve(file.name)

@@ -22,12 +22,13 @@ class LoadBalancerManager(
         executor.scheduleAtFixedRate(this::tick, 0, 1, TimeUnit.SECONDS)
 
         // TODO: Load from config, or use a service to register load balancers
-        loadBalancers["edge-node"] = FixedCountLoadBalancer(2)
+        loadBalancers["edge-node"] = FixedCountLoadBalancer(1)
+        loadBalancers["minigame"] = FixedCountLoadBalancer(1)
     }
 
     fun getLoadBalancer(serverType: String) = loadBalancers.getOrPut(serverType) { generateDefault(serverType) }
 
-    fun generateDefault(serverType: String) = AdaptiveLoadBalancer(
+    private fun generateDefault(serverType: String) = AdaptiveLoadBalancer(
         serverType = serverType,
         increaseThreshold = 0.75,
         decreaseThreshold = 0.25,

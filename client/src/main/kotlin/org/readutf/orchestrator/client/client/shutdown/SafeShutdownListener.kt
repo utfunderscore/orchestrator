@@ -1,5 +1,7 @@
 package org.readutf.orchestrator.client.client.shutdown
 
+import com.github.michaelbull.result.Ok
+import com.github.michaelbull.result.Result
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.hermes.channel.HermesChannel
 import org.readutf.hermes.listeners.TypedListener
@@ -14,9 +16,10 @@ internal class SafeShutdownListener(
     override fun handle(
         packet: S2CScheduleShutdown,
         channel: HermesChannel,
-    ) {
+    ): Result<Unit, Throwable> {
         clientManager.safeShutdownHandler.handleSafeShutdown()
 
         logger.info { "Received shutdown signal from server" }
+        return Ok(Unit)
     }
 }

@@ -3,7 +3,6 @@ package org.readutf.orchestrator.server.server
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.JsonNode
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.mapError
 import org.readutf.hermes.Packet
 import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.common.server.Heartbeat
@@ -25,7 +24,7 @@ class RegisteredServer(
     @field:JsonIgnore var lastHeartbeat: Heartbeat,
     @field:JsonIgnore val channel: HermesChannel,
 ) : Server(
-    serverId = serverId,
+    id = serverId,
     displayName = displayName,
     containerId = containerId,
     networkSettings = networkSettings,
@@ -34,14 +33,11 @@ class RegisteredServer(
     @JsonIgnore
     fun getCapacity() = lastHeartbeat.capacity
 
-    fun sendPacket(packet: Packet) {
+    fun sendPacket(packet: Packet<*>) {
         channel.sendPacket(packet)
     }
 
-    inline fun <reified T> sendPacketFuture(packet: Packet): CompletableFuture<Result<T, Throwable>> = channel.sendPacketFuture<T>(packet)
-        .thenApply { result ->
-            result.mapError { err -> Throwable(err) }
-        }
+    inline fun <reified T> sendPacketFuture(packet: Packet<T>): CompletableFuture<Result<T, Throwable>> = channel.sendPacketFuture<T>(packet)
 
     companion object {
         fun fromServer(
@@ -49,7 +45,7 @@ class RegisteredServer(
             channel: HermesChannel,
             template: ContainerTemplate,
         ): RegisteredServer = RegisteredServer(
-            serverId = server.serverId,
+            serverId = server.id,
             displayName = server.displayName,
             containerId = server.containerId,
             networkSettings = server.networkSettings,

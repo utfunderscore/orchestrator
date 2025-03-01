@@ -8,7 +8,6 @@ import io.javalin.websocket.WsConfig
 import org.readutf.orchestrator.common.api.ApiResponse
 import org.readutf.orchestrator.server.Orchestrator
 import org.readutf.orchestrator.server.container.ContainerController
-import java.util.UUID
 import java.util.function.Consumer
 
 class ServerFinderEndpoint(
@@ -39,11 +38,11 @@ class ServerFinderEndpoint(
                 future.thenAccept { serverResult ->
                     serverResult
                         .onSuccess {
-                            logger.info { "Found server ${it.serverId}" }
+                            logger.info { "Found server ${it.id}" }
                             session.sendAsClass(ApiResponse.success(it))
                         }.onFailure {
                             logger.error { "Failed to find server $it" }
-                            session.sendAsClass(ApiResponse.error<UUID>("No server found"))
+                            session.sendAsClass(ApiResponse.error("No server found"))
                         }
                 }
             }

@@ -14,6 +14,7 @@ data class DockerTemplate(
     var network: String? = null,
     val environmentVariables: HashSet<String> = HashSet(),
     val commands: HashSet<String> = HashSet(),
+    val removeAutomatically: Boolean = true,
 ) : ContainerTemplate(id) {
     @JsonIgnore
     fun getDockerBinds(): List<Bind> = bindings.map { Bind.parse(it) }

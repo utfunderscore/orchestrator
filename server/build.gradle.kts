@@ -48,6 +48,7 @@ tasks.jar {
 }
 
 tasks.getByName<ShadowJar>("shadowJar") {
+    archiveFileName = "orchestrator.jar"
     doLast {
         outputs.files.forEach { file ->
             val output = projectDir.resolve("docker").resolve(file.name)
