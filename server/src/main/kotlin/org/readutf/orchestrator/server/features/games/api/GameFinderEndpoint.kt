@@ -8,7 +8,6 @@ import com.github.michaelbull.result.runCatching
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.javalin.websocket.WsConnectContext
 import io.javalin.websocket.WsMessageContext
-import org.readutf.orchestrator.common.api.ApiResponse
 import org.readutf.orchestrator.server.features.games.GameManager
 import org.readutf.orchestrator.server.utils.WebSocketEndpoint
 import java.util.UUID
@@ -32,7 +31,7 @@ class GameFinderEndpoint(private val gameManager: GameManager) : WebSocketEndpoi
         val players = runCatching {
             ctx.messageAsClass<List<UUID>>()
         }.getOrElse { e ->
-            ctx.send(ApiResponse.error("Failed to read json, must be list of UUIDs."))
+            ctx.closeSession(400, "Failed to read json, must be list of UUIDs.")
             return
         }
 
@@ -42,14 +41,14 @@ class GameFinderEndpoint(private val gameManager: GameManager) : WebSocketEndpoi
         ).orTimeout(timeout, TimeUnit.MILLISECONDS)
             .thenAcceptAsync {
                 it.onSuccess { gameServer ->
-                    ctx.send(ApiResponse.success(gameServer))
+                    ctx.send(gameServer)
                 }.onFailure { e ->
                     logger.error(e) { "Failed to find game server." }
-                    ctx.send(ApiResponse.error("Failed to find game server."))
+                    ctx.closeSession(400, "Failed to find game server.")
                 }
             }.exceptionallyAsync {
                 logger.error(it) { "Failed to find game server." }
-                ctx.send(ApiResponse.error("Failed to find game server."))
+                ctx.closeSession(400, "Failed to find game server.")
                 null
             }
     }

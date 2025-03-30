@@ -12,11 +12,11 @@ import org.readutf.orchestrator.common.server.Heartbeat
 import org.readutf.orchestrator.common.server.Server
 import org.readutf.orchestrator.common.utils.DisplayNameGenerator
 import org.readutf.orchestrator.common.utils.ShortId
-import org.readutf.orchestrator.server.container.ContainerController
+import org.readutf.orchestrator.server.container.ContainerManager
 import java.util.UUID
 
 class ServerManager(
-    private val containerController: ContainerController<*>,
+    private val containerManager: ContainerManager<*>,
 ) {
     private val logger = KotlinLogging.logger {}
     private val servers = mutableMapOf<UUID, RegisteredServer>()
@@ -34,13 +34,13 @@ class ServerManager(
         val shortId = ShortId(containerId)
 
         val template =
-            containerController.getContainerTemplate(shortId).getOrElse {
+            containerManager.getContainerTemplate(shortId).getOrElse {
                 logger.info { "Failed to get container template for: $it" }
                 return Err(it)
             }
 
         val serverAddress =
-            containerController.getAddress(shortId).getOrElse {
+            containerManager.getAddress(shortId).getOrElse {
                 logger.info { "Failed to get server address for: $it" }
                 return Err(it)
             }

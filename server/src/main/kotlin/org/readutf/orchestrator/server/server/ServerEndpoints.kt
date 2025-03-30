@@ -3,7 +3,7 @@ package org.readutf.orchestrator.server.server
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.runCatching
 import io.javalin.http.Context
-import org.readutf.orchestrator.common.utils.result
+import org.readutf.orchestrator.server.utils.result
 
 class ServerEndpoints(
     val serverManager: ServerManager,

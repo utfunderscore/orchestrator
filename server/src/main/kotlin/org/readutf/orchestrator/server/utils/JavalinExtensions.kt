@@ -1,4 +1,4 @@
-package org.readutf.orchestrator.common.utils
+package org.readutf.orchestrator.server.utils
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper

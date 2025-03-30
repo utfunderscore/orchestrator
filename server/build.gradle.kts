@@ -11,34 +11,32 @@ repositories {
     mavenLocal()
 }
 
-var hermesVersion: String by rootProject.extra
-
 dependencies {
     testImplementation(kotlin("test"))
 
     implementation("org.slf4j:slf4j-api:2.0.16")
 
-    implementation("io.javalin:javalin:6.4.0")
-    implementation("org.readutf.hermes:core:$hermesVersion")
-    implementation("org.readutf.hermes:netty:$hermesVersion")
-    implementation("org.readutf.hermes:kryo:$hermesVersion")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2")
+    implementation(libs.javalin)
+    implementation(libs.hermes.core)
+    implementation(libs.hermes.kryo)
+    implementation(libs.hermes.netty)
+    implementation(libs.jackson.databind)
+    implementation(libs.jackson.module.kotlin)
     implementation(project(":common"))
-    implementation("com.github.docker-java:docker-java:3.4.1")
-    implementation("com.github.docker-java:docker-java-transport-zerodep:3.4.1")
-    implementation("io.github.revxrsal:lamp.common:4.0.0-rc.2")
-    implementation("io.github.revxrsal:lamp.cli:4.0.0-rc.2")
-    implementation("io.netty:netty-all:4.2.0.RC1")
-    implementation("com.esotericsoftware:kryo:5.6.2")
+    implementation(libs.docker)
+    implementation(libs.docker.transport)
+    implementation(libs.lamp.common)
+    implementation(libs.lamp.cli)
+    implementation(libs.netty.all)
+    implementation(libs.kryo)
 
-    implementation("org.jetbrains.exposed:exposed-core:0.57.0")
-    implementation("org.jetbrains.exposed:exposed-jdbc:0.57.0")
-    implementation("org.postgresql:postgresql:42.7.1")
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.jdbc)
+    implementation(libs.postgresql)
 
-    implementation("org.tinylog:tinylog-api:2.7.0")
-    implementation("org.tinylog:tinylog-impl:2.7.0")
-    implementation("org.tinylog:slf4j-tinylog:2.7.0")
+    implementation(libs.tinylog.api)
+    implementation(libs.tinylog.slf4j)
+    implementation(libs.tinylog.impl)
 }
 
 tasks.jar {

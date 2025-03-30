@@ -8,8 +8,8 @@ import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.common.server.Heartbeat
 import org.readutf.orchestrator.common.server.NetworkSettings
 import org.readutf.orchestrator.common.server.Server
+import org.readutf.orchestrator.common.template.ContainerTemplate
 import org.readutf.orchestrator.common.utils.ShortId
-import org.readutf.orchestrator.server.container.ContainerTemplate
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 

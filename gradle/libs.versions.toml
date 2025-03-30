@@ -1,0 +1,37 @@
+[versions]
+slf4j = "2.0.16"
+javalin = "6.4.0"
+hermes = "1.1.10"
+jackson = "2.18.2"
+docker = "3.4.1"
+lamp = "4.0.0-rc.2"
+netty = "4.2.0.RC1"
+kryo = "5.6.2"
+exposed = "0.57.0"
+postgresql = "42.7.1"
+tinylog = "2.7.0"
+kotlin-result = "2.0.1"
+
+[libraries]
+javalin = { module = "io.javalin:javalin", version.ref = "javalin" }
+hermes-core = { module = "org.readutf.hermes:core", version.ref = "hermes" }
+hermes-netty = { module = "org.readutf.hermes:netty", version.ref = "hermes" }
+hermes-kryo = { module = "org.readutf.hermes:kryo", version.ref = "hermes" }
+jackson-databind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin", version.ref = "jackson" }
+docker = { module = "com.github.docker-java:docker-java", version.ref = "docker" }
+docker-transport = { module = "com.github.docker-java:docker-java-transport-zerodep", version.ref = "docker" }
+lamp-common = { module = "io.github.revxrsal:lamp.common", version.ref = "lamp" }
+lamp-cli = { module = "io.github.revxrsal:lamp.cli", version.ref = "lamp" }
+netty-all = { module = "io.netty:netty-all", version.ref = "netty" }
+kryo = { module = "com.esotericsoftware:kryo", version.ref = "kryo" }
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed"}
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+tinylog-api = { module = "org.tinylog:tinylog-api", version.ref = "tinylog" }
+tinylog-impl = { module = "org.tinylog:tinylog-impl", version.ref = "tinylog" }
+tinylog-slf4j = { module = "org.tinylog:slf4j-tinylog", version.ref = "tinylog" }
+result = { module = "com.michael-bull.kotlin-result:kotlin-result", version.ref = "kotlin-result" }
+
+

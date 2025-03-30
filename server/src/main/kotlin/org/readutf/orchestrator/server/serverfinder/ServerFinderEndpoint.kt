@@ -5,14 +5,13 @@ import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.javalin.websocket.WsConfig
-import org.readutf.orchestrator.common.api.ApiResponse
 import org.readutf.orchestrator.server.Orchestrator
-import org.readutf.orchestrator.server.container.ContainerController
+import org.readutf.orchestrator.server.container.ContainerManager
 import java.util.function.Consumer
 
 class ServerFinderEndpoint(
     val serverFinderManager: ServerFinderManager,
-    val containerController: ContainerController<*>,
+    val containerManager: ContainerManager<*>,
 ) {
     private val logger = KotlinLogging.logger { }
 
@@ -22,8 +21,8 @@ class ServerFinderEndpoint(
 
                 val serverType = session.pathParam("type")
                 val template =
-                    containerController
-                        .getTemplate(serverType)
+                    containerManager
+                        .getTemplates(serverType)
                         .getOrElse {
                             logger.error { "Invalid Server Type $serverType" }
                             session.send("Invalid Server Type")
@@ -39,10 +38,10 @@ class ServerFinderEndpoint(
                     serverResult
                         .onSuccess {
                             logger.info { "Found server ${it.id}" }
-                            session.sendAsClass(ApiResponse.success(it))
+                            session.send(it)
                         }.onFailure {
                             logger.error { "Failed to find server $it" }
-                            session.sendAsClass(ApiResponse.error("No server found"))
+                            session.closeSession(400, "No server found")
                         }
                 }
             }

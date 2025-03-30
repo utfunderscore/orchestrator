@@ -2,8 +2,8 @@ package org.readutf.orchestrator.server.container.impl.docker.store.flatfile
 
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.github.michaelbull.result.*
+import org.readutf.orchestrator.common.template.docker.DockerTemplate
 import org.readutf.orchestrator.server.Orchestrator
-import org.readutf.orchestrator.server.container.impl.docker.DockerTemplate
 import org.readutf.orchestrator.server.container.impl.docker.store.DockerTemplateStore
 import java.io.File
 import java.io.FileInputStream

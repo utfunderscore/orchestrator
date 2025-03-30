@@ -1,5 +1,6 @@
 package org.readutf.orchestrator.server.container.impl.docker
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.api.model.Container
 import com.github.dockerjava.api.model.HostConfig
@@ -7,29 +8,31 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.andThen
-import com.github.michaelbull.result.get
 import com.github.michaelbull.result.getOrElse
+import com.github.michaelbull.result.map
 import com.github.michaelbull.result.runCatching
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.javalin.Javalin
 import org.readutf.orchestrator.common.server.NetworkSettings
+import org.readutf.orchestrator.common.template.ContainerTemplate
+import org.readutf.orchestrator.common.template.docker.DockerTemplate
 import org.readutf.orchestrator.common.utils.LongId
 import org.readutf.orchestrator.common.utils.ShortId
-import org.readutf.orchestrator.server.container.ContainerController
-import org.readutf.orchestrator.server.container.ContainerTemplate
+import org.readutf.orchestrator.server.Orchestrator
+import org.readutf.orchestrator.server.container.ContainerManager
 import org.readutf.orchestrator.server.container.impl.docker.store.DockerTemplateStore
 import org.readutf.orchestrator.server.utils.UUIDGeneratorV1
+import org.readutf.orchestrator.server.utils.getDockerBinds
+import org.readutf.orchestrator.server.utils.getDockerPorts
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class DockerController(
     private val dockerClient: DockerClient,
     private val dockerTemplateStore: DockerTemplateStore,
-) : ContainerController<DockerTemplate> {
+) : ContainerManager<DockerTemplate> {
     private val logger = KotlinLogging.logger {}
 
     private val uuidGenerator = UUIDGeneratorV1()
-    private val dockerEndpoints = DockerEndpoints(dockerTemplateStore)
 
     // Server Type -> Pending Containers
     private val pendingContainers = hashMapOf<String, HashMap<ShortId, Long>>()
@@ -39,15 +42,9 @@ class DockerController(
         Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(this::cleanup, 0, 1, TimeUnit.SECONDS)
     }
 
-    override fun registerEndpoints(javalin: Javalin) {
-        javalin.post("/docker/templates/", dockerEndpoints::createTemplate)
-        javalin.get("/docker/templates/", dockerEndpoints::listTemplates)
-        javalin.get("/docker/templates/{id}", dockerEndpoints::getTemplate)
-    }
-
-    override fun create(templateId: String): Result<String, Throwable> {
+    override fun createContainer(templateId: String): Result<String, Throwable> {
         logger.info { "Creating container from template '$templateId'" }
-        val containerTemplate = getTemplate(templateId).getOrElse {
+        val containerTemplate = getTemplates(templateId).getOrElse {
             logger.error { " - Could not find template" }
             return Err(it)
         }
@@ -65,9 +62,7 @@ class DockerController(
                 .withBinds(containerTemplate.getDockerBinds())
                 .withPortBindings(containerTemplate.getDockerPorts())
 
-        if (containerTemplate.network != null) {
-            hostConfig.withNetworkMode(containerTemplate.network)
-        }
+        hostConfig.withNetworkMode("orchestrator")
 
         createCommand.withHostConfig(hostConfig)
 
@@ -91,6 +86,17 @@ class DockerController(
             }
         }
     }
+
+    override fun createTemplate(
+        templateId: String,
+        jsonNode: JsonNode,
+    ): Result<DockerTemplate, Throwable> = runCatching {
+        Orchestrator.objectMapper.treeToValue(jsonNode, DockerTemplate::class.java)
+    }.andThen { template ->
+        dockerTemplateStore.saveTemplate(template).map { template }
+    }
+
+    override fun deleteTemplate(templateId: String): Result<Unit, Throwable> = dockerTemplateStore.deleteTemplate(templateId)
 
     fun cleanup() {
         try {
@@ -144,6 +150,6 @@ class DockerController(
         return pending.filter { it.value > System.currentTimeMillis() }.keys
     }
 
-    override fun getTemplate(templateId: String): Result<DockerTemplate, Throwable> = dockerTemplateStore
+    override fun getTemplates(templateId: String): Result<DockerTemplate, Throwable> = dockerTemplateStore
         .getTemplate(templateId)
 }

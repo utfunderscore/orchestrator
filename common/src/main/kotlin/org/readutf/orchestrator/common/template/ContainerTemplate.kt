@@ -1,4 +1,4 @@
-package org.readutf.orchestrator.server.container
+package org.readutf.orchestrator.common.template
 
 abstract class ContainerTemplate(
     val templateId: String,

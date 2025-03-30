@@ -5,14 +5,14 @@ import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
 import com.github.michaelbull.result.onFailure
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.readutf.orchestrator.server.container.ContainerController
+import org.readutf.orchestrator.server.container.ContainerManager
 import org.readutf.orchestrator.server.server.ServerManager
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class ScaleManager(
     private val serverManager: ServerManager,
-    private val containerController: ContainerController<*>,
+    private val containerManager: ContainerManager<*>,
 ) {
     private val logger = KotlinLogging.logger {}
     private val targetScales = mutableMapOf<String, Int>()
@@ -23,7 +23,7 @@ class ScaleManager(
         logger.info { "Starting scale manager..." }
 
         executorServices.scheduleAtFixedRate({
-            for (templateId in containerController.getTemplates()) {
+            for (templateId in containerManager.getTemplates()) {
                 scaleServer(templateId)
             }
         }, 0, 1, TimeUnit.SECONDS)
@@ -50,7 +50,7 @@ class ScaleManager(
         }
 
         val targetScale = targetScales.getOrPut(templateId) { 0 }
-        val pendingCreation = containerController.getPendingContainers(templateId, serverManager.getServers().map { it.containerId })
+        val pendingCreation = containerManager.getPendingContainers(templateId, serverManager.getServers().map { it.containerId })
         val activeServers = serverManager.getActiveServersByTemplate(templateId)
         logger.debug { "Active Servers: $activeServers" }
 
@@ -71,7 +71,7 @@ class ScaleManager(
             logger.debug { "Scaling deployment up" }
 
             for (i in 0 until neededServers) {
-                containerController.create(templateId).onFailure {
+                containerManager.createContainer(templateId).onFailure {
                     logger.warn { "Failed to create container $it" }
                     return
                 }

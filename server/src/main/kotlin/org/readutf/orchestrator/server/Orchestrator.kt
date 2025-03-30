@@ -17,7 +17,8 @@ import org.readutf.hermes.platform.netty.NettyServerPlatform
 import org.readutf.hermes.platform.netty.nettyServer
 import org.readutf.hermes.serializer.KryoPacketSerializer
 import org.readutf.orchestrator.common.packets.KryoBuilder
-import org.readutf.orchestrator.server.container.ContainerController
+import org.readutf.orchestrator.server.container.ContainerEndpoints
+import org.readutf.orchestrator.server.container.ContainerManager
 import org.readutf.orchestrator.server.container.impl.docker.DockerController
 import org.readutf.orchestrator.server.container.impl.docker.store.DockerTemplateStore
 import org.readutf.orchestrator.server.container.impl.docker.store.exposed.ExposedTemplateStore
@@ -53,7 +54,7 @@ class Orchestrator(
         )
 
     private val dockerClient = createDockerClient(System.getenv("DOCKER_HOST") ?: "unix:///var/run/docker.sock")
-    private val dockerController: ContainerController<*> = DockerController(dockerClient, dockerTemplateStore)
+    private val dockerController: ContainerManager<*> = DockerController(dockerClient, dockerTemplateStore)
     private val serverManager = ServerManager(dockerController)
     private val scaleManager = ScaleManager(serverManager, dockerController)
     private val loadBalancerManager = LoadBalancerManager(serverManager, scaleManager)
@@ -107,7 +108,7 @@ class Orchestrator(
     }
 
     private fun setupJavalin(
-        containerController: ContainerController<*>,
+        containerManager: ContainerManager<*>,
         scaleEndpoints: ScaleEndpoints,
     ): Javalin {
         val javalin =
@@ -119,10 +120,13 @@ class Orchestrator(
                 logger.info { "[${ctx.method()}] ${ctx.fullUrl()} - ${ctx.statusCode()}" }
             }
 
-        containerController.registerEndpoints(javalin)
+        val containerEndpoints = ContainerEndpoints(containerManager)
 
         javalin.post("/scale/{id}", scaleEndpoints::scaleServer)
         javalin.get("/servers/", serverEndpoints::listServers)
+        javalin.get("/template", containerEndpoints.getTemplatesEndpoint)
+        javalin.put("/template/{name}", containerEndpoints.createServiceEndpoint)
+        javalin.delete("/template/{name}", containerEndpoints.deleteServiceEndpoint)
         javalin.ws("/serverfinder/{type}", serverFinderEndpoint.ServerFinderSocket())
         javalin.ws("/gamefinder/{type}/", GameFinderEndpoint(gameManager))
         javalin.start(hostAddress, 9191)

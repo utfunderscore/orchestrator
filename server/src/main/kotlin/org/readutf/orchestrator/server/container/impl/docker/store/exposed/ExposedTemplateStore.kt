@@ -8,7 +8,7 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.readutf.orchestrator.server.container.impl.docker.DockerTemplate
+import org.readutf.orchestrator.common.template.docker.DockerTemplate
 import org.readutf.orchestrator.server.container.impl.docker.store.DockerTemplateStore
 import org.readutf.orchestrator.server.container.impl.docker.store.exposed.DockerTemplateSchema.BindingsSchema
 import org.readutf.orchestrator.server.container.impl.docker.store.exposed.DockerTemplateSchema.CommandsSchema
@@ -39,7 +39,6 @@ class ExposedTemplateStore(
                 it[id] = template.templateId
                 it[dockerImage] = template.dockerImage
                 it[hostName] = template.hostName
-                it[network] = template.network
             }
 
             for (port in template.ports) {
@@ -80,7 +79,6 @@ class ExposedTemplateStore(
                 dockerImage = row[TemplateSchema.dockerImage],
                 hostName = row[TemplateSchema.hostName],
                 bindings = bindings.toHashSet(),
-                network = row[TemplateSchema.network],
                 ports = ports.toHashSet(),
                 environmentVariables = envVars.toHashSet(),
                 commands = commands.toHashSet(),

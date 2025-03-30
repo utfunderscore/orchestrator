@@ -5,7 +5,6 @@ import com.github.michaelbull.result.*
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.java_websocket.client.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
-import org.readutf.orchestrator.common.api.ApiResponse
 import org.readutf.orchestrator.common.server.Server
 import org.readutf.orchestrator.proxy.OrchestratorApi
 import java.net.URI
@@ -25,29 +24,13 @@ class ServerFinderService(
 
         val result: Result<Server, Throwable> =
             runCatching {
-                // Safely convert the message to a Server object
                 OrchestratorApi.objectMapper.readValue(
                     message,
-                    object : TypeReference<ApiResponse<Server>>() {},
+                    object : TypeReference<Server>() {},
                 )
-            }.mapError {
-                // Map any exceptions to a failure message
-                Exception(it.message ?: "Unknown error")
-            }.flatMap {
-                // Convert the ApiResponse to a Result
-                apiResponseToResult(it)
             }
 
         serverFuture.complete(result)
-    }
-
-    private fun apiResponseToResult(apiResponse: ApiResponse<Server>): Result<Server, Throwable> {
-        val result = apiResponse.result
-        return if (result != null) {
-            Ok(result)
-        } else {
-            Err(Exception(apiResponse.failureMessage ?: "Unknown error"))
-        }
     }
 
     override fun onClose(
