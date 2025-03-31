@@ -8,25 +8,23 @@ import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.common.server.Heartbeat
 import org.readutf.orchestrator.common.server.NetworkSettings
 import org.readutf.orchestrator.common.server.Server
-import org.readutf.orchestrator.common.template.ContainerTemplate
-import org.readutf.orchestrator.common.utils.ShortId
+import org.readutf.orchestrator.common.server.ShortContainerId
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 class RegisteredServer(
     serverId: UUID,
     displayName: String,
-    containerId: ShortId,
+    shortContainerId: ShortContainerId,
     networkSettings: NetworkSettings,
     attributes: MutableMap<String, JsonNode> = mutableMapOf(),
     @field:JsonIgnore var shuttingDown: Boolean = false,
-    @field:JsonIgnore val template: ContainerTemplate,
     @field:JsonIgnore var lastHeartbeat: Heartbeat,
     @field:JsonIgnore val channel: HermesChannel,
 ) : Server(
     id = serverId,
     displayName = displayName,
-    containerId = containerId,
+    shortContainerId = shortContainerId,
     networkSettings = networkSettings,
     attributes = attributes,
 ) {
@@ -43,15 +41,13 @@ class RegisteredServer(
         fun fromServer(
             server: Server,
             channel: HermesChannel,
-            template: ContainerTemplate,
         ): RegisteredServer = RegisteredServer(
             serverId = server.id,
             displayName = server.displayName,
-            containerId = server.containerId,
+            shortContainerId = server.shortContainerId,
             networkSettings = server.networkSettings,
             lastHeartbeat = Heartbeat(System.currentTimeMillis(), 0.0),
             channel = channel,
-            template = template,
         )
     }
 }

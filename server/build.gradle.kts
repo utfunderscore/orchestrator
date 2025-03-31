@@ -13,6 +13,10 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    testImplementation("org.xerial:sqlite-jdbc:3.49.1.0")
+    testImplementation(libs.tinylog.api)
+    testImplementation(libs.tinylog.slf4j)
+    testImplementation(libs.tinylog.impl)
 
     implementation("org.slf4j:slf4j-api:2.0.16")
 

@@ -1,48 +1,57 @@
-package org.readutf.orchestrator.server.container.scale
+package org.readutf.orchestrator.server.service.scale
 
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.getOrElse
 import com.github.michaelbull.result.onFailure
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.readutf.orchestrator.server.container.ContainerManager
+import org.readutf.orchestrator.common.template.TemplateName
 import org.readutf.orchestrator.server.server.ServerManager
+import org.readutf.orchestrator.server.service.platform.ContainerPlatform
+import org.readutf.orchestrator.server.service.template.TemplateManager
+import java.time.Duration
+import java.time.Instant
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 class ScaleManager(
     private val serverManager: ServerManager,
-    private val containerManager: ContainerManager<*>,
+    private val containerManager: ContainerPlatform,
+    private val templateManager: TemplateManager,
 ) {
     private val logger = KotlinLogging.logger {}
-    private val targetScales = mutableMapOf<String, Int>()
-    private val lastScaledTimes = mutableMapOf<String, Long>()
+    private val targetScales = mutableMapOf<TemplateName, Int>()
+    private val lastScaledTimes = mutableMapOf<TemplateName, Long>()
     private val executorServices = Executors.newSingleThreadScheduledExecutor()
 
     init {
         logger.info { "Starting scale manager..." }
 
         executorServices.scheduleAtFixedRate({
-            for (templateId in containerManager.getTemplates()) {
-                scaleServer(templateId)
-            }
+            targetScales.keys.forEach { scale -> scaleService(scale) }
         }, 0, 1, TimeUnit.SECONDS)
     }
 
-    fun scaleDeployment(
-        templateId: String,
+    fun scaleService(
+        templateName: TemplateName,
         scale: Int,
     ): Result<Unit, Throwable> {
         if (scale < 0) return Err(Exception("Scale cannot be less than 0"))
 
-        targetScales[templateId] = scale
+        targetScales[templateName] = scale
 
         return Ok(Unit)
     }
 
-    fun getScale(templateId: String): Int = targetScales.getOrPut(templateId) { 0 }
+    fun getScale(templateId: TemplateName): Int = targetScales.getOrPut(templateId) { 0 }
 
-    private fun scaleServer(templateId: String) {
+    private fun scaleService(templateId: TemplateName) {
+        val template = templateManager.getOrLoad(templateId).getOrElse {
+            logger.warn { "Could not find template $templateId" }
+            return
+        }
+
         // Skip scaling if it was scaled in the last 15 seconds
         if (System.currentTimeMillis() - lastScaledTimes.getOrPut(templateId) { 0 } < 15_000) {
             logger.debug { "Skipping scaling for $templateId" }
@@ -50,11 +59,19 @@ class ScaleManager(
         }
 
         val targetScale = targetScales.getOrPut(templateId) { 0 }
-        val pendingCreation = containerManager.getPendingContainers(templateId, serverManager.getServers().map { it.containerId })
-        val activeServers = serverManager.getActiveServersByTemplate(templateId)
-        logger.debug { "Active Servers: $activeServers" }
 
-        val currentScale = pendingCreation.count() + activeServers.count()
+        val serversByTemplate = serverManager.getServers()
+            .filter {
+                containerManager.getTemplate(it.shortContainerId) == template
+            }
+
+        val pending = containerManager.getContainers()
+            .filter { container ->
+                serversByTemplate.none { it.shortContainerId == container.containerId }
+            }
+            .filter { Duration.between(Instant.now(), it.createdAt).abs().seconds < 15 }
+
+        val currentScale = serversByTemplate.size + pending.size
 
         val neededServers = targetScale - currentScale
         logger.debug { "Needed servers: $neededServers" }
@@ -71,7 +88,7 @@ class ScaleManager(
             logger.debug { "Scaling deployment up" }
 
             for (i in 0 until neededServers) {
-                containerManager.createContainer(templateId).onFailure {
+                containerManager.createContainer(template).onFailure {
                     logger.warn { "Failed to create container $it" }
                     return
                 }
@@ -80,12 +97,12 @@ class ScaleManager(
             // Scaling deployment down
             val serversToRemove = -neededServers
 
-            if (activeServers.size < serversToRemove) {
+            if (serversByTemplate.size < targetScale) {
                 logger.debug { "Cannot scale down yet, servers are still being created" }
                 return
             }
 
-            for (registeredServer in activeServers.take(serversToRemove)) {
+            for (registeredServer in serversByTemplate.take(serversToRemove).sortedBy { it.getCapacity() }) {
                 serverManager.scheduleShutdown(registeredServer)
             }
         }

@@ -6,7 +6,8 @@ import com.github.michaelbull.result.runCatching
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.annotations.Blocking
 import org.readutf.orchestrator.common.server.Server
-import org.readutf.orchestrator.common.template.docker.DockerTemplate
+import org.readutf.orchestrator.common.template.ServiceTemplate
+import org.readutf.orchestrator.common.template.TemplateName
 import org.readutf.orchestrator.proxy.api.ServerFinderService
 import org.readutf.orchestrator.proxy.api.TemplateService
 import retrofit2.Retrofit
@@ -27,8 +28,17 @@ class OrchestratorApi(
     private val templateService by lazy { retrofit.create(TemplateService::class.java) }
 
     @Blocking
-    fun createDockerTemplate(name: String, image: String, ports: List<Int>): Result<DockerTemplate, Throwable> = runBlocking {
-        runCatching { templateService.createDockerTemplate(name, DockerTemplate(id = name, dockerImage = image, ports = ports.map { "$it:$it" }.toHashSet())) }
+    fun createDockerTemplate(name: String, image: String, ports: List<Int>): Result<ServiceTemplate, Throwable> = runBlocking {
+        runCatching {
+            templateService.createDockerTemplate(
+                name,
+                ServiceTemplate(
+                    name = TemplateName(name),
+                    image = image,
+                    ports = ports.toHashSet(),
+                ),
+            )
+        }
     }
 
     @Blocking

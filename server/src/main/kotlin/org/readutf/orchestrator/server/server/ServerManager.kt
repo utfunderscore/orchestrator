@@ -4,19 +4,18 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.getOrElse
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.common.packets.S2CScheduleShutdown
 import org.readutf.orchestrator.common.server.Heartbeat
 import org.readutf.orchestrator.common.server.Server
+import org.readutf.orchestrator.common.server.ShortContainerId
 import org.readutf.orchestrator.common.utils.DisplayNameGenerator
-import org.readutf.orchestrator.common.utils.ShortId
-import org.readutf.orchestrator.server.container.ContainerManager
+import org.readutf.orchestrator.server.service.platform.ContainerPlatform
 import java.util.UUID
 
 class ServerManager(
-    private val containerManager: ContainerManager<*>,
+    private val containerManager: ContainerPlatform,
 ) {
     private val logger = KotlinLogging.logger {}
     private val servers = mutableMapOf<UUID, RegisteredServer>()
@@ -31,22 +30,18 @@ class ServerManager(
         logger.info { "Registering server with containerId: $containerId $channel" }
 
         val serverId = UUID.randomUUID()
-        val shortId = ShortId(containerId)
+        val shortId = ShortContainerId.of(containerId)
 
-        val template =
-            containerManager.getContainerTemplate(shortId).getOrElse {
-                logger.info { "Failed to get container template for: $it" }
-                return Err(it)
-            }
+        return Err(Exception("test"))
 
-        val serverAddress =
-            containerManager.getAddress(shortId).getOrElse {
+        val networkSettings =
+            containerManager.getNetworkSettings(shortId) ?: let {
                 logger.info { "Failed to get server address for: $it" }
-                return Err(it)
+                return Err(Throwable("Server address not found"))
             }
 
-        val server = Server(serverId, DisplayNameGenerator.generateDisplayName(), shortId, serverAddress, mutableMapOf())
-        servers[serverId] = RegisteredServer.fromServer(server, channel, template)
+        val server = Server(serverId, DisplayNameGenerator.generateDisplayName(), shortId, networkSettings, mutableMapOf())
+        servers[serverId] = RegisteredServer.fromServer(server, channel)
         channelToServer[channel.channelId] = serverId
         return Ok(server)
     }
@@ -92,14 +87,6 @@ class ServerManager(
     }
 
     fun getServers(): Collection<RegisteredServer> = servers.values
-
-    /**
-     * Get all servers created from a template that is not shuttingDown
-     */
-    fun getActiveServersByTemplate(templateId: String): Collection<RegisteredServer> = servers.values
-        .filter {
-            it.template.templateId.equals(templateId, true)
-        }.filter { !it.shuttingDown }
 
     fun getServerByChannel(channel: HermesChannel): RegisteredServer? {
         val serverId = channelToServer[channel.channelId]
