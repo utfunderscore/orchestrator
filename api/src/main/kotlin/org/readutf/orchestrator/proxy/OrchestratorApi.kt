@@ -7,7 +7,7 @@ import kotlinx.coroutines.runBlocking
 import org.jetbrains.annotations.Blocking
 import org.readutf.orchestrator.common.server.Server
 import org.readutf.orchestrator.common.template.ServiceTemplate
-import org.readutf.orchestrator.common.template.TemplateName
+import org.readutf.orchestrator.common.template.TemplateBody
 import org.readutf.orchestrator.proxy.api.ServerFinderService
 import org.readutf.orchestrator.proxy.api.TemplateService
 import retrofit2.Retrofit
@@ -28,27 +28,17 @@ class OrchestratorApi(
     private val templateService by lazy { retrofit.create(TemplateService::class.java) }
 
     @Blocking
-    fun createDockerTemplate(name: String, image: String, ports: List<Int>): Result<ServiceTemplate, Throwable> = runBlocking {
-        runCatching {
-            templateService.createDockerTemplate(
+    fun createService(name: String, image: String, ports: List<Int>, environmentVariables: Map<String, String>): Result<ServiceTemplate, Throwable> = runCatching {
+        runBlocking {
+            templateService.createTemplate(
                 name,
-                ServiceTemplate(
-                    name = TemplateName(name),
+                TemplateBody(
                     image = image,
-                    ports = ports.toHashSet(),
+                    ports = ports,
+                    environmentVariables = environmentVariables,
                 ),
             )
         }
-    }
-
-    @Blocking
-    fun deleteTemplate(name: String) = runBlocking {
-        templateService.deleteDockerTemplate(name)
-    }
-
-    @Blocking
-    fun getTemplates() = runBlocking {
-        templateService.listTemplates()
     }
 
     fun findServerBlocking(

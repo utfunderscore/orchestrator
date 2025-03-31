@@ -17,6 +17,7 @@ import org.readutf.hermes.platform.netty.NettyServerPlatform
 import org.readutf.hermes.platform.netty.nettyServer
 import org.readutf.hermes.serializer.KryoPacketSerializer
 import org.readutf.orchestrator.common.packets.KryoBuilder
+import org.readutf.orchestrator.server.api.TemplateEndpoints
 import org.readutf.orchestrator.server.features.games.GameManager
 import org.readutf.orchestrator.server.loadbalancer.LoadBalancerManager
 import org.readutf.orchestrator.server.server.ServerManager
@@ -58,10 +59,19 @@ class Orchestrator(
 
     // Extra services
     private val gameManager = GameManager(serverManager, objectMapper)
+    private val javalin = setupJavalin()
 
     init {
-        val javalin = setupJavalin()
         val hermes = setupHermes(hostAddress, serverManager)
+
+        val templateEndpoints = TemplateEndpoints(templateManager)
+
+        javalin.post("/api/template/{name}", templateEndpoints.templateCreateHandler)
+        javalin.put("/api/template/{name}", templateEndpoints.templateUpdateHandler)
+        javalin.get("/api/template/{name}", templateEndpoints.templateGetHandler)
+//        javalin.put("/api/template/{name}", templateEndpoints)
+
+        javalin.start("localhost", 9393)
 
         Runtime.getRuntime().addShutdownHook(
             Thread {

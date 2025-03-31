@@ -10,5 +10,7 @@ interface TemplateStore {
 
     fun load(name: TemplateName): Result<ServiceTemplate, Throwable>
 
+    fun exists(name: TemplateName): Boolean
+
     fun delete(name: String)
 }

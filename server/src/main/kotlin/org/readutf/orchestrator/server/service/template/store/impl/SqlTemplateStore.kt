@@ -7,7 +7,9 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.leftJoin
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -38,6 +40,15 @@ class SqlTemplateStore(val database: Database) : TemplateStore {
                 it[TemplateTable.name] = templateName.name
                 it[TemplateTable.image] = image
             }.map { it[TemplateTable.id] }.first()
+
+            TemplatePortsTable.selectAll().where { TemplatePortsTable.template eq 20 }
+
+            TemplatePortsTable.deleteWhere {
+                template eq result
+            }
+            EnvironmentVariablesTable.deleteWhere {
+                template eq result
+            }
 
             TemplatePortsTable.batchInsert(ports) { port ->
                 this[TemplatePortsTable.port] = port
@@ -76,6 +87,10 @@ class SqlTemplateStore(val database: Database) : TemplateStore {
         return Ok(ServiceTemplate(name, image, ports, environmentVariables))
     }
 
+    override fun exists(name: TemplateName): Boolean = transaction(database) {
+        TemplateTable.select(TemplateTable.id).where { TemplateTable.name eq name.name }.count() > 0
+    }
+
     override fun delete(name: String) {
         TODO("Not yet implemented")
     }
@@ -92,6 +107,10 @@ class SqlTemplateStore(val database: Database) : TemplateStore {
     object TemplatePortsTable : IntIdTable("template_ports") {
         val template = reference("template", TemplateTable)
         val port = integer("port")
+
+        init {
+            uniqueIndex(template, port)
+        }
     }
 
     object EnvironmentVariablesTable : IntIdTable("template_environment_variables") {
@@ -99,5 +118,9 @@ class SqlTemplateStore(val database: Database) : TemplateStore {
         val template = reference("template", TemplateTable)
         val name = varchar("name", 255)
         val value = varchar("value", 255)
+
+        init {
+            uniqueIndex(template, name)
+        }
     }
 }
