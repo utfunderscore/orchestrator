@@ -3,7 +3,6 @@ package org.readutf.orchestrator.server.service.scale
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.getOrElse
 import com.github.michaelbull.result.onFailure
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.common.template.TemplateName
@@ -47,8 +46,8 @@ class ScaleManager(
     fun getScale(templateId: TemplateName): Int = targetScales.getOrPut(templateId) { 0 }
 
     private fun scaleService(templateId: TemplateName) {
-        val template = templateManager.getOrLoad(templateId).getOrElse {
-            logger.warn { "Could not find template $templateId" }
+        val template = templateManager.get(templateId) ?: run {
+            logger.error { "Could not find template $templateId" }
             return
         }
 

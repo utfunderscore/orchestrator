@@ -6,11 +6,21 @@ import org.readutf.orchestrator.common.template.TemplateName
 
 interface TemplateStore {
 
-    fun update(name: TemplateName, image: String, ports: List<Int>, environmentVariables: Map<String, String>)
+    fun save(name: TemplateName, image: String, ports: List<Int>, environmentVariables: Map<String, String>)
 
-    fun load(name: TemplateName): Result<ServiceTemplate, Throwable>
+    fun load(): Result<List<ServiceTemplate>, Throwable>
 
     fun exists(name: TemplateName): Boolean
 
-    fun delete(name: String)
+    fun setImage(name: TemplateName, image: String)
+
+    fun addPort(name: TemplateName, port: Int)
+
+    fun removePort(name: TemplateName, port: Int)
+
+    fun setEnvironmentVariable(name: TemplateName, key: String, value: String)
+
+    fun removeEnvironmentVariable(name: TemplateName, key: String)
+
+    fun delete(name: TemplateName)
 }

@@ -59,23 +59,19 @@ tasks.getByName<ShadowJar>("shadowJar") {
         }
     }
 }
-tasks.register("runDevContainer") {
-    dependsOn("shadowJar", "createProperties")
-    doLast {
-        exec {
-            val result = commandLine(
-                "sh",
-                "-c",
-                """
+tasks.register("startDevEnvironment") {
+
+    exec {
+        val result = commandLine(
+            "sh",
+            "-c",
+            """
                 docker build -t orchestrator-dev-server docker && \
                 docker compose -f docker/docker-compose.yml stop && \
                 docker compose -f docker/docker-compose.yml rm -f && \
                 docker compose -f docker/docker-compose.yml up -d
-                """.trimIndent(),
-            )
-
-            println(result)
-        }
+            """.trimIndent(),
+        )
     }
 }
 

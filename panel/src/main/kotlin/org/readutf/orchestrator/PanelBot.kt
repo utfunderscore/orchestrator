@@ -2,11 +2,15 @@ package org.readutf.orchestrator
 
 import dev.minn.jda.ktx.jdabuilder.default
 import dev.minn.jda.ktx.util.ref
+import dev.rollczi.litecommands.jda.LiteJDAFactory
 import io.github.oshai.kotlinlogging.KotlinLogging
 import kotlinx.coroutines.runBlocking
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.requests.GatewayIntent
 import org.jetbrains.exposed.sql.Database
+import org.readutf.orchestrator.command.TemplateCommand
 import org.readutf.orchestrator.panel.PanelManager
+import org.readutf.orchestrator.proxy.OrchestratorApi
 import org.readutf.orchestrator.role.RoleManager
 import org.readutf.orchestrator.settings.SettingsManager
 
@@ -16,11 +20,19 @@ class PanelBot(val token: String, val guildId: Long) {
     val guild = jda.getGuildById(guildId) ?: run {
         error("Failed to find guild with id $guildId")
     }
+    val orchestratorApi = OrchestratorApi("localhost")
     val settingsManager = SettingsManager(createDatabase())
     val role = runBlocking { RoleManager(guild, settingsManager).createAdminRole() }
-    val panelManager = PanelManager(settingsManager, guild.ref(), role.ref())
+    val panelManager = PanelManager(orchestratorApi, jda, settingsManager, guild.ref(), role.ref())
+
+    init {
+        LiteJDAFactory.builder(jda).commands(
+            TemplateCommand(orchestratorApi),
+        ).build()
+    }
 
     fun createJda(): JDA = default(token = token, enableCoroutines = true) {
+        enableIntents(GatewayIntent.MESSAGE_CONTENT)
     }.also { it.awaitReady() }
 
     fun createDatabase(): Database = Database.connect(

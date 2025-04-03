@@ -2,7 +2,9 @@ package org.readutf.orchestrator.proxy.api
 
 import org.readutf.orchestrator.common.template.ServiceTemplate
 import org.readutf.orchestrator.common.template.TemplateBody
+import org.readutf.orchestrator.common.template.TemplateName
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -14,11 +16,32 @@ interface TemplateService {
     suspend fun createTemplate(@Path("name") name: String, @Body templateBody: TemplateBody): ServiceTemplate
 
     @PUT("/api/template/{name}")
-    suspend fun updateTemplate(@Path("name") name: String, @Body templateBody: TemplateBody): ServiceTemplate
+    suspend fun updateTemplate(@Path("name") name: String, @Body templateBody: TemplateBody)
+
+    @PUT("/api/template/{name}/port")
+    suspend fun addPort(@Path("name") name: String, @Body port: Int)
+
+    @DELETE("/api/template/{name}/port")
+    suspend fun removePort(@Path("name") name: String, @Body port: Int)
+
+    @PUT("/api/template/{name}/image")
+    suspend fun setImage(@Path("name") name: String, @Body image: String)
+
+    @PUT("/api/template/{name}/env")
+    suspend fun setEnvironmentVariable(
+        @Path("name") name: String,
+        @Body environmentVariable: HashMap<String, String>,
+    ): ServiceTemplate
+
+    @DELETE("/api/template/{name}/env")
+    suspend fun removeEnvironmentVariable(
+        @Path("name") name: String,
+        @Body environmentVariable: HashMap<String, String>,
+    ): ServiceTemplate
 
     @GET("/api/template/{name}")
-    suspend fun getTemplate(@Path("name") name: String): ServiceTemplate
+    suspend fun getTemplate(@Path("name") name: TemplateName): ServiceTemplate
 
     @GET("/api/template")
-    suspend fun listTemplates(): List<String>
+    suspend fun listTemplates(): List<ServiceTemplate>
 }

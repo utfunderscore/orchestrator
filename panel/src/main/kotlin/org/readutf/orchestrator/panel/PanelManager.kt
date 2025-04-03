@@ -3,13 +3,22 @@ package org.readutf.orchestrator.panel
 import dev.minn.jda.ktx.util.BackedReference
 import dev.minn.jda.ktx.util.ref
 import io.github.oshai.kotlinlogging.KotlinLogging
+import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.channel.concrete.Category
+import org.readutf.orchestrator.panel.services.ServicesChannel
+import org.readutf.orchestrator.proxy.OrchestratorApi
 import org.readutf.orchestrator.settings.SettingsManager
 
-class PanelManager(val settingsManager: SettingsManager, val guildRef: BackedReference<Guild>, val roleRef: BackedReference<Role>) {
+class PanelManager(
+    orchestratorApi: OrchestratorApi,
+    jda: JDA,
+    val settingsManager: SettingsManager,
+    guildRef: BackedReference<Guild>,
+    roleRef: BackedReference<Role>,
+) {
 
     private val logger = KotlinLogging.logger { }
 
@@ -17,8 +26,9 @@ class PanelManager(val settingsManager: SettingsManager, val guildRef: BackedRef
     val role by roleRef
 
     private val category = createCategory()
+
     init {
-        ServicesChannel(settingsManager, guildRef, roleRef, category.ref())
+        ServicesChannel(jda, orchestratorApi, settingsManager, guildRef, roleRef, category.ref())
     }
 
     private fun createCategory(): Category {

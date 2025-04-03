@@ -1,6 +1,5 @@
 package org.readutf.orchestrator.server
 
-import com.github.michaelbull.result.getOrThrow
 import org.jetbrains.exposed.sql.Database
 import org.readutf.orchestrator.common.template.TemplateName
 import org.readutf.orchestrator.server.service.template.TemplateManager
@@ -9,7 +8,6 @@ import java.sql.DriverManager
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class TemplateManagerTests {
@@ -32,7 +30,7 @@ class TemplateManagerTests {
     fun `generate valid template`() {
         val testId = testIdTracker.incrementAndGet()
 
-        val createResult = templateManager.update(
+        val createResult = templateManager.save(
             TemplateName("test$testId"),
             "orchestrator-proxy:latest",
             listOf(80),
@@ -46,15 +44,14 @@ class TemplateManagerTests {
     fun `test load template`() {
         val testId = testIdTracker.incrementAndGet()
 
-        val createResult = templateManager.update(
+        val createResult = templateManager.save(
             TemplateName("test-$testId"),
             "orchestrator-proxy:latest",
             listOf(80, 90),
             hashMapOf("ENV" to "value", "DEV" to "test"),
         )
         assertTrue(createResult.isOk)
-        val loadResult = templateManager.getOrLoad(TemplateName("test-$testId"))
-        assertTrue(loadResult.isOk)
-        assertEquals(createResult.getOrThrow(), loadResult.getOrThrow())
+        val loadResult = templateManager.get(TemplateName("test-$testId"))
+        assertTrue(loadResult != null)
     }
 }

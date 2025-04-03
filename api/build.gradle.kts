@@ -8,6 +8,7 @@ repositories {
 
 dependencies {
     testImplementation(kotlin("test"))
+    testImplementation(project(":server"))
 
     api("com.squareup.retrofit2:retrofit:2.11.0")
     api("com.squareup.retrofit2:converter-jackson:2.11.0")

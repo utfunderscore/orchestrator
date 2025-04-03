@@ -33,15 +33,13 @@ import org.readutf.orchestrator.server.service.template.TemplateManager
 import org.readutf.orchestrator.server.service.template.store.impl.SqlTemplateStore
 import java.util.concurrent.Executors
 
-class Orchestrator(
-    private val hostAddress: String,
-) {
+class Orchestrator(hostAddress: String) {
     private val logger = KotlinLogging.logger {}
 
     private val templateStore: SqlTemplateStore =
         SqlTemplateStore(
             Database.connect(
-                "jdbc:postgresql://localhost:5432/orchestrator",
+                "jdbc:postgresql://postgres:5432/orchestrator",
                 driver = "org.postgresql.Driver",
                 user = "orchestrator",
                 password = "orchestrator",
@@ -67,11 +65,15 @@ class Orchestrator(
         val templateEndpoints = TemplateEndpoints(templateManager)
 
         javalin.post("/api/template/{name}", templateEndpoints.templateCreateHandler)
-        javalin.put("/api/template/{name}", templateEndpoints.templateUpdateHandler)
+        javalin.put("/api/template/{name}/port", templateEndpoints.addPortHandler)
+        javalin.delete("/api/template/{name}/port", templateEndpoints.removePortHandler)
+        javalin.put("/api/template/{name}/image", templateEndpoints.setImageHandler)
+        javalin.put("/api/template/{name}/env", templateEndpoints.setEnvironmentVariableHandler)
+        javalin.delete("/api/template/{name}/env", templateEndpoints.removeEnvironmentVariableHandler)
         javalin.get("/api/template/{name}", templateEndpoints.templateGetHandler)
-//        javalin.put("/api/template/{name}", templateEndpoints)
+        javalin.get("/api/template", templateEndpoints.templateListHandler)
 
-        javalin.start("localhost", 9393)
+        javalin.start("0.0.0.0", 9393)
 
         Runtime.getRuntime().addShutdownHook(
             Thread {

@@ -5,6 +5,9 @@ import kotlin.test.Test
 
 class OrchestratorApiTests {
 
+    init {
+    }
+
     val retrofit = Retrofit.Builder().baseUrl("http://localhost:9393").build()
 
     val orchestratorApi = OrchestratorApi("localhost")

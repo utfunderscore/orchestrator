@@ -6,6 +6,6 @@ WORKDIR /orchestrator
 ADD orchestrator.jar /orchestrator/
 
 EXPOSE 2323
-EXPOSE 9191
+EXPOSE 9393
 
 CMD ["java", "-jar", "orchestrator.jar"]
