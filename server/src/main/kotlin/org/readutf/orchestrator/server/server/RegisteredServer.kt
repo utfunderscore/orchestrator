@@ -9,6 +9,7 @@ import org.readutf.orchestrator.common.server.Heartbeat
 import org.readutf.orchestrator.common.server.NetworkSettings
 import org.readutf.orchestrator.common.server.Server
 import org.readutf.orchestrator.common.server.ShortContainerId
+import org.readutf.orchestrator.common.template.TemplateName
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
@@ -18,6 +19,7 @@ class RegisteredServer(
     shortContainerId: ShortContainerId,
     networkSettings: NetworkSettings,
     attributes: MutableMap<String, JsonNode> = mutableMapOf(),
+    val template: TemplateName,
     @field:JsonIgnore var shuttingDown: Boolean = false,
     @field:JsonIgnore var lastHeartbeat: Heartbeat,
     @field:JsonIgnore val channel: HermesChannel,
@@ -41,12 +43,14 @@ class RegisteredServer(
         fun fromServer(
             server: Server,
             channel: HermesChannel,
+            template: TemplateName,
         ): RegisteredServer = RegisteredServer(
             serverId = server.id,
             displayName = server.displayName,
             shortContainerId = server.shortContainerId,
             networkSettings = server.networkSettings,
             lastHeartbeat = Heartbeat(System.currentTimeMillis(), 0.0),
+            template = template,
             channel = channel,
         )
     }

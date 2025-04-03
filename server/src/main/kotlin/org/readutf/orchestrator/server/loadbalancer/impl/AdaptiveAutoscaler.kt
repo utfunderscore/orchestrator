@@ -1,24 +1,23 @@
 package org.readutf.orchestrator.server.loadbalancer.impl
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.readutf.orchestrator.server.loadbalancer.LoadBalancer
+import org.readutf.orchestrator.server.loadbalancer.Autoscaler
 import org.readutf.orchestrator.server.server.RegisteredServer
 
-class AdaptiveLoadBalancer(
-    private val serverType: String,
+class AdaptiveAutoscaler(
     private val increaseThreshold: Double,
     private val decreaseThreshold: Double,
     private val virtualCapacity: Double,
     private val minServers: Int,
     private val maxServers: Int,
     private val requestDecayTime: Long,
-) : LoadBalancer {
+) : Autoscaler("adaptive_autoscaler") {
     private val logger = KotlinLogging.logger { }
 
     // Expiry time is value
     private val pendingRequests = ArrayDeque<Long>()
 
-    override fun loadBalance(servers: Collection<RegisteredServer>): Int {
+    override fun getNeededResources(servers: Collection<RegisteredServer>): Int {
         val totalCapacity = servers.sumOf { it.getCapacity() } + virtualCapacity + getPendingRequests().size * 0.001
 
         logger.debug { "Total capacity: $totalCapacity" }

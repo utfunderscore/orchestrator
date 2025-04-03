@@ -7,8 +7,8 @@ import com.github.michaelbull.result.Result
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.orchestrator.common.server.Server
 import org.readutf.orchestrator.common.template.TemplateName
-import org.readutf.orchestrator.server.loadbalancer.LoadBalancer
-import org.readutf.orchestrator.server.loadbalancer.LoadBalancerManager
+import org.readutf.orchestrator.server.loadbalancer.AutoscaleManager
+import org.readutf.orchestrator.server.loadbalancer.Autoscaler
 import org.readutf.orchestrator.server.server.RegisteredServer
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.serverfinder.ServerFinder
@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class DefaultServerFinder(
     val templateName: TemplateName,
-    val loadBalancerManager: LoadBalancerManager,
+    val autoscaleManager: AutoscaleManager,
     val serverManager: ServerManager,
     val templateManager: ContainerManager,
     val minFillThreshold: Int = 5,
@@ -34,7 +34,7 @@ class DefaultServerFinder(
     private val taskIds = mutableMapOf<Int, ScheduledFuture<*>>()
 
     override fun findServer(args: JsonNode): CompletableFuture<Result<Server, Throwable>> {
-        val loadBalancer = loadBalancerManager.getLoadBalancer(templateName) ?: let {
+        val loadBalancer = autoscaleManager.getScaler(templateName) ?: let {
             return CompletableFuture.completedFuture(Err(IllegalStateException("No load balancer")))
         }
 
@@ -54,8 +54,8 @@ class DefaultServerFinder(
                 .firstOrNull { it.shortContainerId == container.containerId }
         }.minByOrNull { it.getCapacity() }
 
-    private fun awaitBestServer(loadBalancer: LoadBalancer): CompletableFuture<Result<Server, Throwable>> {
-        loadBalancer.addAwaitingRequest()
+    private fun awaitBestServer(autoscaler: Autoscaler): CompletableFuture<Result<Server, Throwable>> {
+        autoscaler.addAwaitingRequest()
 
         val future = CompletableFuture<Result<Server, Throwable>>()
         val taskId = taskIdTracker.getAndIncrement()

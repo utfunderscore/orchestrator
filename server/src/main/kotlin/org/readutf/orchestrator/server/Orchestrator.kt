@@ -19,7 +19,7 @@ import org.readutf.hermes.serializer.KryoPacketSerializer
 import org.readutf.orchestrator.common.packets.KryoBuilder
 import org.readutf.orchestrator.server.api.TemplateEndpoints
 import org.readutf.orchestrator.server.features.games.GameManager
-import org.readutf.orchestrator.server.loadbalancer.LoadBalancerManager
+import org.readutf.orchestrator.server.loadbalancer.AutoscaleManager
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.server.listeners.ServerDisconnectListener
 import org.readutf.orchestrator.server.server.listeners.ServerHeartbeatListener
@@ -36,24 +36,23 @@ import java.util.concurrent.Executors
 class Orchestrator(hostAddress: String) {
     private val logger = KotlinLogging.logger {}
 
-    private val templateStore: SqlTemplateStore =
-        SqlTemplateStore(
-            Database.connect(
-                "jdbc:postgresql://postgres:5432/orchestrator",
-                driver = "org.postgresql.Driver",
-                user = "orchestrator",
-                password = "orchestrator",
-            ),
-        )
+    val database = Database.connect(
+        "jdbc:postgresql://postgres:5432/orchestrator",
+        driver = "org.postgresql.Driver",
+        user = "orchestrator",
+        password = "orchestrator",
+    )
+
+    private val templateStore: SqlTemplateStore = SqlTemplateStore(database)
 
     private val dockerClient = createDockerClient(System.getenv("DOCKER_HOST") ?: "unix:///var/run/docker.sock")
     private val containerPlatform = DockerContainerPlatform(dockerClient)
     private val containerManager: ContainerManager = ContainerManager(containerPlatform)
-    private val templateManager = TemplateManager(templateStore)
     private val serverManager = ServerManager(containerPlatform)
+    private val templateManager = TemplateManager(templateStore)
     private val scaleManager = ScaleManager(serverManager, containerPlatform, templateManager)
-    private val loadBalancerManager = LoadBalancerManager(serverManager)
-    private val serverFinderManager = ServerFinderManager(loadBalancerManager, serverManager)
+    private val autoscaleManager = AutoscaleManager(database, serverManager, scaleManager)
+    private val serverFinderManager = ServerFinderManager(autoscaleManager, serverManager)
 
     // Extra services
     private val gameManager = GameManager(serverManager, objectMapper)
@@ -79,6 +78,7 @@ class Orchestrator(hostAddress: String) {
             Thread {
                 javalin.stop()
                 hermes.stop()
+                autoscaleManager.saveScalers()
             },
         )
     }

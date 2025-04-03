@@ -8,7 +8,9 @@ import org.readutf.orchestrator.common.template.ServiceTemplate
 import org.readutf.orchestrator.common.template.TemplateName
 import org.readutf.orchestrator.server.service.template.store.TemplateStore
 
-class TemplateManager(private val templateStore: TemplateStore) {
+class TemplateManager(
+    private val templateStore: TemplateStore,
+) {
 
     private val inMemoryCache = templateStore.load().getOrThrow().associateBy { it.name }.toMutableMap()
 

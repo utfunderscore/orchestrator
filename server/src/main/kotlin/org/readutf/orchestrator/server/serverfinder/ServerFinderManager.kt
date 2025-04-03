@@ -5,12 +5,12 @@ import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Result
 import org.readutf.orchestrator.common.server.Server
 import org.readutf.orchestrator.common.template.TemplateName
-import org.readutf.orchestrator.server.loadbalancer.LoadBalancerManager
+import org.readutf.orchestrator.server.loadbalancer.AutoscaleManager
 import org.readutf.orchestrator.server.server.ServerManager
 import java.util.concurrent.CompletableFuture
 
 class ServerFinderManager(
-    private val loadBalancerManager: LoadBalancerManager,
+    private val autoscaleManager: AutoscaleManager,
     private val serverManager: ServerManager,
 ) {
     private val serverFinders = mutableMapOf<TemplateName, ServerFinder>()

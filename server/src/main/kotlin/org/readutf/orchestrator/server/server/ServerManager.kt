@@ -10,6 +10,7 @@ import org.readutf.orchestrator.common.packets.S2CScheduleShutdown
 import org.readutf.orchestrator.common.server.Heartbeat
 import org.readutf.orchestrator.common.server.Server
 import org.readutf.orchestrator.common.server.ShortContainerId
+import org.readutf.orchestrator.common.template.TemplateName
 import org.readutf.orchestrator.common.utils.DisplayNameGenerator
 import org.readutf.orchestrator.server.service.platform.ContainerPlatform
 import java.util.UUID
@@ -20,7 +21,6 @@ class ServerManager(
     private val logger = KotlinLogging.logger {}
     private val servers = mutableMapOf<UUID, RegisteredServer>()
     private val channelToServer = mutableMapOf<String, UUID>()
-    private val serverCreateListeners = mutableListOf<(Server) -> Unit>()
 
     fun registerServer(
         containerId: String,
@@ -32,18 +32,27 @@ class ServerManager(
         val serverId = UUID.randomUUID()
         val shortId = ShortContainerId.of(containerId)
 
-        return Err(Exception("test"))
-
         val networkSettings =
             containerManager.getNetworkSettings(shortId) ?: let {
                 logger.info { "Failed to get server address for: $it" }
                 return Err(Throwable("Server address not found"))
             }
 
+        val template = containerManager.getTemplate(shortId) ?: run {
+            logger.info { "Could not find template for $shortId" }
+            return Err(Throwable("Template not found"))
+        }
+
         val server = Server(serverId, DisplayNameGenerator.generateDisplayName(), shortId, networkSettings, mutableMapOf())
-        servers[serverId] = RegisteredServer.fromServer(server, channel)
+        servers[serverId] = RegisteredServer.fromServer(server, channel, template.name)
         channelToServer[channel.channelId] = serverId
         return Ok(server)
+    }
+
+    fun reRegisterServer(
+        containerId: String,
+    ) {
+
     }
 
     fun unregisteringServer(serverId: UUID) {
@@ -87,6 +96,8 @@ class ServerManager(
     }
 
     fun getServers(): Collection<RegisteredServer> = servers.values
+
+    fun getServersByTemplate(templateName: TemplateName): Collection<RegisteredServer> = servers.values.filter { it.template == templateName }
 
     fun getServerByChannel(channel: HermesChannel): RegisteredServer? {
         val serverId = channelToServer[channel.channelId]
