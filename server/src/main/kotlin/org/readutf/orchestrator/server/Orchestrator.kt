@@ -26,7 +26,6 @@ import org.readutf.orchestrator.server.server.listeners.ServerHeartbeatListener
 import org.readutf.orchestrator.server.server.listeners.ServerRegisterListener
 import org.readutf.orchestrator.server.server.listeners.UpdateAttributesListener
 import org.readutf.orchestrator.server.serverfinder.ServerFinderManager
-import org.readutf.orchestrator.server.service.ContainerManager
 import org.readutf.orchestrator.server.service.platform.docker.DockerContainerPlatform
 import org.readutf.orchestrator.server.service.scale.ScaleManager
 import org.readutf.orchestrator.server.service.template.TemplateManager
@@ -46,8 +45,7 @@ class Orchestrator(hostAddress: String) {
     private val templateStore: SqlTemplateStore = SqlTemplateStore(database)
 
     private val dockerClient = createDockerClient(System.getenv("DOCKER_HOST") ?: "unix:///var/run/docker.sock")
-    private val containerPlatform = DockerContainerPlatform(dockerClient)
-    private val containerManager: ContainerManager = ContainerManager(containerPlatform)
+    private val containerPlatform = DockerContainerPlatform(dockerClient, database)
     private val serverManager = ServerManager(containerPlatform)
     private val templateManager = TemplateManager(templateStore)
     private val scaleManager = ScaleManager(serverManager, containerPlatform, templateManager)
@@ -60,7 +58,6 @@ class Orchestrator(hostAddress: String) {
 
     init {
         val hermes = setupHermes(hostAddress, serverManager)
-
         val templateEndpoints = TemplateEndpoints(templateManager)
 
         javalin.post("/api/template/{name}", templateEndpoints.templateCreateHandler)

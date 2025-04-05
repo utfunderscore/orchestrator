@@ -1,4 +1,4 @@
-package org.readutf.orchestrator.utils
+package org.readutf.orchestrator.common.utils
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async

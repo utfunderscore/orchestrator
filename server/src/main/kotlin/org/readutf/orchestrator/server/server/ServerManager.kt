@@ -23,36 +23,39 @@ class ServerManager(
     private val channelToServer = mutableMapOf<String, UUID>()
 
     fun registerServer(
-        containerId: String,
+        serverId: UUID = UUID.randomUUID(),
+        containerId: ShortContainerId,
         channel: HermesChannel,
-        attributes: Map<String, JsonNode>,
+        attributes: MutableMap<String, JsonNode>,
     ): Result<Server, Throwable> {
         logger.info { "Registering server with containerId: $containerId $channel" }
 
-        val serverId = UUID.randomUUID()
-        val shortId = ShortContainerId.of(containerId)
-
         val networkSettings =
-            containerManager.getNetworkSettings(shortId) ?: let {
+            containerManager.getNetworkSettings(containerId) ?: let {
                 logger.info { "Failed to get server address for: $it" }
                 return Err(Throwable("Server address not found"))
             }
 
-        val template = containerManager.getTemplate(shortId) ?: run {
-            logger.info { "Could not find template for $shortId" }
+        val template = containerManager.getTemplate(containerId) ?: run {
+            logger.info { "Could not find template for $containerId" }
             return Err(Throwable("Template not found"))
         }
 
-        val server = Server(serverId, DisplayNameGenerator.generateDisplayName(), shortId, networkSettings, mutableMapOf())
-        servers[serverId] = RegisteredServer.fromServer(server, channel, template.name)
+        val server = Server(serverId, DisplayNameGenerator.generateDisplayName(), containerId, networkSettings, attributes.toMutableMap())
+        servers[serverId] = RegisteredServer.fromServer(server, channel, template)
         channelToServer[channel.channelId] = serverId
         return Ok(server)
     }
 
-    fun reRegisterServer(
-        containerId: String,
+    fun renewServer(
+        serverId: UUID,
+        containerId: ShortContainerId,
+        channel: HermesChannel,
+        attributes: MutableMap<String, JsonNode>,
     ) {
+        containerManager.renewContainer(containerId)
 
+        registerServer(serverId, containerId, channel, attributes)
     }
 
     fun unregisteringServer(serverId: UUID) {

@@ -16,6 +16,7 @@ dependencies {
     compileOnly(libs.hermes.netty)
     compileOnly(libs.hermes.kryo)
     compileOnly(libs.kryo)
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
 
     compileOnly(libs.jackson.module.kotlin)
     compileOnly(libs.jackson.databind)

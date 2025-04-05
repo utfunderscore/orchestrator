@@ -5,7 +5,7 @@ import org.readutf.orchestrator.server.service.platform.ContainerPlatform
 
 class ContainerManager(val containerPlatform: ContainerPlatform) {
 
-    fun getContainersByType(template: TemplateName): List<ActiveContainer> = containerPlatform.getContainers().filter {
-        it.template.name == template
+    fun getContainersByType(templateName: TemplateName): List<ActiveContainer> = containerPlatform.getContainers().filter {
+        it.templateName == templateName
     }
 }

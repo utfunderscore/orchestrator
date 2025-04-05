@@ -11,8 +11,8 @@ import dev.rollczi.litecommands.annotations.context.Context
 import dev.rollczi.litecommands.annotations.execute.Execute
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
+import org.readutf.orchestrator.common.utils.runAsync
 import org.readutf.orchestrator.proxy.OrchestratorApi
-import org.readutf.orchestrator.utils.runAsync
 import java.awt.Color
 
 @Command(name = "service")

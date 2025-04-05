@@ -5,6 +5,7 @@ import com.github.michaelbull.result.map
 import org.readutf.hermes.channel.HermesChannel
 import org.readutf.hermes.listeners.TypedListener
 import org.readutf.orchestrator.common.packets.C2SRegisterPacket
+import org.readutf.orchestrator.common.server.ShortContainerId
 import org.readutf.orchestrator.server.server.ServerManager
 import java.util.UUID
 
@@ -14,5 +15,9 @@ class ServerRegisterListener(
     override fun handle(
         packet: C2SRegisterPacket,
         channel: HermesChannel,
-    ): Result<UUID, Throwable> = serverManager.registerServer(packet.containerId, channel, packet.attributes).map { it.id }
+    ): Result<UUID, Throwable> = serverManager.registerServer(
+        containerId = ShortContainerId.of(packet.containerId),
+        channel = channel,
+        attributes = packet.attributes.toMutableMap(),
+    ).map { it.id }
 }
