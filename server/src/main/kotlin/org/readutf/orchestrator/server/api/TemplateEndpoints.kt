@@ -1,5 +1,6 @@
 package org.readutf.orchestrator.server.api
 
+import com.fasterxml.jackson.databind.JsonNode
 import com.github.michaelbull.result.Err
 import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.toResultOr
@@ -28,77 +29,6 @@ class TemplateEndpoints(val templateManager: TemplateManager) {
         }
     }
 
-    val addPortHandler = object : Handler {
-        override fun handle(ctx: Context) {
-            val name = TemplateName(ctx.pathParam("name"))
-            val port = ctx.bodyAsClass(Int::class.java)
-
-            if (!templateManager.exists(name)) {
-                ctx.result(Err("Template does not exists with that name"))
-                return
-            }
-
-            ctx.result(templateManager.addPort(name, port))
-        }
-    }
-
-    val removePortHandler = object : Handler {
-        override fun handle(ctx: Context) {
-            val name = TemplateName(ctx.pathParam("name"))
-            val port = ctx.bodyAsClass(Int::class.java)
-
-            if (!templateManager.exists(name)) {
-                ctx.result(Err("Template does not exists with that name"))
-                return
-            }
-
-            ctx.result(templateManager.removePort(name, port))
-        }
-    }
-
-    val setImageHandler = object : Handler {
-        override fun handle(ctx: Context) {
-            val name = TemplateName(ctx.pathParam("name"))
-            val image = ctx.bodyAsClass(String::class.java)
-
-            if (!templateManager.exists(name)) {
-                ctx.result(Err("Template does not exists with that name"))
-                return
-            }
-
-            ctx.result(templateManager.setImage(name, image))
-        }
-    }
-
-    val setEnvironmentVariableHandler = object : Handler {
-        override fun handle(ctx: Context) {
-            val name = TemplateName(ctx.pathParam("name"))
-            val key = ctx.bodyAsClass(String::class.java)
-            val value = ctx.bodyAsClass(String::class.java)
-
-            if (!templateManager.exists(name)) {
-                ctx.result(Err("Template does not exists with that name"))
-                return
-            }
-
-            ctx.result(templateManager.setEnvironmentVariable(name, key, value))
-        }
-    }
-
-    val removeEnvironmentVariableHandler = object : Handler {
-        override fun handle(ctx: Context) {
-            val name = TemplateName(ctx.pathParam("name"))
-            val key = ctx.bodyAsClass(String::class.java)
-
-            if (!templateManager.exists(name)) {
-                ctx.result(Err("Template does not exists with that name"))
-                return
-            }
-
-            ctx.result(templateManager.removeEnvironmentVariable(name, key))
-        }
-    }
-
     // GET /api/template/{name}
     val templateGetHandler = object : Handler {
         override fun handle(ctx: Context) {
@@ -116,6 +46,115 @@ class TemplateEndpoints(val templateManager: TemplateManager) {
     val templateListHandler = object : Handler {
         override fun handle(ctx: Context) {
             ctx.result(Ok(templateManager.getAll()))
+        }
+    }
+
+    val templateDeleteHandler = object : Handler {
+
+        override fun handle(ctx: Context) {
+            val name = TemplateName(ctx.pathParam("name"))
+
+            if (!templateManager.exists(name)) {
+                ctx.result(Err("Template does not exists with that name"))
+                return
+            }
+
+            templateManager.delete(name)
+            ctx.result(Ok(Unit))
+        }
+    }
+
+    val addPortHandler = object : Handler {
+        override fun handle(ctx: Context) {
+            val name = TemplateName(ctx.pathParam("name"))
+            val body: JsonNode = ctx.bodyAsClass(JsonNode::class.java)
+
+            val port = body.get("port")?.asInt() ?: run {
+                ctx.result(Err(Throwable("Field 'port' missing from body.")))
+                return
+            }
+
+            if (!templateManager.exists(name)) {
+                ctx.result(Err("Template does not exists with that name"))
+                return
+            }
+
+            ctx.result(templateManager.addPort(name, port))
+        }
+    }
+
+    val removePortHandler = object : Handler {
+        override fun handle(ctx: Context) {
+            val name = TemplateName(ctx.pathParam("name"))
+            val body: JsonNode = ctx.bodyAsClass(JsonNode::class.java)
+
+            val port = body.get("port")?.asInt() ?: run {
+                ctx.result(Err(Throwable("Field 'port' missing from body.")))
+                return
+            }
+
+            ctx.result(templateManager.removePort(name, port))
+        }
+    }
+
+    val setImageHandler = object : Handler {
+        override fun handle(ctx: Context) {
+            val name = TemplateName(ctx.pathParam("name"))
+            val body = ctx.bodyAsClass(JsonNode::class.java)
+            val image = body.get("image")?.asText() ?: run {
+                ctx.result(Err(Throwable("Field 'image' missing from body.")))
+                return
+            }
+
+            if (!templateManager.exists(name)) {
+                ctx.result(Err("Template does not exists with that name"))
+                return
+            }
+
+            ctx.result(templateManager.setImage(name, image))
+        }
+    }
+
+    val setEnvironmentVariableHandler = object : Handler {
+        override fun handle(ctx: Context) {
+            val name = TemplateName(ctx.pathParam("name"))
+            val body = ctx.bodyAsClass(JsonNode::class.java)
+
+            val key = body.get("key")?.asText() ?: run {
+                ctx.result(Err(Throwable("Field 'key' missing from body.")))
+                return
+            }
+
+            val value = body.get("value")?.asText() ?: run {
+                ctx.result(Err(Throwable("Field 'value' missing from body.")))
+                return
+            }
+
+            if (!templateManager.exists(name)) {
+                ctx.result(Err("Template does not exists with that name"))
+                return
+            }
+
+            ctx.result(templateManager.setEnvironmentVariable(name, key, value))
+        }
+    }
+
+    val removeEnvironmentVariableHandler = object : Handler {
+        override fun handle(ctx: Context) {
+            val name = TemplateName(ctx.pathParam("name"))
+            val body = ctx.bodyAsClass(JsonNode::class.java)
+
+            val key = body.get("key")?.asText() ?: run {
+                ctx.result(Err(Throwable("Field 'key' missing from body.")))
+                return
+            }
+
+            if (!templateManager.exists(name)) {
+                ctx.result(Err("Template does not exists with that name"))
+                return
+            }
+
+            ctx.result(templateManager.removeEnvironmentVariable(name, key))
         }
     }
 }

@@ -11,6 +11,7 @@ exposed = "0.57.0"
 postgresql = "42.7.1"
 tinylog = "2.7.0"
 kotlin-result = "2.0.1"
+micrometer = "1.14.5"
 
 [libraries]
 javalin = { module = "io.javalin:javalin", version.ref = "javalin" }
@@ -33,5 +34,6 @@ tinylog-api = { module = "org.tinylog:tinylog-api", version.ref = "tinylog" }
 tinylog-impl = { module = "org.tinylog:tinylog-impl", version.ref = "tinylog" }
 tinylog-slf4j = { module = "org.tinylog:slf4j-tinylog", version.ref = "tinylog" }
 result = { module = "com.michael-bull.kotlin-result:kotlin-result", version.ref = "kotlin-result" }
+micrometer-core = { module = "io.micrometer:micrometer-core", version.ref = "micrometer" }
 
 

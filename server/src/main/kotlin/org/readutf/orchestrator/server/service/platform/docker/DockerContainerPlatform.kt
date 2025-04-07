@@ -105,11 +105,9 @@ class DockerContainerPlatform(
 
         val name = containerInfo.config.hostName
 
-        val ports =
-            containerInfo.networkSettings.ports.bindings.values
-                .map { bindings -> bindings.map { it.hostPortSpec.toInt() } }
-                .flatten()
-                .distinct()
+//        println(containerInfo.networkSettings.ports.bindings.)
+
+        val ports = containerInfo.networkSettings.ports.bindings.keys.map { it.port }
 
         return name?.let {
             NetworkSettings(name, ports)

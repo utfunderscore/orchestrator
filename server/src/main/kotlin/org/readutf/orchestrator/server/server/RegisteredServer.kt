@@ -19,7 +19,7 @@ class RegisteredServer(
     shortContainerId: ShortContainerId,
     networkSettings: NetworkSettings,
     attributes: MutableMap<String, JsonNode> = mutableMapOf(),
-    val template: TemplateName,
+    template: TemplateName,
     @field:JsonIgnore var shuttingDown: Boolean = false,
     @field:JsonIgnore var lastHeartbeat: Heartbeat,
     @field:JsonIgnore val channel: HermesChannel,
@@ -28,6 +28,7 @@ class RegisteredServer(
     displayName = displayName,
     shortContainerId = shortContainerId,
     networkSettings = networkSettings,
+    templateName = template,
     attributes = attributes,
 ) {
     @JsonIgnore
@@ -43,14 +44,13 @@ class RegisteredServer(
         fun fromServer(
             server: Server,
             channel: HermesChannel,
-            template: TemplateName,
         ): RegisteredServer = RegisteredServer(
             serverId = server.id,
             displayName = server.displayName,
             shortContainerId = server.shortContainerId,
             networkSettings = server.networkSettings,
             lastHeartbeat = Heartbeat(System.currentTimeMillis(), 0.0),
-            template = template,
+            template = server.templateName,
             channel = channel,
         )
     }

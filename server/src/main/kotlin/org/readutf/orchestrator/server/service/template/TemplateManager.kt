@@ -33,6 +33,23 @@ class TemplateManager(
         return Ok(template)
     }
 
+    fun get(id: TemplateName): ServiceTemplate? = inMemoryCache[id]
+
+    fun exists(
+        id: TemplateName,
+    ): Boolean {
+        if (inMemoryCache.contains(id)) return true
+
+        return templateStore.exists(id)
+    }
+
+    fun getAll(): Collection<ServiceTemplate> = inMemoryCache.values
+
+    fun delete(name: TemplateName) {
+        templateStore.delete(name)
+        inMemoryCache.remove(name)
+    }
+
     fun setImage(
         id: TemplateName,
         image: String,
@@ -77,16 +94,4 @@ class TemplateManager(
         inMemoryCache[id]?.environmentVariables?.remove(key)
         Unit
     }
-
-    fun get(id: TemplateName): ServiceTemplate? = inMemoryCache[id]
-
-    fun exists(
-        id: TemplateName,
-    ): Boolean {
-        if (inMemoryCache.contains(id)) return true
-
-        return templateStore.exists(id)
-    }
-
-    fun getAll(): Collection<ServiceTemplate> = inMemoryCache.values
 }

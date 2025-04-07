@@ -17,6 +17,8 @@ import org.readutf.hermes.platform.netty.NettyServerPlatform
 import org.readutf.hermes.platform.netty.nettyServer
 import org.readutf.hermes.serializer.KryoPacketSerializer
 import org.readutf.orchestrator.common.packets.KryoBuilder
+import org.readutf.orchestrator.server.api.AutoscalerEndpoints
+import org.readutf.orchestrator.server.api.ServerEndpoints
 import org.readutf.orchestrator.server.api.TemplateEndpoints
 import org.readutf.orchestrator.server.features.games.GameManager
 import org.readutf.orchestrator.server.loadbalancer.AutoscaleManager
@@ -24,6 +26,7 @@ import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.server.listeners.ServerDisconnectListener
 import org.readutf.orchestrator.server.server.listeners.ServerHeartbeatListener
 import org.readutf.orchestrator.server.server.listeners.ServerRegisterListener
+import org.readutf.orchestrator.server.server.listeners.ServerRenewListener
 import org.readutf.orchestrator.server.server.listeners.UpdateAttributesListener
 import org.readutf.orchestrator.server.serverfinder.ServerFinderManager
 import org.readutf.orchestrator.server.service.platform.docker.DockerContainerPlatform
@@ -49,7 +52,7 @@ class Orchestrator(hostAddress: String) {
     private val serverManager = ServerManager(containerPlatform)
     private val templateManager = TemplateManager(templateStore)
     private val scaleManager = ScaleManager(serverManager, containerPlatform, templateManager)
-    private val autoscaleManager = AutoscaleManager(database, serverManager, scaleManager)
+    private val autoscaleManager = AutoscaleManager(database, serverManager, templateManager, scaleManager)
     private val serverFinderManager = ServerFinderManager(autoscaleManager, serverManager)
 
     // Extra services
@@ -59,7 +62,10 @@ class Orchestrator(hostAddress: String) {
     init {
         val hermes = setupHermes(hostAddress, serverManager)
         val templateEndpoints = TemplateEndpoints(templateManager)
+        val autoscalerEndpoints = AutoscalerEndpoints(autoscaleManager, templateManager)
+        val serverEndpoints = ServerEndpoints(serverManager)
 
+        // template
         javalin.post("/api/template/{name}", templateEndpoints.templateCreateHandler)
         javalin.put("/api/template/{name}/port", templateEndpoints.addPortHandler)
         javalin.delete("/api/template/{name}/port", templateEndpoints.removePortHandler)
@@ -68,6 +74,13 @@ class Orchestrator(hostAddress: String) {
         javalin.delete("/api/template/{name}/env", templateEndpoints.removeEnvironmentVariableHandler)
         javalin.get("/api/template/{name}", templateEndpoints.templateGetHandler)
         javalin.get("/api/template", templateEndpoints.templateListHandler)
+        javalin.delete("/api/template/{name}", templateEndpoints.templateDeleteHandler)
+
+        // autoscaler
+        javalin.post("/api/autoscaler/{name}", autoscalerEndpoints.setAutoscalerEndpoint)
+
+        // servers
+        javalin.get("/api/server", serverEndpoints.getServersEndpoint)
 
         javalin.start("0.0.0.0", 9393)
 
@@ -103,6 +116,7 @@ class Orchestrator(hostAddress: String) {
             it.registerListener(ServerHeartbeatListener(serverManager))
             it.registerListener(ServerDisconnectListener(serverManager))
             it.registerListener(UpdateAttributesListener(serverManager))
+            it.registerListener(ServerRenewListener(serverManager))
         }
 
         return nettyServer

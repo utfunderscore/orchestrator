@@ -71,6 +71,29 @@ class TemplateCommand(val orchestratorApi: OrchestratorApi) {
         }
     }
 
+    @Execute(name = "delete")
+    fun delete(@Context event: SlashCommandInteractionEvent, @Arg name: String) = runAsync {
+        event.deferReply().queue()
+
+        val result = orchestratorApi.deleteTemplate(name).await()
+        result.onSuccess {
+            event.hook.sendMessageEmbeds(
+                Embed {
+                    title = "Service Deleted"
+                    color = Color.GREEN.rgb
+                },
+            ).setEphemeral(true).queue()
+        }.onFailure {
+            event.hook.sendMessageEmbeds(
+                Embed {
+                    title = "Error"
+                    description = "Failed to delete $name"
+                    color = Color.RED.rgb
+                },
+            ).setEphemeral(true).queue()
+        }
+    }
+
     @Execute(name = "setimage")
     fun setImage(
         @Context event: SlashCommandInteractionEvent,

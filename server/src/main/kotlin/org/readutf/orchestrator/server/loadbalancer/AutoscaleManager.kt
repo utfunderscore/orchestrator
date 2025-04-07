@@ -1,7 +1,11 @@
 package org.readutf.orchestrator.server.loadbalancer
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.flatMap
 import com.github.michaelbull.result.onFailure
 import com.github.michaelbull.result.onSuccess
+import com.github.michaelbull.result.toResultOr
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.Database
 import org.readutf.orchestrator.common.template.TemplateName
@@ -9,6 +13,7 @@ import org.readutf.orchestrator.server.loadbalancer.store.AutoscaleSerializer
 import org.readutf.orchestrator.server.loadbalancer.store.impl.FixedAutoscaleSerializer
 import org.readutf.orchestrator.server.server.ServerManager
 import org.readutf.orchestrator.server.service.scale.ScaleManager
+import org.readutf.orchestrator.server.service.template.TemplateManager
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
@@ -16,6 +21,7 @@ import java.util.concurrent.TimeUnit
 class AutoscaleManager(
     database: Database,
     serverManager: ServerManager,
+    templateManager: TemplateManager,
     scaleManager: ScaleManager,
 ) {
     private val logger = KotlinLogging.logger { }
@@ -25,7 +31,7 @@ class AutoscaleManager(
 
     init {
         logger.info { "Starting load balancer..." }
-        executor.scheduleAtFixedRate(AutoscaleTask(this, scaleManager, serverManager), 0, 1, TimeUnit.SECONDS)
+        executor.scheduleAtFixedRate(AutoscaleTask(this, scaleManager, serverManager, templateManager), 0, 1, TimeUnit.SECONDS)
         serializers["fixed_count"] = FixedAutoscaleSerializer(database)
         loadScalers()
     }
@@ -57,6 +63,10 @@ class AutoscaleManager(
     }
 
     fun getSerializer(name: String): AutoscaleSerializer? = serializers[name]
+
+    fun createScaler(type: String, jsonNode: JsonNode): Result<Autoscaler, Throwable> = serializers[type]
+        .toResultOr { Throwable("Serializer for $type not found") }
+        .flatMap { it.create(jsonNode) }
 
     fun getScaler(templateName: TemplateName) = scalers[templateName]
 

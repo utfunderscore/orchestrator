@@ -1,9 +1,8 @@
 package org.readutf.orchestrator.server.server
 
 import com.fasterxml.jackson.databind.JsonNode
-import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.Ok
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.runCatching
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.readutf.hermes.channel.HermesChannel
 import org.readutf.orchestrator.common.packets.S2CScheduleShutdown
@@ -27,24 +26,33 @@ class ServerManager(
         containerId: ShortContainerId,
         channel: HermesChannel,
         attributes: MutableMap<String, JsonNode>,
-    ): Result<Server, Throwable> {
+    ): Result<Server, Throwable> = runCatching {
         logger.info { "Registering server with containerId: $containerId $channel" }
-
         val networkSettings =
             containerManager.getNetworkSettings(containerId) ?: let {
                 logger.info { "Failed to get server address for: $it" }
-                return Err(Throwable("Server address not found"))
+                error("Failed to get server address for: $containerId")
             }
 
         val template = containerManager.getTemplate(containerId) ?: run {
             logger.info { "Could not find template for $containerId" }
-            return Err(Throwable("Template not found"))
+            error("Could not find template for $containerId")
         }
 
-        val server = Server(serverId, DisplayNameGenerator.generateDisplayName(), containerId, networkSettings, attributes.toMutableMap())
-        servers[serverId] = RegisteredServer.fromServer(server, channel, template)
+        val server = Server(
+            id = serverId,
+            displayName = DisplayNameGenerator.generateDisplayName(),
+            shortContainerId = containerId,
+            networkSettings = networkSettings,
+            templateName = template,
+            attributes = attributes.toMutableMap(),
+        )
+
+        servers[serverId] = RegisteredServer.fromServer(server, channel)
         channelToServer[channel.channelId] = serverId
-        return Ok(server)
+        logger.info { "Registered successfully" }
+
+        server
     }
 
     fun renewServer(
@@ -53,6 +61,7 @@ class ServerManager(
         channel: HermesChannel,
         attributes: MutableMap<String, JsonNode>,
     ) {
+        logger.info { "Renewing server with containerId: $containerId $channel" }
         containerManager.renewContainer(containerId)
 
         registerServer(serverId, containerId, channel, attributes)
@@ -100,7 +109,7 @@ class ServerManager(
 
     fun getServers(): Collection<RegisteredServer> = servers.values
 
-    fun getServersByTemplate(templateName: TemplateName): Collection<RegisteredServer> = servers.values.filter { it.template == templateName }
+    fun getServersByTemplate(templateName: TemplateName): Collection<RegisteredServer> = servers.values.filter { it.templateName == templateName }
 
     fun getServerByChannel(channel: HermesChannel): RegisteredServer? {
         val serverId = channelToServer[channel.channelId]

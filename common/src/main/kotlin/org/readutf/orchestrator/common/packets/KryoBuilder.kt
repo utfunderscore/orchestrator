@@ -23,6 +23,7 @@ object KryoBuilder {
         kryo.register(S2CGameReservePacket::class.java)
         kryo.register(S2CGameRequestPacket::class.java)
         kryo.register(C2SUpdateAttribute::class.java)
+        kryo.register(C2SRenewPacket::class.java)
         kryo.register(ResponseDataPacket::class.java)
         kryo.register(Server::class.java)
         kryo.register(Heartbeat::class.java)

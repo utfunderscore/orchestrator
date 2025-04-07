@@ -28,8 +28,10 @@ class ScaleManager(
         logger.info { "Starting scale manager..." }
 
         executorServices.scheduleAtFixedRate({
-            targetScales.keys.forEach { scale -> scaleService(scale) }
-        }, 0, 1, TimeUnit.SECONDS)
+            targetScales.toMap().keys.forEach { scale ->
+                scaleService(scale)
+            }
+        }, 5, 1, TimeUnit.SECONDS)
     }
 
     fun scaleService(
@@ -48,6 +50,8 @@ class ScaleManager(
     private fun scaleService(templateId: TemplateName) {
         val template = templateManager.get(templateId) ?: run {
             logger.error { "Could not find template $templateId" }
+            targetScales.remove(templateId)
+            lastScaledTimes.remove(templateId)
             return
         }
 
@@ -59,10 +63,9 @@ class ScaleManager(
 
         val targetScale = targetScales.getOrPut(templateId) { 0 }
 
-        val serversByTemplate = serverManager.getServers()
-            .filter {
-                containerManager.getTemplate(it.shortContainerId) == template
-            }
+        val serversByTemplate = serverManager.getServers().filter {
+            containerManager.getTemplate(it.shortContainerId) == template.name
+        }
 
         val pending = containerManager.getContainers()
             .filter { container ->

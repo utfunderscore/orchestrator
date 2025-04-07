@@ -1,4 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import java.util.Properties
 
 plugins {
     id("com.gradleup.shadow") version "9.0.0-beta4"
@@ -39,6 +40,19 @@ tasks.getByName<ShadowJar>("shadowJar") {
             val output = projectDir.resolve("docker").resolve(file.name)
             if (output.exists()) output.delete()
             file.copyTo(output, overwrite = true)
+        }
+    }
+}
+
+tasks.register("createProperties") {
+    doLast {
+        val propertiesFile = file("$buildDir/resources/main/version.properties")
+        propertiesFile.parentFile.mkdirs()
+        propertiesFile.writer().use { writer ->
+            val properties = Properties()
+            properties["version"] = project.version.toString()
+            properties["buildTime"] = System.currentTimeMillis().toString()
+            properties.store(writer, null)
         }
     }
 }

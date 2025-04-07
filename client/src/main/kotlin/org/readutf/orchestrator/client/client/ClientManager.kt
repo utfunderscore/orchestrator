@@ -3,6 +3,7 @@ package org.readutf.orchestrator.client.client
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.readutf.hermes.PacketManager
 import org.readutf.hermes.platform.netty.NettyClientPlatform
+import org.readutf.orchestrator.client.ConnectionManager
 import org.readutf.orchestrator.client.client.capacity.CapacityHandler
 import org.readutf.orchestrator.client.client.shutdown.SafeShutdownHandler
 import org.readutf.orchestrator.client.client.shutdown.SafeShutdownListener
@@ -14,6 +15,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
 public class ClientManager(
+    private val connectionManager: ConnectionManager,
     private val serverId: UUID,
     internal val packetManager: PacketManager<NettyClientPlatform>,
 ) {
@@ -27,7 +29,7 @@ public class ClientManager(
         taskExecutor.scheduleAtFixedRate(HeartbeatTask(this), 0, 1, TimeUnit.SECONDS)
 
         packetManager.editListeners {
-            it.registerListener(SafeShutdownListener(this))
+            it.registerListener(SafeShutdownListener(this, connectionManager))
         }
     }
 

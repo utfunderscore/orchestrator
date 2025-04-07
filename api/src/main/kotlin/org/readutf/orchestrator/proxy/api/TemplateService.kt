@@ -19,25 +19,28 @@ interface TemplateService {
     suspend fun updateTemplate(@Path("name") name: String, @Body templateBody: TemplateBody)
 
     @PUT("/api/template/{name}/port")
-    suspend fun addPort(@Path("name") name: String, @Body port: Int)
+    suspend fun addPort(@Path("name") name: String, @Body body: Map<String, Any>)
 
     @DELETE("/api/template/{name}/port")
-    suspend fun removePort(@Path("name") name: String, @Body port: Int)
+    suspend fun removePort(@Path("name") name: String, @Body body: Map<String, Any>)
 
     @PUT("/api/template/{name}/image")
-    suspend fun setImage(@Path("name") name: String, @Body image: String)
+    suspend fun setImage(@Path("name") name: String, @Body body: Map<String, Any>)
 
     @PUT("/api/template/{name}/env")
     suspend fun setEnvironmentVariable(
         @Path("name") name: String,
-        @Body environmentVariable: HashMap<String, String>,
+        @Body body: Map<String, Any>,
     ): ServiceTemplate
 
     @DELETE("/api/template/{name}/env")
     suspend fun removeEnvironmentVariable(
         @Path("name") name: String,
-        @Body environmentVariable: HashMap<String, String>,
+        @Body body: Map<String, Any>,
     ): ServiceTemplate
+
+    @DELETE("/api/template/{name}")
+    suspend fun deleteTemplate(@Path("name") name: String)
 
     @GET("/api/template/{name}")
     suspend fun getTemplate(@Path("name") name: TemplateName): ServiceTemplate

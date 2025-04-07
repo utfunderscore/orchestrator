@@ -8,17 +8,14 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.async
 import org.jetbrains.annotations.Blocking
-import org.readutf.orchestrator.common.server.Server
 import org.readutf.orchestrator.common.template.ServiceTemplate
 import org.readutf.orchestrator.common.template.TemplateBody
 import org.readutf.orchestrator.common.template.TemplateName
-import org.readutf.orchestrator.proxy.api.ServerFinderService
+import org.readutf.orchestrator.proxy.api.ServerService
 import org.readutf.orchestrator.proxy.api.TemplateService
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
-import java.util.concurrent.TimeUnit
 
 class OrchestratorApi(
     private val hostname: String,
@@ -34,6 +31,7 @@ class OrchestratorApi(
     }
 
     private val templateService by lazy { retrofit.create(TemplateService::class.java) }
+    private val serverService by lazy { retrofit.create(ServerService::class.java) }
 
     @Blocking
     fun createService(name: String, image: String, ports: List<Int>, environmentVariables: HashMap<String, String>): Deferred<Result<ServiceTemplate, Throwable>> = scope.async {
@@ -49,40 +47,48 @@ class OrchestratorApi(
         }
     }
 
+    // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     fun getTemplates() = scope.async { runCatching { templateService.listTemplates() } }
 
     fun getTemplate(name: String) = scope.async { runCatching { templateService.getTemplate(TemplateName(name)) } }
 
+    fun deleteTemplate(name: String) = scope.async {
+        runCatching {
+            templateService.deleteTemplate(name)
+        }
+    }
+
+    fun addTemplatePort(name: String, port: Int) = scope.async {
+        runCatching {
+            templateService.addPort(name, mapOf("port" to port))
+        }
+    }
+
+    fun removeTemplatePort(name: String, port: Int) = scope.async {
+        runCatching {
+            templateService.removePort(name, mapOf("port" to port))
+        }
+    }
+
+    fun setTemplateEnvironmentVariable(template: String, key: String, value: String) = scope.async {
+        runCatching {
+            templateService.setEnvironmentVariable(template, mapOf("key" to key, "value" to value))
+        }
+    }
+
     fun setTemplate(name: String, image: String) = scope.async {
         runCatching {
-            templateService.setImage(name, image)
+            templateService.setImage(name, mapOf("image" to image))
         }
     }
 
-    fun createTemplate(name: String, image: String, ports: List<Int>, environmentVariables: HashMap<String, String>) = scope.async {
+    // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    fun getServers() = scope.async {
         runCatching {
-            templateService.createTemplate(
-                name = name,
-                templateBody = TemplateBody(
-                    image = image,
-                    ports = ports,
-                    environmentVariables = environmentVariables,
-                ),
-            )
+            serverService.getServers()
         }
-    }
-
-    fun findServer(
-        serverType: String,
-        connectionTimeout: Long = 2_000,
-        findServerTimeout: Long = 10_000,
-    ): CompletableFuture<Result<Server, Throwable>> {
-        val future = CompletableFuture<Result<Server, Throwable>>()
-        ServerFinderService(
-            "ws://$hostname:$9393/serverfinder/$serverType",
-            future,
-        ).connectBlocking(connectionTimeout, TimeUnit.MILLISECONDS)
-        return future.orTimeout(findServerTimeout, TimeUnit.MILLISECONDS)
     }
 
     companion object {

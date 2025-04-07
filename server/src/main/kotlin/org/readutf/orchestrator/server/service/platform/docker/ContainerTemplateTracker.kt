@@ -3,16 +3,25 @@ package org.readutf.orchestrator.server.service.platform.docker
 import com.github.michaelbull.result.runCatching
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.replace
+import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.upsert
 import org.readutf.orchestrator.common.server.ShortContainerId
 import org.readutf.orchestrator.common.template.TemplateName
 
 class ContainerTemplateTracker(val database: Database) {
 
+    init {
+        transaction(database) {
+            SchemaUtils.createMissingTablesAndColumns(ContainerHistoryTable)
+        }
+    }
+
     fun storeContainerTemplate(containerId: ShortContainerId, templateName: TemplateName) = runCatching {
         transaction(database) {
-            ContainerHistoryTable.replace {
+            ContainerHistoryTable.upsert(
+                ContainerHistoryTable.containerIdRow,
+            ) {
                 it[containerIdRow] = containerId.id
                 it[templateNameRow] = templateName.value
             }

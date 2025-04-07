@@ -1,5 +1,6 @@
 package org.readutf.orchestrator.panel.services
 
+import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.util.BackedReference
 import io.github.oshai.kotlinlogging.KotlinLogging
 import net.dv8tion.jda.api.JDA
@@ -8,6 +9,7 @@ import net.dv8tion.jda.api.entities.Guild
 import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.channel.concrete.Category
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel
+import org.readutf.orchestrator.common.server.Server
 import org.readutf.orchestrator.common.template.ServiceTemplate
 import org.readutf.orchestrator.common.template.TemplateName
 import org.readutf.orchestrator.panel.components.ServiceComponent
@@ -46,13 +48,22 @@ class ServicesChannel(
         }
     }
 
-    fun updateEmbeds(templates: List<ServiceTemplate>) {
+    suspend fun updateEmbeds(templates: List<ServiceTemplate>, servers: List<Server>) {
         for (template in templates) {
             val embedId = embeds[template.name]
+            val message = embedId?.let { channel.retrieveMessageById(it).await() }
+
             if (embedId != null) {
                 channel.editMessageEmbedsById(embedId, ServiceComponent.getServiceComponent(template, 0, 0, "")).queue()
             } else {
-                channel.sendMessageEmbeds(ServiceComponent.getServiceComponent(template, 0, 0, "")).queue { message ->
+                channel.sendMessageEmbeds(
+                    ServiceComponent.getServiceComponent(
+                        serviceTemplate = template,
+                        players = 0,
+                        servers = servers.count { it.templateName == template.name },
+                        balancer = "",
+                    ),
+                ).queue { message ->
                     embeds[template.name] = message.idLong
                 }
             }
@@ -67,7 +78,8 @@ class ServicesChannel(
     }
 
     private fun createChannel(): TextChannel {
-        val existingChannel = settingsManager.getSettings().servicesChannelId?.let { categoryId -> guild.getTextChannelById(categoryId) }
+        val existingChannel =
+            settingsManager.getSettings().servicesChannelId?.let { categoryId -> guild.getTextChannelById(categoryId) }
         if (existingChannel != null) {
             logger.info { "Found existing services channel" }
             return existingChannel

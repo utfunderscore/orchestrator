@@ -4,15 +4,20 @@ import com.github.dockerjava.api.DockerClient
 import com.github.dockerjava.core.DefaultDockerClientConfig
 import com.github.dockerjava.core.DockerClientImpl
 import com.github.dockerjava.zerodep.ZerodepDockerHttpClient
+import org.jetbrains.exposed.sql.Database
 import org.readutf.orchestrator.common.template.ServiceTemplate
 import org.readutf.orchestrator.common.template.TemplateName
 import org.readutf.orchestrator.server.service.platform.docker.DockerContainerPlatform
+import java.sql.DriverManager
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
 class DockerContainerTest {
 
-    val containerPlatform = DockerContainerPlatform(createDockerClient("unix:///var/run/docker.sock"))
+    val jdbcUrl = "jdbc:sqlite:file:test?mode=memory&cache=shared"
+    val keepAliveConnection = DriverManager.getConnection(jdbcUrl)
+    val database = Database.connect(jdbcUrl, "org.sqlite.JDBC")
+    val containerPlatform = DockerContainerPlatform(createDockerClient("unix:///var/run/docker.sock"), database)
 
     @Test
     fun createAndStartContainer() {

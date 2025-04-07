@@ -50,6 +50,7 @@ tasks.jar {
 }
 
 tasks.getByName<ShadowJar>("shadowJar") {
+    dependsOn("createProperties")
     archiveFileName = "orchestrator.jar"
     doLast {
         outputs.files.forEach { file ->

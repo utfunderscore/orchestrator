@@ -29,9 +29,7 @@ constructor(
             capacityHandler { proxyServer.playerCount.toDouble() / maxPlayers }
         }
 
-        Thread {
-            orchestratorClient.connectBlocking()
-        }.start()
+        orchestratorClient.connect()
     }
 
     @Subscribe
